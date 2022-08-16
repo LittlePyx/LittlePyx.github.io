@@ -51,7 +51,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2022-08-14 20:09:19'
+  postUpdate: '2022-08-16 22:23:38'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -140,7 +140,55 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/kamuyi.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url('/img/miku.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小P的猫舍</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">小P的猫舍</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img class="post_bg" src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></span></div><div class="content">隶属函数的三种确定方法模糊统计法
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/kamuyi.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url('/img/miku.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小P的猫舍</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">小P的猫舍</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验"><img class="post_bg" src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正态分布检验"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验">正态分布检验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-16T14:19:27.000Z" title="Created 2022-08-16 22:19:27">2022-08-16</time></span></div><div class="content">JB 检验（样本量n&gt;30)对于一个随机变量{$X_i$} 假设其偏度为S，峰度为K，那么我们可以构造JB统计量：
+​           $\displaystyle JB=\frac{n}{6}[S^2+\frac{(K-3)^2}{4}]$ 
+正态分布偏度为0，峰度为3。如果{$X_i$}是正态分布，那么大样本情况下$JB\sim \chi^2(2)$（自由度为2的卡方分布）
+检验步骤：
+
+MATLAB
+h=0符合正态分布，h=1不符合正态分布
+计算该变量的偏度和峰度，得到检验值$JB^*$,并计算出其对应的p值
+将p值与0.05（显著性水平）比较，若小于0.05可拒绝原假设，否则不能拒绝原假设
+（如p值为0.02：在百分之九十五的置信水平下，我们拒绝原假设，即这个数据不符合正态分布）
+
+Shapiro-wilk检验（样本小3&lt;=n&lt;=50）
+SPSS：分析-描述统计-探索-图-含检验的正态图
+
+画Q-Q图Matlab  ： qqplot
+若近似在一条直线附近，则符合正态分布，数据量要非常大才能准确
+
+斯皮尔曼相关系数$\displaystyle r_s=1-\ ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型"><img class="post_bg" src="/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="优化模型"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型">优化模型</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-16T13:55:34.000Z" title="Created 2022-08-16 21:55:34">2022-08-16</time></span></div><div class="content">优化模型，引：
+如何配置产品及控制产量，以使生产效益最大化；
+如何分配和购买资源，以使生产成本最小化。
+
+线性规划模型特征：
+目标函数和约束条件全部为线性函数（一次多项式）；
+变量可取值范围是连续区间。
+
+整数线性规划模型特征：
+目标函数与所有约束均为线性函数；
+决策变量取值范围限定为整数。
+
+0-1整数规划模型特征：
+目标函数与所有约束条件均为线性函数；
+决策变量仅能取0或1
+
+数学规划分类
+连续型和离散型数学规划模型
+线性规划LP、整数线性规划IP、0-1整数规划是三种典型的数学规划
+目标或约束均为线性函数、决策变量既有整数又有非整数的，称为混合整数规划MILP
+目标函数或约束条件中含有非线性函数的数学规划称为非线性规划NLP。其中，决策变量取整数的非线性规划称为非线性整数规划
+
+数学规划的计算难度
+整数规划的计算复杂度远超过同规模的线性规划
+线性目标非线性约束模型通常比非线性目标函数、线性约束模型更难计算
+
+
+建模时应尽可能将目标、约束写出线性形式。
+
+非线性约束转化为线性约束例子：假设0-1决策变量$z_{ij}=1$时，要求决策变量$x_i\geqslant y_j$
+
+写法 ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img class="post_bg" src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></span></div><div class="content">隶属函数的三种确定方法模糊统计法
 原理：找多个人去对同一个模糊概念进行描述，用隶属频率定义隶属度&gt;
 
 
@@ -204,8 +252,83 @@ i(t)=\dfrac{i_0\mathrm{e}^{\beta t}}{1-i_0+i_0\mathrm{e}^{\beta t}}，i_0=i(0)SI
 判断相关性的方向
 
 要估计权重（回归系数）
-| 类型     | 模型                | Y的特点        | 例子               || ———— | —————————- | ——————— | ————————— || 线性回归 | OLS，GLS (最小二乘) | 连续数值型变量 | GDP、产量、收入    || 0-1回归  | logistic回归        | 二值变量(0-1)  | 是否违约，是否得病 || 定序回归 | probit定序回归      | 定序变量       | 等级评定（优良差） || 计数回归 | 泊松回归            | 计数变量       | 每分钟车流量       || 生存回归 | Cox等比例风险回归   | 生存变量(截断) | 企业、产品寿命     |
-不同数据类型处理方法| 数据类型     | 常见建模方法                           || —————— | ——————————————————— || 横截面数 ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析"><img class="post_bg" src="/img/green20220814.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="灰色关联分析"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析">灰色关联分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-14T10:03:05.000Z" title="Created 2022-08-14 18:03:05">2022-08-14</time></span></div><div class="content">系统分析：抽象系统如社会系统、经济系统、生态系统等，有众多的影响因素，系统分析用于研究因素对系统的影响
+
+
+
+
+
+
+类型
+模型
+Y的特点
+例子
+
+
+
+
+线性回归
+OLS，GLS (最小二乘)
+连续数值型变量
+GDP、产量、收入
+
+
+0-1回归
+logistic回归
+二值变量(0-1)
+是否违约，是否得病
+
+
+定序回归
+probit定序回归
+定序变量
+等级评定（优良差）
+
+
+计数回归
+泊松回归
+计数变量
+每分钟车流量
+
+
+生存回归
+Cox等比例风险回归
+生存变量(截断)
+企业、产品寿命
+
+
+
+
+不同数据类型处理方法
+
+
+
+数据类型
+常见建模方法
+
+
+
+
+横截面数据
+多元线性回归
+
+
+时间序列模型
+AR、MA、ARMA、ARIMA、ARCH、GARCH、VAR
+
+
+面板数据
+固定效应和随机效应、静态面板和动态面板
+
+
+
+
+横截面数据：在某一时点收集的不同对象的数据
+面板数据：综合以上两种
+
+一元线性回归模型$x$是自变量，$y$是因变量，有线性关系：
+$y_i=\beta_0+\beta_1x_i+\mu_i$
+$\beta_0$和$\beta_1$为回归系数，$u_i$为无法观测的且满足一定条件的扰动项，令
+$ ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析"><img class="post_bg" src="/img/green20220814.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="灰色关联分析"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析">灰色关联分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-08-14T10:03:05.000Z" title="Created 2022-08-14 18:03:05">2022-08-14</time></span></div><div class="content">系统分析：抽象系统如社会系统、经济系统、生态系统等，有众多的影响因素，系统分析用于研究因素对系统的影响
 系统分析方法：回归分析、方差分析、主成分分析（降维）、灰色关联分析
 前三者的不足之处：
 
@@ -242,4 +365,4 @@ $\displaystyle z_{ij}=x_{ij}/\sqrt{\sum_{i=1}^nx_{ij}^2}$
 感知机感知机由两层神经元组成，输入层接收外界输入信号后传递给输出层，输出层是M-P神经元模型。
 给定训练数据集，权重w_i以及阈值 $\theta$ 可通过学习得到，阈值$\theta$可以看作一个固定输入为-1.0的哑节点所对应的权重 $w_{n+1}$，这样可统一为权重的学习。
 学习规则：对训练样例 (\mathbf{x},y)，若当前感知机的输出为 $\hat{y}$，则感知机的权重调整规则为：$w_i\leftarrow w_i+\Delta w_i$,$\Delta w_i=\eta (y-\hat{y})x_i$。神经网络学到的东西，蕴含在连接权与阈值中。
-BP算法(误差逆传播算法)对于一个拥有 $d$ 个输入神经元，$l$ 个输出神经 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Little P</div><div class="author-info__description">记录生活</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">7</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"/></a><div class="content"><a class="title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟"><img src="/img/white2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="蒙特卡洛模拟"/></a><div class="content"><a class="title" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟">蒙特卡洛模拟</a><time datetime="2022-08-14T10:42:45.000Z" title="Created 2022-08-14 18:42:45">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型"><img src="/img/konachan318763.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="经典的传染病模型"/></a><div class="content"><a class="title" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型">经典的传染病模型</a><time datetime="2022-08-14T10:18:40.000Z" title="Created 2022-08-14 18:18:40">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E5%9B%9E%E5%BD%92/" title="回归"><img src="/img/blue2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="回归"/></a><div class="content"><a class="title" href="/2022/08/14/%E5%9B%9E%E5%BD%92/" title="回归">回归</a><time datetime="2022-08-14T10:04:21.000Z" title="Created 2022-08-14 18:04:21">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析"><img src="/img/green20220814.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="灰色关联分析"/></a><div class="content"><a class="title" href="/2022/08/14/%E7%81%B0%E8%89%B2%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="灰色关联分析">灰色关联分析</a><time datetime="2022-08-14T10:03:05.000Z" title="Created 2022-08-14 18:03:05">2022-08-14</time></div></div></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">August 2022</span><span class="card-archive-list-count">7</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">7</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2022-08-14T12:09:19.380Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Little P</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+BP算法(误差逆传播算法)对于一个拥有 $d$ 个输入神经元，$l$ 个输出神经 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Little P</div><div class="author-info__description">记录生活</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正态分布检验"/></a><div class="content"><a class="title" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验">正态分布检验</a><time datetime="2022-08-16T14:19:27.000Z" title="Created 2022-08-16 22:19:27">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="优化模型"/></a><div class="content"><a class="title" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型">优化模型</a><time datetime="2022-08-16T13:55:34.000Z" title="Created 2022-08-16 21:55:34">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"/></a><div class="content"><a class="title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟"><img src="/img/white2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="蒙特卡洛模拟"/></a><div class="content"><a class="title" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟">蒙特卡洛模拟</a><time datetime="2022-08-14T10:42:45.000Z" title="Created 2022-08-14 18:42:45">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型"><img src="/img/konachan318763.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="经典的传染病模型"/></a><div class="content"><a class="title" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型">经典的传染病模型</a><time datetime="2022-08-14T10:18:40.000Z" title="Created 2022-08-14 18:18:40">2022-08-14</time></div></div></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">August 2022</span><span class="card-archive-list-count">9</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">9</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2022-08-16T14:23:38.562Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Little P</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html><html lang="cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>优化模型 | 小P的猫舍</title><meta name="keywords" content="学习笔记 日记"><meta name="author" content="Little P"><meta name="copyright" content="Little P"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="优化模型，引： 如何配置产品及控制产量，以使生产效益最大化； 如何分配和购买资源，以使生产成本最小化。  线性规划模型特征： 目标函数和约束条件全部为线性函数（一次多项式）； 变量可取值范围是连续区间。  整数线性规划模型特征： 目标函数与所有约束均为线性函数； 决策变量取值范围限定为整数。  0-1整数规划模型特征： 目标函数与所有约束条件均为线性函数； 决策变量仅能取0或1  数学规划分类 连">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优化模型">
+<meta property="og:url" content="http://example.com/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="优化模型，引： 如何配置产品及控制产量，以使生产效益最大化； 如何分配和购买资源，以使生产成本最小化。  线性规划模型特征： 目标函数和约束条件全部为线性函数（一次多项式）； 变量可取值范围是连续区间。  整数线性规划模型特征： 目标函数与所有约束均为线性函数； 决策变量取值范围限定为整数。  0-1整数规划模型特征： 目标函数与所有约束条件均为线性函数； 决策变量仅能取0或1  数学规划分类 连">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg">
+<meta property="article:published_time" content="2022-08-16T13:55:34.000Z">
+<meta property="article:modified_time" content="2022-08-16T14:18:28.160Z">
+<meta property="article:author" content="Little P">
+<meta property="article:tag" content="学习笔记 日记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg"><link rel="shortcut icon" href="/img/kamuyi.jpg"><link rel="canonical" href="http://example.com/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '优化模型',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-08-16 22:18:28'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/kamuyi.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小P的猫舍</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">优化模型</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-08-16T13:55:34.000Z" title="Created 2022-08-16 21:55:34">2022-08-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-08-16T14:18:28.160Z" title="Updated 2022-08-16 22:18:28">2022-08-16</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="优化模型"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="优化模型，引："><a href="#优化模型，引：" class="headerlink" title="优化模型，引："></a>优化模型，引：</h3><blockquote>
+<p>如何配置产品及控制产量，以使生产效益最大化；</p>
+<p>如何分配和购买资源，以使生产成本最小化。</p>
+</blockquote>
+<h4 id="线性规划模型特征："><a href="#线性规划模型特征：" class="headerlink" title="线性规划模型特征："></a>线性规划模型特征：</h4><ol>
+<li>目标函数和约束条件全部为线性函数（一次多项式）；</li>
+<li>变量可取值范围是连续区间。</li>
+</ol>
+<h5 id="整数线性规划模型特征："><a href="#整数线性规划模型特征：" class="headerlink" title="整数线性规划模型特征："></a>整数线性规划模型特征：</h5><ol>
+<li>目标函数与所有约束均为线性函数；</li>
+<li>决策变量取值范围限定为整数。</li>
+</ol>
+<h5 id="0-1整数规划模型特征："><a href="#0-1整数规划模型特征：" class="headerlink" title="0-1整数规划模型特征："></a>0-1整数规划模型特征：</h5><ol>
+<li>目标函数与所有约束条件均为线性函数；</li>
+<li>决策变量仅能取0或1</li>
+</ol>
+<h3 id="数学规划分类"><a href="#数学规划分类" class="headerlink" title="数学规划分类"></a>数学规划分类</h3><ul>
+<li>连续型和离散型数学规划模型</li>
+<li>线性规划LP、整数线性规划IP、0-1整数规划是三种典型的数学规划</li>
+<li>目标或约束均为线性函数、决策变量既有整数又有非整数的，称为混合整数规划MILP</li>
+<li>目标函数或约束条件中含有非线性函数的数学规划称为非线性规划NLP。其中，决策变量取整数的非线性规划称为非线性整数规划</li>
+</ul>
+<h3 id="数学规划的计算难度"><a href="#数学规划的计算难度" class="headerlink" title="数学规划的计算难度"></a>数学规划的计算难度</h3><ul>
+<li>整数规划的计算复杂度远超过同规模的线性规划</li>
+<li>线性目标非线性约束模型通常比非线性目标函数、线性约束模型更难计算</li>
+</ul>
+<blockquote>
+<p>建模时应尽可能将目标、约束写出线性形式。</p>
+</blockquote>
+<h5 id="非线性约束转化为线性约束例子："><a href="#非线性约束转化为线性约束例子：" class="headerlink" title="非线性约束转化为线性约束例子："></a>非线性约束转化为线性约束例子：</h5><p>假设0-1决策变量$z_{ij}=1$时，要求决策变量$x_i\geqslant y_j$</p>
+<blockquote>
+<p>写法一：非线性：$x_i\geqslant y_iz_{ij}$</p>
+<p>写法二：线性：$x_i\geqslant y_i-M(1-z_{ij})$，其中$M$为充分大的整数</p>
+</blockquote>
+<h5 id="建立数学优化模型的流程："><a href="#建立数学优化模型的流程：" class="headerlink" title="建立数学优化模型的流程："></a>建立数学优化模型的流程：</h5><ul>
+<li>选择最佳的决策变量</li>
+<li>确定合适的目标函数（可能不止一个）</li>
+<li>根据问题的要求写出所有约束条件</li>
+<li>判定模型类型</li>
+<li>利用软件、算法求解数学规划</li>
+</ul>
+<h4 id="生活实例：送货问题"><a href="#生活实例：送货问题" class="headerlink" title="生活实例：送货问题"></a>生活实例：送货问题</h4><p>设某种货物有$m$个批发点$A_1,A_2,\cdots,A_m$，和$n$个零售店$B_1,B_2,\cdots,B_n$，其中$A_i$的库存量为$a_i$，$B_i$的订货量为$b_j$，批发点$A_i$运往零售店$B_j$的单位运价为$C_{ij},i=1,2,\cdots,m;j=1,2,\cdots,n.$求尽可能满足零售店订货要求且总费用最小的运输方案。</p>
+<blockquote>
+<p>设批发点$A_i$运往零售店$B_j$的运量为$x_{ij}$</p>
+<ul>
+<li><p>供需平衡$\displaystyle \sum_{i}a_i=\sum_{j}b_j$ </p>
+<p>$\displaystyle\min z=\sum_{i=1}^{n}\sum_{j=1}^{n}c_{ij}x_{ij}$ </p>
+<p>$s.t.\left\{\begin{array}{cc}\displaystyle \sum_{j=1}^{n}x_{ij}=a_i&amp;i=1,\cdots,m\\displaystyle\sum_{i=1}^{n}x_{ij}=b_j&amp;j=1,\cdots,n\x_{ij}\geq0,&amp; i=1,\cdots,m;j=1,\cdots,n\end{array}\right.$ </p>
+</li>
+<li><p>产大于销$\displaystyle \sum_{i}a_i&gt;\sum_{j}b_j$ </p>
+<p>$s.t.\left\{\begin{array}{cc}\displaystyle \sum_{j=1}^{n}x_{ij}\leq a_i&amp;i=1,\cdots,m\\displaystyle\sum_{i=1}^{n}x_{ij}=b_j&amp;j=1,\cdots,n\x_{ij}\geq0,&amp; i=1,\cdots,m;j=1,\cdots,n\end{array}\right.$ </p>
+</li>
+<li><p>销大于产也类似</p>
+</li>
+</ul>
+</blockquote>
+<p>运输问题变量较多，系数矩阵为0-1矩阵，其中大部分元素为0，是稀疏矩阵。有西北角法</p>
+<hr>
+<h4 id="西北角法："><a href="#西北角法：" class="headerlink" title="西北角法："></a>西北角法：</h4><p>从左上角格开始，在格内的右下角标上允许取得的最大数；然后按行（列）标下一格的数；若某行（列）的产量（销量）已满足，则把该行（列）的其他格划去；直到得到一个基本可行的解。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>供\价格\需</th>
+<th>B1</th>
+<th>B2</th>
+<th>B3</th>
+<th style="text-align:left">B4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>3</td>
+<td>11</td>
+<td>3</td>
+<td style="text-align:left">10</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>1</td>
+<td>9</td>
+<td>2</td>
+<td style="text-align:left">8</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>7</td>
+<td>4</td>
+<td>10</td>
+<td style="text-align:left">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>供\需</th>
+<th>B1</th>
+<th>B2</th>
+<th>B3</th>
+<th>B4</th>
+<th>供量（T）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>7</td>
+</tr>
+<tr>
+<td>A2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+</tr>
+<tr>
+<td>A3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>9</td>
+</tr>
+<tr>
+<td>需量（T）</td>
+<td>3</td>
+<td>6</td>
+<td>5</td>
+<td>6</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>首先在表格2的西北角方格（即左上角方格，对应$x_{11}$，尽可能取最小值：</p>
+<script type="math/tex; mode=display">x_{11}=\min\{3,7\}=3</script><p>将数值3填入该方格，由此可见$x_{21},x_{31}$必须为0，即第一列其他格方格都确定了，划去第一列，在剩下的方格中，找出其西北角方格$x_{12}$</p>
+<script type="math/tex; mode=display">x_{12}=\min\{6,7,-3\}=4</script><p>将4填入它所对应方格，第一行饱和，划去该行。再找西北角方格$x_{22}$</p>
+<script type="math/tex; mode=display">x_{12}=\min\{6,-4,4\}=2</script><p>将2填入$x_{22}$所对应方格，于是第二列饱和，划去该列，继续寻找西北方格$x_{23}$</p>
+<script type="math/tex; mode=display">x_{23}=\min\{5,4,-2\}=2</script><p>将2填入$x_{23}$所对应的方格，于是第二行饱和，划去改行，剩下方格的西北角方格为$x_{33}$</p>
+<script type="math/tex; mode=display">x_{33}=\min\{5,-2,9\}=3</script><p>将3填入$x_{33}$所对应方格，第三列饱和，划去该列。剩下$x_{34}$方格，取$x_{34}=6$</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>供\需</th>
+<th>B1</th>
+<th>B2</th>
+<th>B3</th>
+<th>B4</th>
+<th>供量（T）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>3</td>
+<td>4</td>
+<td></td>
+<td></td>
+<td>7</td>
+</tr>
+<tr>
+<td>A2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td></td>
+<td>4</td>
+</tr>
+<tr>
+<td>A3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>6</td>
+<td>9</td>
+</tr>
+<tr>
+<td>需量（T）</td>
+<td>3</td>
+<td>6</td>
+<td>5</td>
+<td>6</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%表上作业法求解运输问题</span></span><br><span class="line"><span class="comment">%要求每个产地和每个销地之间都可达（即运价不可以存在inf）</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[x,sigma]</span>=<span class="title">Transport</span><span class="params">(N,out,in)</span></span></span><br><span class="line"><span class="comment">%N:运价表   out:每个产地产量(按行输入)   in:每个销地销量(按行输入)</span></span><br><span class="line"><span class="comment">%x:最优运输方案</span></span><br><span class="line"></span><br><span class="line">sum_out=sum(out);</span><br><span class="line">sum_in=sum(in);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> sum_out&gt;sum_in          <span class="comment">%产大于销的情况，转换为产销平衡问题</span></span><br><span class="line">    [old_row,old_col]=<span class="built_in">size</span>(N);</span><br><span class="line">    new=<span class="built_in">zeros</span>(old_row,<span class="number">1</span>);</span><br><span class="line">    N=[N,new];</span><br><span class="line">    in=[in,sum_out-sum_in];</span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;该问题产大于销,方案最后一列为虚拟销地&quot;</span>)</span><br><span class="line"><span class="keyword">elseif</span> sum_in&gt;sum_out     <span class="comment">%销大于产的情况，转换为产销平衡问题</span></span><br><span class="line">    [old_row1,old_col1]=<span class="built_in">size</span>(N);</span><br><span class="line">    new1=<span class="built_in">zeros</span>(<span class="number">1</span>,old_col1);</span><br><span class="line">    N=[N;new1];</span><br><span class="line">    out=[out,sum_in-sum_out];</span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;该问题销大于产,方案最后一行为虚拟产地&quot;</span>)</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;该问题为产销平衡问题&quot;</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">[row,col]=<span class="built_in">size</span>(N);</span><br><span class="line">sigma=<span class="built_in">zeros</span>(row,col);<span class="comment">%定义检验数表</span></span><br><span class="line">x=-<span class="built_in">ones</span>(row,col);<span class="comment">%定义初始运输表</span></span><br><span class="line">ui=<span class="built_in">zeros</span>(row,<span class="number">1</span>);<span class="comment">%定义ui</span></span><br><span class="line">vj=<span class="built_in">zeros</span>(<span class="number">1</span>,col);<span class="comment">%定义vj</span></span><br><span class="line">out1=out;    <span class="comment">%求初始方案的运算过程的产量out1</span></span><br><span class="line">in1=in;       <span class="comment">%求初始方案的运算过程的销量in1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%求初始方案(西北角法)</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">        <span class="keyword">if</span> out1(<span class="built_in">i</span>)==<span class="number">0</span></span><br><span class="line">            out1(<span class="built_in">i</span>)=<span class="number">-1</span>;<span class="comment">%若该产地产量为0，则置为-1，即划掉该行</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">if</span> in1(<span class="built_in">j</span>)==<span class="number">0</span></span><br><span class="line">            in1(<span class="built_in">j</span>)=<span class="number">-1</span>; <span class="comment">%若该销地销量为0，则置为-1，即划掉该列</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">if</span> out1(<span class="built_in">i</span>)&gt;<span class="number">0</span>&amp;&amp;in1(<span class="built_in">j</span>)&gt;<span class="number">0</span></span><br><span class="line">          <span class="keyword">if</span> out1(<span class="built_in">i</span>)&gt;in1(<span class="built_in">j</span>)        </span><br><span class="line">            x(<span class="built_in">i</span>,<span class="built_in">j</span>)=in1(<span class="built_in">j</span>);           <span class="comment">%若产量大于销量，则该销地销量填入方案</span></span><br><span class="line">            out1(<span class="built_in">i</span>)=out1(<span class="built_in">i</span>)-x(<span class="built_in">i</span>,<span class="built_in">j</span>);  <span class="comment">%该产地剩余的产量</span></span><br><span class="line">            in1(<span class="built_in">j</span>)=in1(<span class="built_in">j</span>)-x(<span class="built_in">i</span>,<span class="built_in">j</span>);    <span class="comment">%该销地剩余的销量</span></span><br><span class="line">          <span class="keyword">else</span>                       </span><br><span class="line">            x(<span class="built_in">i</span>,<span class="built_in">j</span>)=out1(<span class="built_in">i</span>);          <span class="comment">%若销量大于产量，则直接将产地产量填入方案</span></span><br><span class="line">            in1(<span class="built_in">j</span>)=in1(<span class="built_in">j</span>)-x(<span class="built_in">i</span>,<span class="built_in">j</span>);    <span class="comment">%该产地剩余的产量</span></span><br><span class="line">            out1(<span class="built_in">i</span>)=out1(<span class="built_in">i</span>)-x(<span class="built_in">i</span>,<span class="built_in">j</span>);   <span class="comment">%该销地剩余的销量</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%迭代过程</span></span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span></span><br><span class="line"><span class="comment">%求检验数(位势法)</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">2</span>:row  <span class="comment">%初始化ui，除了第一个元素为0，其他所有ui元素变为inf</span></span><br><span class="line">    ui(<span class="built_in">i</span>)=<span class="built_in">inf</span>;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:col  <span class="comment">%初始化vj,所有vj元素变为inf</span></span><br><span class="line">   vj(<span class="built_in">i</span>)=<span class="built_in">inf</span>; </span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>    <span class="comment">%求ui,vj</span></span><br><span class="line">    checku=<span class="built_in">find</span>(ui==<span class="built_in">inf</span>);</span><br><span class="line">    checkv=<span class="built_in">find</span>(vj==<span class="built_in">inf</span>);</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isempty</span>(checku)&amp;&amp;<span class="built_in">isempty</span>(checkv)  <span class="comment">%当ui,vj都不为inf时,ui和vj计算完成,跳出循环</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">       <span class="keyword">if</span> x(<span class="built_in">i</span>,<span class="built_in">j</span>)~=<span class="number">-1</span></span><br><span class="line">          <span class="keyword">if</span> ui(<span class="built_in">i</span>)==<span class="built_in">inf</span>&amp;&amp;vj(<span class="built_in">j</span>)==<span class="built_in">inf</span><span class="comment">%若ui,vj全为inf,则先跳过计算</span></span><br><span class="line">              <span class="keyword">continue</span>;</span><br><span class="line">          <span class="keyword">elseif</span> vj(<span class="built_in">j</span>)==<span class="built_in">inf</span></span><br><span class="line">             vj(<span class="built_in">j</span>)=N(<span class="built_in">i</span>,<span class="built_in">j</span>)-ui(<span class="built_in">i</span>);<span class="comment">%若vj为inf,ui不为inf,计算vj</span></span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">              ui(<span class="built_in">i</span>)=N(<span class="built_in">i</span>,<span class="built_in">j</span>)-vj(<span class="built_in">j</span>);<span class="comment">%若ui为inf,vj不为inf,计算ui</span></span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">       <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span>    </span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row  <span class="comment">%初始化检验数表，所有元素变为inf</span></span><br><span class="line">   <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">      sigma(<span class="built_in">i</span>,<span class="built_in">j</span>)=<span class="built_in">inf</span>; </span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row  <span class="comment">%计算检验数表</span></span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">        <span class="keyword">if</span> x(<span class="built_in">i</span>,<span class="built_in">j</span>)==<span class="number">-1</span></span><br><span class="line">            sigma(<span class="built_in">i</span>,<span class="built_in">j</span>)=N(<span class="built_in">i</span>,<span class="built_in">j</span>)-ui(<span class="built_in">i</span>)-vj(<span class="built_in">j</span>);          </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">%判断是否得到最优方案</span></span><br><span class="line"><span class="keyword">if</span> sigma&gt;<span class="number">0</span>   </span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;有唯一最优方案,最优方案为(表中-1表示空格):&quot;</span>)</span><br><span class="line"><span class="comment">%  可将最优方案中的-1点变为0,更美观,若执行此操作,还应删去计算最小运价过程中的判断条件</span></span><br><span class="line"><span class="comment">%  当最优方案中存在运量为0时,此操作会影响对方案的阅读</span></span><br><span class="line"><span class="comment">%     for i=1:row   </span></span><br><span class="line"><span class="comment">%        for j=1:col    </span></span><br><span class="line"><span class="comment">%           if x(i,j)==-1</span></span><br><span class="line"><span class="comment">%               x(i,j)=0;</span></span><br><span class="line"><span class="comment">%           end</span></span><br><span class="line"><span class="comment">%        end</span></span><br><span class="line"><span class="comment">%     end</span></span><br><span class="line">    x</span><br><span class="line">    sum_min=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row   <span class="comment">%计算最小运价</span></span><br><span class="line">       <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">           <span class="keyword">if</span> x(<span class="built_in">i</span>,<span class="built_in">j</span>)~=<span class="number">-1</span></span><br><span class="line">              sum_min=sum_min+x(<span class="built_in">i</span>,<span class="built_in">j</span>)*N(<span class="built_in">i</span>,<span class="built_in">j</span>);</span><br><span class="line">           <span class="keyword">end</span></span><br><span class="line">       <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;最小运价为：&quot;</span>)</span><br><span class="line">    sum_min</span><br><span class="line">     <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">elseif</span> sigma&gt;=<span class="number">0</span></span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;最优方案不唯一,其中一个为(表中-1表示空格):&quot;</span>)</span><br><span class="line"><span class="comment">%   可将最终结果中的-1点变为0,更美观,若执行此操作,还应删去计算最小运价过程中的判断条件</span></span><br><span class="line"><span class="comment">%   当最优方案中存在运量为0时,此操作会影响对方案的阅读</span></span><br><span class="line"><span class="comment">%      for i=1:row  </span></span><br><span class="line"><span class="comment">%        for j=1:col     </span></span><br><span class="line"><span class="comment">%           if x(i,j)==-1</span></span><br><span class="line"><span class="comment">%               x(i,j)=0;</span></span><br><span class="line"><span class="comment">%           end</span></span><br><span class="line"><span class="comment">%        end</span></span><br><span class="line"><span class="comment">%      end</span></span><br><span class="line">     x</span><br><span class="line">     sum_min=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row  <span class="comment">%计算最小运价</span></span><br><span class="line">       <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">          <span class="keyword">if</span> x(<span class="built_in">i</span>,<span class="built_in">j</span>)~=<span class="number">-1</span></span><br><span class="line">              sum_min=sum_min+x(<span class="built_in">i</span>,<span class="built_in">j</span>)*N(<span class="built_in">i</span>,<span class="built_in">j</span>);</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">       <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span> </span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&quot;最小运价为：&quot;</span>)</span><br><span class="line">    sum_min</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"><span class="comment">%闭回路调整法</span></span><br><span class="line">visit=x;    </span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row        <span class="comment">%初始化访问表,可以被访问的点标为0</span></span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">        <span class="keyword">if</span> visit(<span class="built_in">i</span>,<span class="built_in">j</span>)~=<span class="number">-1</span></span><br><span class="line">            visit(<span class="built_in">i</span>,<span class="built_in">j</span>)=<span class="number">0</span>;  </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">m=<span class="built_in">min</span>(sigma(sigma&lt;<span class="number">0</span>));<span class="comment">%找到小于零的最小检验数m</span></span><br><span class="line">[r2,c2]=<span class="built_in">find</span>(sigma==m);<span class="comment">%找到m的位置</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%记录m的行标和列标,由于可能出现检验数相同的情况,我们取其中第一个</span></span><br><span class="line">r=r2(<span class="number">1</span>);</span><br><span class="line">c=c2(<span class="number">1</span>);</span><br><span class="line">r1=r2(<span class="number">1</span>);          </span><br><span class="line">c1=c2(<span class="number">1</span>); </span><br><span class="line"></span><br><span class="line">visit(r,c)=<span class="number">2</span>;  <span class="comment">%标记m已被访问,记为2   </span></span><br><span class="line">circle=-<span class="built_in">ones</span>(row+col+<span class="number">1</span>,<span class="number">3</span>);  <span class="comment">%定义闭回路路径表</span></span><br><span class="line"><span class="comment">%circle表的结构:[行标  列标  运量]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%将起点(m点)填入路径表</span></span><br><span class="line">circle(<span class="number">1</span>,<span class="number">1</span>)=r1;</span><br><span class="line">circle(<span class="number">1</span>,<span class="number">2</span>)=c1;</span><br><span class="line">p=<span class="number">2</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">%找闭回路</span></span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>  </span><br><span class="line">   <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row         <span class="comment">%找第c列中有无未被访问的点</span></span><br><span class="line">      <span class="keyword">if</span> visit(<span class="built_in">i</span>,c)==<span class="number">0</span>  <span class="comment">%若该点未被访问,则访问该点,进行标记并存入路径表</span></span><br><span class="line">         visit(<span class="built_in">i</span>,c)=<span class="number">1</span>;</span><br><span class="line">         r=<span class="built_in">i</span>;           <span class="comment">%记录该点行标</span></span><br><span class="line">         circle(p,<span class="number">1</span>)=<span class="built_in">i</span>; </span><br><span class="line">         circle(p,<span class="number">2</span>)=c;</span><br><span class="line">         circle(p,<span class="number">3</span>)=x(<span class="built_in">i</span>,c);</span><br><span class="line">         p=p+<span class="number">1</span>;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line">   </span><br><span class="line">   <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col         <span class="comment">%找第r行中有无未被访问的点</span></span><br><span class="line">      <span class="keyword">if</span> visit(r,<span class="built_in">j</span>)==<span class="number">0</span> <span class="comment">%若该点未被访问,则访问该点,进行标记并存入路径表</span></span><br><span class="line">         visit(r,<span class="built_in">j</span>)=<span class="number">1</span>;</span><br><span class="line">         c=<span class="built_in">j</span>;          <span class="comment">%记录该点列标</span></span><br><span class="line">         circle(p,<span class="number">1</span>)=r;</span><br><span class="line">         circle(p,<span class="number">2</span>)=<span class="built_in">j</span>;</span><br><span class="line">         circle(p,<span class="number">3</span>)=x(r,<span class="built_in">j</span>);</span><br><span class="line">         p=p+<span class="number">1</span>;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line">   </span><br><span class="line">   a=<span class="built_in">find</span>(visit(r,:)==<span class="number">0</span>);</span><br><span class="line">   b=<span class="built_in">find</span>(visit(:,c)==<span class="number">0</span>);</span><br><span class="line">   a1=<span class="built_in">find</span>(visit(r,:)==<span class="number">2</span>);</span><br><span class="line">   b1=<span class="built_in">find</span>(visit(:,c)==<span class="number">2</span>);</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">isempty</span>(a)&amp;&amp;<span class="built_in">isempty</span>(b)  <span class="comment">%判断该点所在行和列中有无未被访问的点</span></span><br><span class="line">       <span class="keyword">if</span> ~<span class="built_in">isempty</span>(a1)||~<span class="built_in">isempty</span>(b1)  <span class="comment">%判断最后访问点是否与起始点在同一行或同一列，若是则跳出循环，找到闭回路</span></span><br><span class="line">           <span class="keyword">break</span>;</span><br><span class="line">       <span class="keyword">else</span>           <span class="comment">%若不是,则将该点置为-1(此路不通,下次循环不走此路),重置访问表和路径表,开始下一次循环</span></span><br><span class="line">           visit(r,c)=<span class="number">-1</span>;</span><br><span class="line">           <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row</span><br><span class="line">              <span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:col</span><br><span class="line">                  <span class="keyword">if</span> visit(<span class="built_in">i</span>,<span class="built_in">j</span>)==<span class="number">1</span></span><br><span class="line">                     visit(<span class="built_in">i</span>,<span class="built_in">j</span>)=<span class="number">0</span>;</span><br><span class="line">                  <span class="keyword">end</span></span><br><span class="line">              <span class="keyword">end</span></span><br><span class="line">           <span class="keyword">end</span></span><br><span class="line">       </span><br><span class="line">      r=r1;</span><br><span class="line">      c=c1;</span><br><span class="line">    </span><br><span class="line">      circle=-<span class="built_in">ones</span>(row+col,<span class="number">3</span>);</span><br><span class="line">      circle(<span class="number">1</span>,<span class="number">1</span>)=r1;</span><br><span class="line">      circle(<span class="number">1</span>,<span class="number">2</span>)=c1;</span><br><span class="line">       p=<span class="number">2</span>;</span><br><span class="line">       <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">end</span>   </span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">[rows,cols]=<span class="built_in">size</span>(circle);</span><br><span class="line"><span class="comment">%定义circle表时我们给了足够大的维度,而由于闭回路可能无法包括所有点,现在要将多余行删去</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:rows   </span><br><span class="line">    <span class="keyword">if</span> circle(<span class="built_in">i</span>,<span class="number">1</span>)==<span class="number">-1</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">circle(<span class="built_in">i</span>:rows,:)=[];</span><br><span class="line"></span><br><span class="line"><span class="comment">%开始找闭回路中的顶点表</span></span><br><span class="line">add=circle(<span class="number">1</span>,:);</span><br><span class="line">circle=[circle;add];  <span class="comment">%将起始点填入circle表,形成完整的闭回路</span></span><br><span class="line">[row1,col1]=<span class="built_in">size</span>(circle);</span><br><span class="line"><span class="built_in">i</span>=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">%若闭回路中同一行或同一列中有两个以上的点,则删去中间点,只留下顶点</span></span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>             </span><br><span class="line">     <span class="keyword">if</span> <span class="built_in">i</span>==row1<span class="number">-1</span></span><br><span class="line">       <span class="keyword">break</span>; </span><br><span class="line">     <span class="keyword">end</span></span><br><span class="line">    <span class="built_in">i</span>=<span class="built_in">i</span>+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (circle(<span class="built_in">i</span><span class="number">-1</span>,<span class="number">1</span>)==circle(<span class="built_in">i</span>+<span class="number">1</span>,<span class="number">1</span>))</span><br><span class="line">        circle(<span class="built_in">i</span>,:)=[];</span><br><span class="line">        row1=row1<span class="number">-1</span>;</span><br><span class="line">        <span class="built_in">i</span>=<span class="built_in">i</span><span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span> (circle(<span class="built_in">i</span><span class="number">-1</span>,<span class="number">2</span>)==circle(<span class="built_in">i</span>+<span class="number">1</span>,<span class="number">2</span>))</span><br><span class="line">        circle(<span class="built_in">i</span>,:)=[];</span><br><span class="line">        row1=row1<span class="number">-1</span>; </span><br><span class="line">        <span class="built_in">i</span>=<span class="built_in">i</span><span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">end</span> </span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%由于起始点在闭回路中出现了两次,因此删去第二次出现的起始点</span></span><br><span class="line">k=<span class="built_in">find</span>(circle(:,<span class="number">3</span>)==<span class="number">-1</span>);</span><br><span class="line">circle(k(<span class="number">2</span>),:)=[];</span><br><span class="line"></span><br><span class="line">[row2,col2]=<span class="built_in">size</span>(circle);</span><br><span class="line"></span><br><span class="line"><span class="comment">%将顶点中奇数编号和偶数编号分开</span></span><br><span class="line"><span class="comment">%顶点表的结构:[行标  列标  运量]</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">mod</span>(row2,<span class="number">2</span>)==<span class="number">0</span>    <span class="comment">%若顶点总数是偶数</span></span><br><span class="line">    single=<span class="built_in">zeros</span>(row2/<span class="number">2</span>,<span class="number">3</span>);  <span class="comment">%定义奇数编号顶点表</span></span><br><span class="line">    double=<span class="built_in">zeros</span>(row2/<span class="number">2</span>,<span class="number">3</span>);  <span class="comment">%定义偶数编号顶点表</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">mod</span>(row2,<span class="number">2</span>)==<span class="number">1</span>    <span class="comment">%若顶点总数是奇数</span></span><br><span class="line">   single=<span class="built_in">zeros</span>(row2/<span class="number">2</span>+<span class="number">0.5</span>,<span class="number">3</span>);   <span class="comment">%定义奇数编号顶点表</span></span><br><span class="line">   double=<span class="built_in">zeros</span>(row2/<span class="number">2</span><span class="number">-0.5</span>,<span class="number">3</span>);   <span class="comment">%定义偶数编号顶点表</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">j1=<span class="number">1</span>;</span><br><span class="line">j2=<span class="number">1</span>;</span><br><span class="line"><span class="comment">%将闭回路中的点按编号分别存入奇数顶点表和偶数顶点表</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row2</span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">i</span>,<span class="number">2</span>)==<span class="number">1</span></span><br><span class="line">       single(j1,:)=circle(<span class="built_in">i</span>,:);</span><br><span class="line">       j1=j1+<span class="number">1</span>;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line">   <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">i</span>,<span class="number">2</span>)==<span class="number">0</span></span><br><span class="line">      double(j2,:)=circle(<span class="built_in">i</span>,:);</span><br><span class="line">      j2=j2+<span class="number">1</span>;</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">%更新运量表</span></span><br><span class="line">value=double(:,<span class="number">3</span>);</span><br><span class="line">[min_x,index]=<span class="built_in">min</span>(value(value&gt;=<span class="number">0</span>));<span class="comment">%找到偶数顶点的运量最小值及其位置</span></span><br><span class="line">x(r1,c1)=min_x;       <span class="comment">%把该运量最小值填入闭回路起始点的运量</span></span><br><span class="line">x(double(index,<span class="number">1</span>),double(index,<span class="number">2</span>))=<span class="number">-1</span>;  <span class="comment">%把该偶数顶点的运量标记为-1</span></span><br><span class="line">double(index,:)=[];    <span class="comment">%将该偶数顶点从偶数顶点表中删去,以免影响后续计算</span></span><br><span class="line"></span><br><span class="line">[row3,col3]=<span class="built_in">size</span>(single);</span><br><span class="line">[row4,col4]=<span class="built_in">size</span>(double);</span><br><span class="line"><span class="comment">%将奇数编号顶点的运量加上min_x</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">2</span>:row3</span><br><span class="line">   x(single(<span class="built_in">i</span>,<span class="number">1</span>),single(<span class="built_in">i</span>,<span class="number">2</span>))=single(<span class="built_in">i</span>,<span class="number">3</span>)+min_x;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">%将偶数编号顶点的运量减去min_x</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:row4</span><br><span class="line">    x(double(<span class="built_in">i</span>,<span class="number">1</span>),double(<span class="built_in">i</span>,<span class="number">2</span>))=double(<span class="built_in">i</span>,<span class="number">3</span>)-min_x;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="最小元素法"><a href="#最小元素法" class="headerlink" title="最小元素法"></a>最小元素法</h4><p>运价最小的优先调运，即从单位运价中最小的运价开始确定供销关系，然后次小，一直到给出初始基本可行解为止。</p>
+<p><img src="\img\image-20220816174913538.png" alt="image-20220816174913538"></p>
+<p>然后，在运价表中未划去的元素中找最小运价$A_2B_3= 2$，让$A_2$尽量供应满足$B_3$的需要，由于$A_2$的4已经供应了3T给$B_1$，最多只能供应1T给$B_3$。于是在平衡表的$A_2B_3$格中填上“1”；相应地由于$A_2$所生产的产品已全部供应完毕，因此，在运价表中与$A_2$同行的运价也不再起作用，所以也将它们划去，并标注②。</p>
+<p>仿照上面的做法，一直做下去，就可以得到表4。</p>
+<p><img src="\img\QQ图片20220816220052.png" alt="QQ图片20220816220052"></p>
+<p><img src="\img\QQ图片20220816220142.png" alt="QQ图片20220816220142"></p>
+<p>此时，在运价表中只有$A_1B_4$对应的运价10没有划掉，而$B_4$尚有3T需求，为了满足供需平衡，所以最后在平衡表上对应$A_1B_4$处应填入“3”，这样就得到表5。</p>
+<p><img src="\img\QQ图片20220816220250.png" alt="QQ图片20220816220250"></p>
+<p>需要注意的是，作为初始方案的调运方案，其填有数字的方格数应是供应点个数加需求点个数之和再减1，即（m+n-1），即表上作业法)要寻求的基变量是（m+n-1）个。当遇到退化情形同时划掉一行一列的时候，需要进行补0，使基变量保持在（m+n-1）个，这是能让初始方案进行检验与调整的前提。</p>
+<p><strong>第三步：初始方案的检验与调整。</strong></p>
+<p>应用最小元素法编制初始调运方案，这里的“最小”系指局部而言，就整体考虑的运费不见得一定是最小的，有时按照某一最小单位运价优先安排物品调运是，却可能导致不得不采用运费很高的其他供销点对，从而使整个运输费用增加。</p>
+<p>因此得到了运输问题的初始基可行解之后，即对应这个解进行最优性判别，看它是不是最优解。，改进初始基本可行解有两种最常用的方法：闭回路法和对偶变量法（位势法）。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">B</span> = <span class="title">MinElement</span><span class="params">(A,S,D)</span></span></span><br><span class="line"><span class="comment">%实现按最小元素法生成运输问题的初始基可行解</span></span><br><span class="line"><span class="comment">%A为运价矩阵, S为供应向量, D为需求向量</span></span><br><span class="line"><span class="comment">%返回B为初始可行调运方案</span></span><br><span class="line">M = <span class="number">10000</span>;      <span class="comment">%足够大数, 大于所有运价</span></span><br><span class="line">[m,n] = <span class="built_in">size</span>(A);</span><br><span class="line">B = <span class="built_in">zeros</span>(m,n) * NaN; <span class="comment">%存放结果</span></span><br><span class="line"><span class="keyword">while</span> <span class="built_in">true</span></span><br><span class="line">    [~,I] = <span class="built_in">min</span>(A(:));</span><br><span class="line">    [Ir,Ic] = <span class="built_in">ind2sub</span>([m,n],I);  <span class="comment">%最小元索引, 确定供应位置</span></span><br><span class="line">    <span class="comment">%进行调运</span></span><br><span class="line">    <span class="keyword">if</span> S(Ir) &gt; D(Ic)             <span class="comment">%若供应大于需求</span></span><br><span class="line">        B(Ir,Ic) = D(Ic);</span><br><span class="line">        S(Ir) = S(Ir) - D(Ic);</span><br><span class="line">        D(Ic) = <span class="number">0</span>;</span><br><span class="line">        A(:,Ic) = M;</span><br><span class="line">    <span class="keyword">elseif</span> S(Ir) &lt; D(Ic)         <span class="comment">%若供应小于需求</span></span><br><span class="line">        B(Ir,Ic) = S(Ir);</span><br><span class="line">        D(Ic) = D(Ic) - S(Ir); </span><br><span class="line">        S(Ir) = <span class="number">0</span>;</span><br><span class="line">        A(Ir,:) = M;               </span><br><span class="line">    <span class="keyword">else</span>                         <span class="comment">%若供应等于需求</span></span><br><span class="line">        B(Ir,Ic) = S(Ir);</span><br><span class="line">        S(Ir) = <span class="number">0</span>;</span><br><span class="line">        D(Ic) = <span class="number">0</span>;</span><br><span class="line">        A(Ir,:) = M;</span><br><span class="line">        A(:,Ic) = M;</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">min</span>(<span class="built_in">min</span>(A)) == M</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            ind = <span class="built_in">find</span>(<span class="built_in">isnan</span>(B(:,Ic))); </span><br><span class="line">            B(ind(<span class="number">1</span>),Ic) = <span class="number">0</span>;           <span class="comment">%补0  </span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="沃格尔法"><a href="#沃格尔法" class="headerlink" title="沃格尔法"></a>沃格尔法</h4><p>伏格尔 (Vogel) 法又称差值法。这种方法考虑到某产地的产品如不能按最小运费就近供应，就考虑次小运费，这里就有一个差额，称为罚数。罚数越大，说明不能按最小运费调运时，运费增加越多。因而对罚数最大处，就应当采用最小运费调运。<br>Vogel法一般能得到一个比用西北角法和最小元素法所得的初始基本可行解更好的初始基本可行解。使用Vogel法时，先计算出各行各列中的罚数（最小的成本系数cij和次小的成本系数cij之间的差的绝对值），在具有最大罚数的行/列中，选择具有最小的cij的方格来填入基变量值。这样就可以避免将运量分配到该行/列具有次小的成本cij的方格中（如果填入本格会使成本大幅增加），以保证有较小的目标函数值。所以，伏格尔法的基本步骤如下：</p>
+<ul>
+<li>算出各行各列的罚数，并标出最大罚数（若几个差额同为最大，则可任取其一）；</li>
+<li>在罚数最大的行或列中的最小元素处填上尽可能大的数（由该行该列对应的资源向量a和需求向量b决定，选择较小的那个值）；</li>
+<li>划去满足条件（资源已耗尽/需求已满足）的行/列，并修改对应的向量a和b；</li>
+<li>对未划去的行列重复以上步骤，直到得到一个初始解。</li>
+</ul>
+<p>由此可见，Vogel法同最小元素法除在确定供求关系的原则上不同外，其余步骤相同。Vogel法给出的初始基可行解比用最小元素法更接近最优解。</p>
+<p><img src="\img\QQ图片20220816220326.png" alt="QQ图片20220816220326"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#运输问题求解：使用Vogel逼近法寻找初始基本可行解</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">TP_split_matrix</span>(<span class="params">mat</span>):</span><br><span class="line">    c=mat[:-<span class="number">1</span>,:-<span class="number">1</span>]</span><br><span class="line">    a=mat[:-<span class="number">1</span>,-<span class="number">1</span>]</span><br><span class="line">    b=mat[-<span class="number">1</span>,:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> (c,a,b)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">TP_vogel</span>(<span class="params">var</span>): <span class="comment">#Vogel法代码，变量var可以是以numpy.ndarray保存的运输表，或以tuple或list保存的(成本矩阵,供给向量,需求向量)</span></span><br><span class="line">    <span class="keyword">import</span> numpy</span><br><span class="line">    typevar1=<span class="built_in">type</span>(var)==numpy.ndarray</span><br><span class="line">    typevar2=<span class="built_in">type</span>(var)==<span class="built_in">tuple</span></span><br><span class="line">    typevar3=<span class="built_in">type</span>(var)==<span class="built_in">list</span></span><br><span class="line">    <span class="keyword">if</span> typevar1==<span class="literal">False</span> <span class="keyword">and</span> typevar2==<span class="literal">False</span> <span class="keyword">and</span> typevar3==<span class="literal">False</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;非法变量&lt;&lt;&lt;&#x27;</span>)</span><br><span class="line">        (cost,x)=(<span class="literal">None</span>,<span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> typevar1==<span class="literal">True</span>:</span><br><span class="line">            [c,a,b]=TP_split_matrix(var)</span><br><span class="line">        <span class="keyword">elif</span> typevar2==<span class="literal">True</span> <span class="keyword">or</span> typevar3==<span class="literal">True</span>:</span><br><span class="line">            [c,a,b]=var</span><br><span class="line">        cost=copy.deepcopy(c)</span><br><span class="line">        x=np.zeros(c.shape)</span><br><span class="line">        M=<span class="built_in">pow</span>(<span class="number">10</span>,<span class="number">9</span>)</span><br><span class="line">        <span class="keyword">for</span> factor <span class="keyword">in</span> c.reshape(<span class="number">1</span>,-<span class="number">1</span>)[<span class="number">0</span>]:</span><br><span class="line">            <span class="keyword">while</span> <span class="built_in">int</span>(factor)!=M:</span><br><span class="line">                <span class="keyword">if</span> np.<span class="built_in">all</span>(c==M):</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;c:\n&#x27;</span>,c)</span><br><span class="line">                    <span class="comment">#获取行/列最小值数组</span></span><br><span class="line">                    row_mini1=[]</span><br><span class="line">                    row_mini2=[]</span><br><span class="line">                    <span class="keyword">for</span> row <span class="keyword">in</span> <span class="built_in">range</span>(c.shape[<span class="number">0</span>]):</span><br><span class="line">                        Row=<span class="built_in">list</span>(c[row,:])</span><br><span class="line">                        row_min=<span class="built_in">min</span>(Row)</span><br><span class="line">                        row_mini1.append(row_min)</span><br><span class="line">                        Row.remove(row_min)</span><br><span class="line">                        row_2nd_min=<span class="built_in">min</span>(Row)</span><br><span class="line">                        row_mini2.append(row_2nd_min)</span><br><span class="line">                    <span class="comment">#print(row_mini1,&#x27;\n&#x27;,row_mini2)</span></span><br><span class="line">                    r_pun=[row_mini2[i]-row_mini1[i] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(row_mini1))]</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;行罚数：&#x27;</span>,r_pun)</span><br><span class="line">                    <span class="comment">#计算列罚数</span></span><br><span class="line">                    col_mini1=[]</span><br><span class="line">                    col_mini2=[]</span><br><span class="line">                    <span class="keyword">for</span> col <span class="keyword">in</span> <span class="built_in">range</span>(c.shape[<span class="number">1</span>]):</span><br><span class="line">                        Col=<span class="built_in">list</span>(c[:,col])</span><br><span class="line">                        col_min=<span class="built_in">min</span>(Col)</span><br><span class="line">                        col_mini1.append(col_min)</span><br><span class="line">                        Col.remove(col_min)</span><br><span class="line">                        col_2nd_min=<span class="built_in">min</span>(Col)</span><br><span class="line">                        col_mini2.append(col_2nd_min)</span><br><span class="line">                    c_pun=[col_mini2[i]-col_mini1[i] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(col_mini1))]</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;列罚数：&#x27;</span>,c_pun)</span><br><span class="line">                    pun=copy.deepcopy(r_pun)</span><br><span class="line">                    pun.extend(c_pun)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;罚数向量：&#x27;</span>,pun)</span><br><span class="line">                    max_pun=<span class="built_in">max</span>(pun)</span><br><span class="line">                    max_pun_index=pun.index(<span class="built_in">max</span>(pun))</span><br><span class="line">                    max_pun_num=max_pun_index+<span class="number">1</span></span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;最大罚数：&#x27;</span>,max_pun,<span class="string">&#x27;元素序号：&#x27;</span>,max_pun_num)</span><br><span class="line">                    <span class="keyword">if</span> max_pun_num&lt;=<span class="built_in">len</span>(r_pun):</span><br><span class="line">                        row_num=max_pun_num</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&#x27;对第&#x27;</span>,row_num,<span class="string">&#x27;行进行操作：&#x27;</span>)</span><br><span class="line">                        row_index=row_num-<span class="number">1</span></span><br><span class="line">                        catch_row=c[row_index,:]</span><br><span class="line">                        <span class="built_in">print</span>(catch_row)</span><br><span class="line">                        min_cost_colindex=<span class="built_in">int</span>(np.argwhere(catch_row==<span class="built_in">min</span>(catch_row)))</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&#x27;最小成本所在列索引：&#x27;</span>,min_cost_colindex)</span><br><span class="line">                        <span class="keyword">if</span> a[row_index]&lt;=b[min_cost_colindex]:</span><br><span class="line">                            x[row_index,min_cost_colindex]=a[row_index]</span><br><span class="line">                            c1=copy.deepcopy(c)</span><br><span class="line">                            c1[row_index,:]=[M]*c1.shape[<span class="number">1</span>]</span><br><span class="line">                            b[min_cost_colindex]-=a[row_index]</span><br><span class="line">                            a[row_index]-=a[row_index]</span><br><span class="line">                        <span class="keyword">else</span>:</span><br><span class="line">                            x[row_index,min_cost_colindex]=b[min_cost_colindex]</span><br><span class="line">                            c1=copy.deepcopy(c)</span><br><span class="line">                            c1[:,min_cost_colindex]=[M]*c1.shape[<span class="number">0</span>]</span><br><span class="line">                            a[row_index]-=b[min_cost_colindex]</span><br><span class="line">                            b[min_cost_colindex]-=b[min_cost_colindex]</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        col_num=max_pun_num-<span class="built_in">len</span>(r_pun)</span><br><span class="line">                        col_index=col_num-<span class="number">1</span></span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&#x27;对第&#x27;</span>,col_num,<span class="string">&#x27;列进行操作：&#x27;</span>)</span><br><span class="line">                        catch_col=c[:,col_index]</span><br><span class="line">                        <span class="built_in">print</span>(catch_col)</span><br><span class="line">                        <span class="comment">#寻找最大罚数所在行/列的最小成本系数</span></span><br><span class="line">                        min_cost_rowindex=<span class="built_in">int</span>(np.argwhere(catch_col==<span class="built_in">min</span>(catch_col)))</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&#x27;最小成本所在行索引：&#x27;</span>,min_cost_rowindex)</span><br><span class="line">                        <span class="comment">#计算将该位置应填入x矩阵的数值（a,b中较小值）</span></span><br><span class="line">                        <span class="keyword">if</span> a[min_cost_rowindex]&lt;=b[col_index]:</span><br><span class="line">                            x[min_cost_rowindex,col_index]=a[min_cost_rowindex]</span><br><span class="line">                            c1=copy.deepcopy(c)</span><br><span class="line">                            c1[min_cost_rowindex,:]=[M]*c1.shape[<span class="number">1</span>]</span><br><span class="line">                            b[col_index]-=a[min_cost_rowindex]</span><br><span class="line">                            a[min_cost_rowindex]-=a[min_cost_rowindex]</span><br><span class="line">                        <span class="keyword">else</span>:</span><br><span class="line">                            x[min_cost_rowindex,col_index]=b[col_index]</span><br><span class="line">                            <span class="comment">#填入后删除已满足/耗尽资源系数的行/列，得到剩余的成本矩阵，并改写资源系数</span></span><br><span class="line">                            c1=copy.deepcopy(c)</span><br><span class="line">                            c1[:,col_index]=[M]*c1.shape[<span class="number">0</span>]</span><br><span class="line">                            a[min_cost_rowindex]-=b[col_index]</span><br><span class="line">                            b[col_index]-=b[col_index]</span><br><span class="line">                    c=c1</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;本次迭代后的x矩阵：\n&#x27;</span>,x)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;a:&#x27;</span>,a)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;b:&#x27;</span>,b)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;c:\n&#x27;</span>,c)</span><br><span class="line">                <span class="keyword">if</span> np.<span class="built_in">all</span>(c==M):</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;【迭代完成】&#x27;</span>)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;-&#x27;</span>*<span class="number">60</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;【迭代未完成】&#x27;</span>)</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&#x27;-&#x27;</span>*<span class="number">60</span>)</span><br><span class="line">        total_cost=np.<span class="built_in">sum</span>(np.multiply(x,cost))</span><br><span class="line">        <span class="keyword">if</span> np.<span class="built_in">all</span>(a==<span class="number">0</span>):</span><br><span class="line">            <span class="keyword">if</span> np.<span class="built_in">all</span>(b==<span class="number">0</span>):</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;供求平衡&lt;&lt;&lt;&#x27;</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;供不应求，需求方有余量&lt;&lt;&lt;&#x27;</span>)</span><br><span class="line">        <span class="keyword">elif</span> np.<span class="built_in">all</span>(b==<span class="number">0</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;供大于求，供给方有余量&lt;&lt;&lt;&#x27;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;无法找到初始基可行解&lt;&lt;&lt;&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;初始基本可行解x*：\n&#x27;</span>,x)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt;&gt;当前总成本：&#x27;</span>,total_cost)</span><br><span class="line">        [m,n]=x.shape</span><br><span class="line">        varnum=np.array(np.nonzero(x)).shape[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> varnum!=m+n-<span class="number">1</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;【注意：问题含有退化解】&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> (cost,x)</span><br><span class="line"></span><br><span class="line">path=<span class="string">r&#x27;C:\Users\spurs\Desktop\MCM_ICM\Data files\TP_PPT_Sample1.xlsx&#x27;</span></span><br><span class="line">mat=pd.read_excel(path,header=<span class="literal">None</span>).values</span><br><span class="line"><span class="comment">#c=np.array([[3,11,3,10],[1,9,2,8],[7,4,10,5]])</span></span><br><span class="line"><span class="comment">#a=np.array([7,4,9])</span></span><br><span class="line"><span class="comment">#b=np.array([3,6,5,6])</span></span><br><span class="line">[c,x]=TP_vogel(mat)</span><br><span class="line"><span class="comment">#[c,x]=TP_vogel([c,a,b])</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="线性规划标准型"><a href="#线性规划标准型" class="headerlink" title="线性规划标准型"></a>线性规划标准型</h3><p>$\max z=C^Tx$</p>
+<p>$s.t.\left\{\begin{array}{c}Ax=b\x\geqslant0\end{array}\right.$</p>
+<p>标准型特征：</p>
+<blockquote>
+<p>约束条件为等号形式</p>
+<p>$b_i\geq 0,i=1,2,\cdots,m$</p>
+<p>$x_j\geq 0,j=1,2,\cdots,n$</p>
+</blockquote>
+<h5 id="LP标准型转化："><a href="#LP标准型转化：" class="headerlink" title="LP标准型转化："></a>LP标准型转化：</h5><p>例：$\max z=2x_1+3x_2+x_3$</p>
+<p>$s.t.\left\{\begin{array}{c}x_1+x_2+x_3\leq20\2x_1-x_2+x_3\geq6\x_1\geq0,x_2\leq0,x_3\text{无符号约束}\end{array}\right.$</p>
+<blockquote>
+<p>令：$x^{‘}_2=-x_2,x_3=x^{‘}_3-x^{‘’}_3,x_2^{‘}\geq0,x_3^{‘},x^{‘’}_3\geq0$</p>
+<p>$\Rightarrow\max z=2x_1-3x_2^{‘}+x^{‘}_3-x^{‘’}_3$</p>
+<p>$s.t.\left\{\begin{array}{c}x_1-x_2^{‘}+x^{‘}_3-x_3^{‘’}+x_4=20\2x_1+x^{‘}_2+x^{‘}_3-x^{‘’}_3-x_5=6\x_1,x_2^{‘},x_3^{‘},x_3^{‘’},x_4,x_5\geq 0\end{array}\right.$</p>
+</blockquote>
+<ul>
+<li><p>若目标函数为最小化，可以通过取负，求最大化</p>
+</li>
+<li><p>约束不等式为小于等于不等式，可以在左端加入非负松弛变量，转为等式；约束不等式为大于等于不等式，可以减去一个非负松弛变量</p>
+</li>
+<li><p>若存在取值无约束的变量，可转变为两个非负变量的差，如</p>
+<p>$-\infty\leq x_k\leq +\infty\Rightarrow\left\{\begin{array}{c}x_k=x_m-x_n\x_m,x_n\geq 0\end{array}\right.$</p>
+</li>
+</ul>
+<h5 id="对于标准型："><a href="#对于标准型：" class="headerlink" title="对于标准型："></a>对于标准型：</h5><p>设$A$的秩为$m$（去掉多余约束总可以使$A$行满秩），取线性无关的$m$个列向量为基向量$B$</p>
+<p>设$A=(B,N)$则$AX=b$等价于$(B,N)\left(\begin{array}{c}X_B\X_N\end{array}\right)=b$</p>
+<p>$\Rightarrow X_B=B^{-1}b-B^{-1}NX_N$</p>
+<p>$\Rightarrow X=(B^{-1}b-B^{-1}NX_N,X_N)\Rightarrow CX=C_BB^{-1}b+(C_N-C_BB^{-1}N)X_N$</p>
+<p>若令非基变量全等于0，即$X_N=0$，则有$X_B=B^{-1}b\Rightarrow z=CX=C_BB^{-1}b$</p>
+<p><strong>基本解</strong>：非基变量全部等于零的解</p>
+<p><strong>基本可行解</strong> ：同时满足$X\geq 0$的基本解</p>
+<p><img src="\img\image-20220816220500103.png" alt="image-20220816220500103"></p>
+<p>基本可行解与可行域的顶点是一一对应的。根据线性规划的最优解在可行域极点的结论，只需在可行域极点中逐个确定最优解。</p>
+<hr>
+<h4 id="单纯形法求解线性规划"><a href="#单纯形法求解线性规划" class="headerlink" title="单纯形法求解线性规划"></a>单纯形法求解线性规划</h4><p>初始表$=\left(\begin{array}{cc}A&amp;b\c&amp;0\end{array}\right)=\left(\begin{array}{ccc}B&amp;N&amp;b\C_B&amp;C_N&amp;0\end{array}\right)\sim\left(\begin{array}{ccc}1&amp;B^{-1}N&amp;B^{-1}b\0&amp;C_N-C_BB^{-1}N&amp;-C_BB^{-1}b\end{array}\right)$=标准型表</p>
+<p><strong>例</strong>：$\max z=x_1+x_2$</p>
+<p>$s.t.\left\{\begin{array}{c}2x_1+x_2+x_3=12\x_1+2x_2+x_4=9\x_1,x_2,x_3,x_4\geq0\end{array}\right.$</p>
+<blockquote>
+<p>如果选择$x_2$、$x_3$为基变量，那么令$x_1$、$x_4$等于0，可以去求解基变量$x_2$、$x_3$的值。对系数矩阵做行变换，如下所示，$x_2=\dfrac{9}{2}$，$x_3=\dfrac{15}{2}$</p>
+<p><img src="\img\image-20220816220547335.png" alt="image-20220816220547335"></p>
+<p>可以通过选择不同的基变量，获得不同的可行域的顶点</p>
+<p>当 C 的$x_1,x_2,\cdots,x_m$系数都小于零时，为最优解，此处$x_1$的系数为$\dfrac{1}{2}&gt;0$，不是最优解，要替换基变量，选取$x_1$作为替换后的基变量，被替换的变为非基变量。</p>
+<ul>
+<li><p>终止条件：</p>
+<p>当目标函数用非基变量的线性组合表示时，所有的系数均不大于0，则表示目标函数达到最优。</p>
+<p>如果，有一个非基变量的系数为0，其他的均小于0，表示目标函数的最优解有无穷多个。这是因为目标函数的梯度与某一边界正交，在这个边界上，目标函数的取值均相等，且为最优。</p>
+</li>
+</ul>
+</blockquote>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[ X, Z]</span> = <span class="title">myssimplex</span><span class="params">( A, B, C ,D)</span></span></span><br><span class="line"><span class="comment">% 单纯形法的实现</span></span><br><span class="line"><span class="comment">% X: 目标函数的最优解</span></span><br><span class="line"><span class="comment">% Z: 目标函数的极小值</span></span><br><span class="line"><span class="comment">% A: 约束函数的系数矩阵</span></span><br><span class="line"><span class="comment">% B: 约束函数的常数列向量</span></span><br><span class="line"><span class="comment">% C: 目标函数的系数向量</span></span><br><span class="line"><span class="comment">% D: 求最大值为1，求最小值为0</span></span><br><span class="line"><span class="comment">% E: 将B，A拼接成新的矩阵</span></span><br><span class="line">flag = <span class="number">1</span>;</span><br><span class="line">S=<span class="number">0</span>;</span><br><span class="line">Z=<span class="number">0</span>;</span><br><span class="line">[m, n] = <span class="built_in">size</span>(A);</span><br><span class="line">BIndex = n - m  + <span class="number">1</span> : n;                <span class="comment">% 基向量下标集合</span></span><br><span class="line">    <span class="keyword">if</span> D==<span class="number">0</span>                             <span class="comment">%如果求最小值将C取反</span></span><br><span class="line">        C=-C;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span> (n &lt; m)</span><br><span class="line">    <span class="built_in">disp</span>(<span class="string">&#x27;系数矩阵不符合要求！&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">while</span> flag</span><br><span class="line">            Cb = C(BIndex);             <span class="comment">% 基矩阵对应的目标值b</span></span><br><span class="line">            Zj = (Cb)*A;</span><br><span class="line">            Rj =C-Zj;                   <span class="comment">%判别数</span></span><br><span class="line">            X = <span class="built_in">zeros</span>(<span class="number">1</span>, n);</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">max</span>(Rj)&lt;=<span class="number">0</span></span><br><span class="line">            <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:m</span><br><span class="line">                   X(BIndex(<span class="built_in">i</span>))=B(<span class="built_in">i</span>);</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:n</span><br><span class="line">                Z=Z+(C(<span class="built_in">i</span>)*X(<span class="built_in">i</span>));</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">               flag = <span class="number">0</span>;</span><br><span class="line">               fprintf(<span class="string">&#x27;迭代次数为:%d\n&#x27;</span>,S);</span><br><span class="line">               <span class="built_in">disp</span>(<span class="string">&#x27;已找到最优解：&#x27;</span>)</span><br><span class="line">               S=<span class="number">0</span>;</span><br><span class="line">               <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                S=S+<span class="number">1</span>;</span><br><span class="line">                 [~, k1] = <span class="built_in">max</span>(Rj); <span class="comment">%获得换入基变量的位置</span></span><br><span class="line">                 <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:m</span><br><span class="line">                     <span class="keyword">if</span> A(<span class="built_in">i</span>,k1)&gt;<span class="number">0</span></span><br><span class="line">                        P(<span class="built_in">i</span>)=B(<span class="built_in">i</span>)/A(<span class="built_in">i</span>,k1);</span><br><span class="line">                     <span class="keyword">else</span> </span><br><span class="line">                        P(<span class="built_in">i</span>)=<span class="built_in">inf</span>;</span><br><span class="line">                     <span class="keyword">end</span>   </span><br><span class="line">                 <span class="keyword">end</span></span><br><span class="line">                [~, k2]=<span class="built_in">min</span>(P);    <span class="comment">%获得换出基变量的位置</span></span><br><span class="line">                BIndex(k2)=k1;     <span class="comment">%新的基变量</span></span><br><span class="line">                E=[B,A];           <span class="comment">%B,A合成一个新的矩阵</span></span><br><span class="line">                E(k2,:)=E(k2,:)/E(k2,k1+<span class="number">1</span>); <span class="comment">%将A中k2行，除于A中k2行，k1列；</span></span><br><span class="line">                <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:m                   <span class="comment">%更新E</span></span><br><span class="line">                  <span class="keyword">if</span>(<span class="built_in">i</span>==k2)</span><br><span class="line">                      <span class="keyword">continue</span>;</span><br><span class="line">                  <span class="keyword">end</span></span><br><span class="line">                    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">                        E(<span class="built_in">i</span>,:)= E(<span class="built_in">i</span>,:)-E(<span class="built_in">i</span>,k1+<span class="number">1</span>)*E(k2,:);<span class="comment">%将E进行初等行换</span></span><br><span class="line">                        <span class="keyword">if</span>(E(<span class="built_in">i</span>,k1+<span class="number">1</span>)==<span class="number">0</span>)</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                        <span class="keyword">end</span></span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">                    B=E(<span class="number">1</span>:m,<span class="number">1</span>); <span class="comment">%E拆开</span></span><br><span class="line">                    A=E(<span class="number">1</span>:m,<span class="number">2</span>:n+<span class="number">1</span>);</span><br><span class="line">               <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="对偶线性规划"><a href="#对偶线性规划" class="headerlink" title="对偶线性规划"></a>对偶线性规划</h4><p>生产商品的最大利润和变卖原料的价格底线</p>
+<p><code>例：某厂生产A、B、C三种产品，每种产品的单位利润分别为12，18，15，资源消耗和市场需求量如下表，求总利润最大的生产方案</code></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原料1/单位产品</td>
+<td>6</td>
+<td>9</td>
+<td>5</td>
+<td>200</td>
+</tr>
+<tr>
+<td>原料2/单位产品</td>
+<td>12</td>
+<td>16</td>
+<td>17</td>
+<td>360</td>
+</tr>
+<tr>
+<td>人工/单位产品</td>
+<td>25</td>
+<td>20</td>
+<td>12</td>
+<td>780</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h5 id="原问题与对偶问题的性质"><a href="#原问题与对偶问题的性质" class="headerlink" title="原问题与对偶问题的性质"></a>原问题与对偶问题的性质</h5><ul>
+<li>线性规划及其对偶互为对偶规划</li>
+<li>当一对对偶线性规划问题都有可行解时，对偶问题的最优目标值与原始问题的最优目标值相等</li>
+<li>若原问题（对偶问题）具有无界解，则其对偶问题（原问题）无可行解。（<em>逆命题不成立</em>）</li>
+<li>若原问题有最优解，则对偶问题也一定有最优解，且最优目标值相同</li>
+</ul>
+<h5 id="形式："><a href="#形式：" class="headerlink" title="形式："></a>形式：</h5><p>原问题$\min f(x)=c^Tx$              对偶问题$\max g(y)=b^Ty$</p>
+<p>​             $s.t.\left\{\begin{array}{c}Ax=b\x\geq0\end{array}\right.$                                  $s.t.\left\{\begin{array}{c}A^Ty\leq c\y\geq0\end{array}\right.$</p>
+<p><strong>实际意义</strong>：对偶变量$y_i$的意义是在当前的基解中对一个单位的第$i$种资源的估价。这种估价不是资源市场价格$p_i$，而是根据资源在生产中做出的贡献而作的估价，为了区别起见，称为<em>影子价格</em>；依据市场价格$p_i$和企业资源价格$y_i$的差异，若$y_i-p_i&gt;0$，则从市场购进资源$i$，经过调整产量，可以获得更大的利润。</p>
+<hr>
+<h3 id="灵敏度分析"><a href="#灵敏度分析" class="headerlink" title="灵敏度分析"></a>灵敏度分析</h3><p><img src="\img\image-20220816210510764.png" alt="image-20220816210510764"></p>
+<ul>
+<li>Reduced Cost：最优单纯形表中判别数所在行的变量的系数，表示变量有微小变动时，目标函数的变化率。基变量的Reduced Cost值为0，非基变量表示当某个变量$x_j$增加一个单位时目标函数减小的量（Max 型）</li>
+<li>Slack or Surplus：松弛变量的值</li>
+<li>Dual Price：对偶价格。</li>
+</ul>
+<p><img src="\img\image-20220816210545171.png" alt="image-20220816210545171"></p>
+<ul>
+<li><p>Current Coefficient：当前目标函数系数</p>
+</li>
+<li><p>Allowable Increase：允许增加量</p>
+</li>
+<li><p>Allowable Decrease：允许减少量</p>
+</li>
+<li><p>Current RHS：当前右边常数项</p>
+<p>基变量在范围内改变原最优解不变，最优值变化。</p>
+</li>
+</ul>
+<h5 id="上图解释："><a href="#上图解释：" class="headerlink" title="上图解释："></a>上图解释：</h5><ul>
+<li><p>$c_1=200$且$c_1$（对应最优解）在$(150,+\infty)$内原最优解不变，但最优值会变化。</p>
+</li>
+<li><p>$c_2=150$且$c_2$在$(-\infty,200)$内原最优解、最优值不变</p>
+</li>
+<li><p>$c_3=100$且$c_3$在$(-\infty,200)$内原最优解、最优值不变</p>
+</li>
+<li><p>$b_1=12$且$b_1$在$(0,48)$内原最优基不变，但最优解和最优值会变</p>
+</li>
+<li><p>$b_2=48$且$b_1$在$(12,+\infty)$内原最优基不变，但最优解和最优值会变</p>
+</li>
+<li><p>$b_3=360$且$b_1$在$(12,+\infty)$内原最优基不变，但最优解和最优值会变</p>
+</li>
+</ul>
+<hr>
+<h2 id="整数规划"><a href="#整数规划" class="headerlink" title="整数规划"></a>整数规划</h2><ul>
+<li><p>要求变量取整，分为线性和非线性</p>
+<p>根据变量的取值性质分为：全整数规划、混合整数规划、0-1整数规划</p>
+</li>
+</ul>
+<h4 id="分支定界法"><a href="#分支定界法" class="headerlink" title="分支定界法"></a>分支定界法</h4><ul>
+<li>先考虑整数规划问题A对应的松弛问题B，用单纯形法求解出最优解（若刚好为整数解即为所求，若不是整数解开始分支）</li>
+<li>选择一个不符合整数约束条件的$x_j$，其值为$b_j$。以$[b_j]$表示小于$b_j$的最大整数，构造两个约束条件：$x\leq[b_j]$和$x\geq[b_j]+1$分别加入原LP问题形成两个子问题</li>
+<li>不断进行以上操作并剪枝</li>
+<li><img src="\img\QQ图片20220816221100.png" alt="QQ图片20220816221100"></li>
+</ul>
+<h4 id="整数规划lingo代码"><a href="#整数规划lingo代码" class="headerlink" title="整数规划lingo代码"></a>整数规划lingo代码</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">MODEL:</span><br><span class="line">sets:</span><br><span class="line">num_i/1..m/:b;</span><br><span class="line">num_j/1..n/:x,c;</span><br><span class="line">link(num_i,num_j):a;</span><br><span class="line">endsets</span><br><span class="line">data:</span><br><span class="line">b=b(1) b(2) … b(m);</span><br><span class="line">c=c(1) c(2) … c(n);</span><br><span class="line">a=a(1,1) a(1,2) … a(1,n) </span><br><span class="line">    a(2,1) a(2,2) … a(2,n)</span><br><span class="line">    …</span><br><span class="line">    a(m,1) a(m,2) … a(m,n);</span><br><span class="line">enddata</span><br><span class="line">[OBJ]max=@sum(num_j(j):c(j)*x(j));</span><br><span class="line">@for(num_i(i):@sum(num_j(j):a(i,j)*x(j)&lt;=b(i);));</span><br><span class="line">@for(num_j(j):x(j)&gt;=0;);</span><br><span class="line">@for(num_j(j):@GIN(x(j););</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<h3 id="指派问题：-二部图最小权匹配问题"><a href="#指派问题：-二部图最小权匹配问题" class="headerlink" title="指派问题：(二部图最小权匹配问题)"></a>指派问题：(二部图最小权匹配问题)</h3><p>设n个人被指派去做n项工作.其中第i人完成第j项工作的费用为$c_{ij},i,j=1,\cdots,n$ <strong>.</strong> 规定每个人只能做一项工作,每项工作也只能由一个人完成.求总费用最小的指派方案.</p>
+<blockquote>
+<p>矩阵$C=(c_{ij})$：效率矩阵、费用矩阵、系数矩阵</p>
+<script type="math/tex; mode=display">x_{ij}=\left\{\begin{array}{cc}1&第i个人被指派做第j件事\\0\end{array}\right.</script><script type="math/tex; mode=display">\min \quad z=\sum_{i=1}^n\sum_{j=1}^n c_{ij}x_{ij}</script><script type="math/tex; mode=display">s.t.\left\{\begin{array}{cc}\sum_{j=1}^nx_{ij}=1&i=1,\cdots,n\\\sum_{i=1}^nx_{ij}=1&j=1,\cdots,n\\x_{ij}\in\{0,1\}&i,j=1,\cdots,n\end{array}\right.</script><h4 id="匈牙利解法："><a href="#匈牙利解法：" class="headerlink" title="匈牙利解法："></a>匈牙利解法：</h4><p>匈牙利解法的关键是指派问题最优解的以下性质：若从指派问题的系数矩阵$C$的某行（或某列）个各元素分别减去一个常数$k$，得到一个新的矩阵$C^{‘}$，则以$C$和$C^{‘}$为系数矩阵的两个指派问题有相同的最优解。</p>
+<p>对于指派问题，由于系数矩阵均非负，故若能在在系数矩阵中找到n个位于不同行和不同列的零元素（独立的0元素），则对应的指派方案总费用为零，从而一定是最优的。</p>
+<p><strong>指派问题matlab</strong>：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%适用于任意n阶系数矩阵</span></span><br><span class="line">clear all；</span><br><span class="line"> C=[<span class="number">2</span> <span class="number">15</span> <span class="number">13</span> <span class="number">4</span>;<span class="number">10</span> <span class="number">4</span> <span class="number">14</span> <span class="number">15</span>;<span class="number">9</span> <span class="number">14</span> <span class="number">16</span> <span class="number">13</span>;<span class="number">7</span> <span class="number">8</span> <span class="number">11</span> <span class="number">9</span>];<span class="comment">%效率矩阵C</span></span><br><span class="line"> n=<span class="built_in">size</span>(C,<span class="number">1</span>);<span class="comment">%计算C的行列数n</span></span><br><span class="line"> C=C(:);<span class="comment">%计算目标函数系数，将矩阵C按列排成一个列向量即可。</span></span><br><span class="line"> A=[];B=[];<span class="comment">%没有不等式约束</span></span><br><span class="line"> Ae=<span class="built_in">zeros</span>(<span class="number">2</span>*n,n^<span class="number">2</span>);<span class="comment">%计算等约束的系数矩阵a</span></span><br><span class="line"> <span class="keyword">for</span> <span class="built_in">i</span>=<span class="number">1</span>:n</span><br><span class="line"> <span class="keyword">for</span> <span class="built_in">j</span>=(<span class="built_in">i</span><span class="number">-1</span>)*n+<span class="number">1</span>:n*<span class="built_in">i</span></span><br><span class="line"> Ae(<span class="built_in">i</span>,<span class="built_in">j</span>)=<span class="number">1</span>;</span><br><span class="line"> <span class="keyword">end</span></span><br><span class="line"> <span class="keyword">for</span> k=<span class="built_in">i</span>:n:n^<span class="number">2</span></span><br><span class="line"> Ae(n+<span class="built_in">i</span>,k)=<span class="number">1</span>;</span><br><span class="line"> <span class="keyword">end</span></span><br><span class="line"> <span class="keyword">end</span></span><br><span class="line"> Be=<span class="built_in">ones</span>(<span class="number">2</span>*n,<span class="number">1</span>);<span class="comment">%等式约束右端项b</span></span><br><span class="line"> Xm=<span class="built_in">zeros</span>(n^<span class="number">2</span>,<span class="number">1</span>);<span class="comment">%决策变量下界Xm</span></span><br><span class="line"> XM=<span class="built_in">ones</span>(n^<span class="number">2</span>,<span class="number">1</span>);<span class="comment">%决策变量上界XM</span></span><br><span class="line"> [x,z]=linprog(C,A,B,Ae,Be,Xm,XM);<span class="comment">%使用linprog求解</span></span><br><span class="line"> x=<span class="built_in">reshape</span>(x,n,n);<span class="comment">%将列向量x按列排成一个n阶方阵</span></span><br><span class="line"> <span class="built_in">disp</span>(<span class="string">&#x27;最优解矩阵为:&#x27;</span>);<span class="comment">%输出指派方案和最优值</span></span><br><span class="line"> Assignment=<span class="built_in">round</span>(x)<span class="comment">%使用round进行四舍五入取整</span></span><br><span class="line"> <span class="built_in">disp</span>(<span class="string">&#x27;最优解为:&#x27;</span>);</span><br><span class="line"> z</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="指派问题变式："><a href="#指派问题变式：" class="headerlink" title="指派问题变式："></a>指派问题变式：</h3><p>1.工作多于人数</p>
+<p>工作$A、B、C、D$需由甲乙丙三人完成。乙分配一项，甲丙没人两项</p>
+<blockquote>
+<p> 甲和乙每人分配2项工作，故一个人要当两个人用。在分配矩阵中可以把这两个人每行数据复制成两行，再利用经典指派问题算法进行计算。</p>
+</blockquote>
+<p>若没规定每个人完成的任务数，每个人最多可能承担[k]+1项工作任务，分配矩阵每行复制成[k+1]行</p>
+<p>工作A、B、C、D需由甲乙丙三人完成。规定每人完成1-2项工作，而每项工作只能由一个人完成，费用如下表。求总费用最小的指派方案。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>甲</td>
+<td>7</td>
+<td>5</td>
+<td>9</td>
+<td>8</td>
+</tr>
+<tr>
+<td>乙</td>
+<td>9</td>
+<td>12</td>
+<td>7</td>
+<td>11</td>
+</tr>
+<tr>
+<td>丙</td>
+<td>8</td>
+<td>5</td>
+<td>4</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>设置虚拟任务，每个人限制最多做一项虚拟任务</p>
+<script type="math/tex; mode=display">\left(\begin{array}{cccccc}7&5&9&8&0&0\\9&12&7&11&0&0\\8&5&4&6&0&0\\7&5&9&8&M&M\\9&12&7&11&M&M\\8&5&4&6&M&M\end{array}\right)</script><p>M为一个很大的常数，用于限制每个人至多做一项虚拟任务</p>
+</blockquote>
+<h2 id="多目标规划"><a href="#多目标规划" class="headerlink" title="多目标规划"></a>多目标规划</h2><blockquote>
+<p>多个优化目标</p>
+<p>约束条件有回旋余地</p>
+</blockquote>
+<p><strong>同级的多个目标处理</strong>：</p>
+<ul>
+<li><p>所有目标函数统一成max形式（或min)；</p>
+</li>
+<li><p>总目标为一个加权求和形式。</p>
+</li>
+</ul>
+<p>决策者根据实际情况为每个子目标指定权重$w_1,w_2,\cdots,w_k$</p>
+<p>其中$w_i/w_j$为第$i$个目标关于第$j$个目标的相对重要性。</p>
+<p>总目标为：$\displaystyle \max z=\sum_{i=1}^{k}w_if_i(x_1,x_2,\cdots,x_n)$</p>
+<p>问题转化为一般的单目标模型</p>
+<h5 id="无量纲化："><a href="#无量纲化：" class="headerlink" title="无量纲化："></a>无量纲化：</h5><p>多目标转单目标时，目标函数值单位应当无量纲化</p>
+<blockquote>
+<p>如果$z_1$的变化范围为$[\min z_1,\max z_1]$，$z_2$的变化范围为$[\min z_2,\max z_2]$，则原目标可以做如下无量纲化处理：</p>
+<script type="math/tex; mode=display">\max z=2z_1+z_2=2\times\dfrac{z_1-\min z_1}{\max z_1-\min z_1}+\dfrac{z_2-\min z_2}{\max z_2-\min z_2}</script></blockquote>
+<p><strong>不同级的多个目标处理</strong>：</p>
+<p>$P_i$级目标：重要性仅高于$P_{i+1}$级目标$\min z_i=f_i(x_1,x_2,\cdots,x_n)$</p>
+<p>在保证$P_i$级目标完成的前提下再考虑$P_{i+1}$级目标</p>
+<ul>
+<li>绝对约束（也称系统约束）：必须遵守的约束条件，如产品的产量必须为非负等。</li>
+<li>目标约束：允许带偏差的约束。</li>
+</ul>
+<p>设$f_i(i=1,2,\cdots,l)$为第$i$个目标函数，</p>
+<p>它的正偏差变量$d_i^+=\max\{f_i-d_i^0\}$​表示决策值超过目标值的部分，</p>
+<p>负偏差变量$d_i^-=\min\{f_i-d_i^0\}$表示决策值超过目标值的部分.</p>
+<p>这里$d_i^0$表示$f_i$的目标值。因决策值不可能既超过目标值又未达到目标值，故恒有$d_i^+\times d_i^-=0$</p>
+<blockquote>
+<p>如：希望得到$3x+4y\approx100$</p>
+<p>目标约束：$3x+4y+d^—d^+=100$</p>
+<p>若希望不超过100，控制正偏差变量</p>
+<p>若希望至少达到100，控制负偏差变量</p>
+<p>若希望正好等于100，同时控制两个偏差变量</p>
+</blockquote>
+<p>正负偏差的控制用目标函数来实现，这种用总偏差最小化形式表示的目标函数称为达成函数</p>
+<h6 id="目标规划形式"><a href="#目标规划形式" class="headerlink" title="目标规划形式"></a>目标规划形式</h6><script type="math/tex; mode=display">\displaystyle \min z=\sum_{i=1}^kP_if_i(d^+,d^-)</script><script type="math/tex; mode=display">s.t.\left\{\begin{array}{c}a_{11}x_1+\cdots+a_{1n}x_n+d^-_1-d^+_1=b_1\\\cdots\\a_{m1}x_1+\cdots+a_{mn}x_n+d^-_m-d^+_m=b_m\\x_j\geq0,j=1,\cdots,n\end{array}\right.</script><p>目标规划问题的求解结果仅为满意解，不可能所有的目标都达到最优。</p>
+<hr>
+<h2 id="非线性规划"><a href="#非线性规划" class="headerlink" title="非线性规划"></a>非线性规划</h2><p><strong>例</strong>：某公司计划开发一种新产品市场，并试图确定该产品的产量。它们估计出售一件产品可获利$m$元，而积压一件产品导致$n$元损失。若要获得利润最大，该公司应该生产多少件产品？</p>
+<blockquote>
+<p><em>模型假设：</em>若销售量$y$件服从某一分布，其概率密度为$f(y)$</p>
+<p>设生产$x$件，则获利函数$Q$为 $Q=Q(x)=\left\{\begin{array}{cc}my-n(x-y)&amp;y&lt;x\mx&amp;y\geq x\end{array}\right.$</p>
+<p>$Q$是随机变量，且关于$y$的函数，利润最大化近似于：$\displaystyle\max_{x\geq0}E(Q)=\max_{x\geq0}\int_0^{+\infty}Qf(y)\mathrm{d}y$</p>
+<p>若$f(y)=\left\{\begin{array}{cc}\theta^{-1}\mathrm{e}^{-y/\theta}&amp;y&gt;0\0&amp;y\leq 0\end{array}\right.$，则</p>
+<p>$\displaystyle \max_{x\geq0}E(Q)=\max_{x\geq0}\int_0^{+\infty}Qf(y)\mathrm{d}y=\max_{x\geq0}\{(m+n)\theta(1-\mathrm{e}^{-x/\theta})-nx\}$</p>
+<p>求一阶导等于0，解出期望最大时的$x$值，$x^{\star}=-\theta\ln\dfrac{n}{m+n}$</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Little P</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/">http://example.com/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/"><img class="prev-cover" src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">正态分布检验</div></div></a></div><div class="next-post pull-right"><a href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/"><img class="next-cover" src="/img/perple2022814.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">模糊综合评价</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Little P</div><div class="author-info__description">记录生活</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B%EF%BC%8C%E5%BC%95%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">优化模型，引：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92%E6%A8%A1%E5%9E%8B%E7%89%B9%E5%BE%81%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">线性规划模型特征：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92%E6%A8%A1%E5%9E%8B%E7%89%B9%E5%BE%81%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">整数线性规划模型特征：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#0-1%E6%95%B4%E6%95%B0%E8%A7%84%E5%88%92%E6%A8%A1%E5%9E%8B%E7%89%B9%E5%BE%81%EF%BC%9A"><span class="toc-number">1.1.2.</span> <span class="toc-text">0-1整数规划模型特征：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E8%A7%84%E5%88%92%E5%88%86%E7%B1%BB"><span class="toc-number">2.</span> <span class="toc-text">数学规划分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E8%A7%84%E5%88%92%E7%9A%84%E8%AE%A1%E7%AE%97%E9%9A%BE%E5%BA%A6"><span class="toc-number">3.</span> <span class="toc-text">数学规划的计算难度</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BA%A6%E6%9D%9F%E8%BD%AC%E5%8C%96%E4%B8%BA%E7%BA%BF%E6%80%A7%E7%BA%A6%E6%9D%9F%E4%BE%8B%E5%AD%90%EF%BC%9A"><span class="toc-number">3.0.1.</span> <span class="toc-text">非线性约束转化为线性约束例子：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E6%95%B0%E5%AD%A6%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="toc-number">3.0.2.</span> <span class="toc-text">建立数学优化模型的流程：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E6%B4%BB%E5%AE%9E%E4%BE%8B%EF%BC%9A%E9%80%81%E8%B4%A7%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">生活实例：送货问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A5%BF%E5%8C%97%E8%A7%92%E6%B3%95%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">西北角法：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E5%B0%8F%E5%85%83%E7%B4%A0%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">最小元素法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B2%83%E6%A0%BC%E5%B0%94%E6%B3%95"><span class="toc-number">3.4.</span> <span class="toc-text">沃格尔法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92%E6%A0%87%E5%87%86%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">线性规划标准型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#LP%E6%A0%87%E5%87%86%E5%9E%8B%E8%BD%AC%E5%8C%96%EF%BC%9A"><span class="toc-number">4.0.1.</span> <span class="toc-text">LP标准型转化：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%B9%E4%BA%8E%E6%A0%87%E5%87%86%E5%9E%8B%EF%BC%9A"><span class="toc-number">4.0.2.</span> <span class="toc-text">对于标准型：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%95%E7%BA%AF%E5%BD%A2%E6%B3%95%E6%B1%82%E8%A7%A3%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="toc-number">4.1.</span> <span class="toc-text">单纯形法求解线性规划</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E5%81%B6%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="toc-number">4.2.</span> <span class="toc-text">对偶线性规划</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8E%9F%E9%97%AE%E9%A2%98%E4%B8%8E%E5%AF%B9%E5%81%B6%E9%97%AE%E9%A2%98%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="toc-number">4.2.1.</span> <span class="toc-text">原问题与对偶问题的性质</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BD%A2%E5%BC%8F%EF%BC%9A"><span class="toc-number">4.2.2.</span> <span class="toc-text">形式：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%81%B5%E6%95%8F%E5%BA%A6%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">灵敏度分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8A%E5%9B%BE%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="toc-number">5.0.1.</span> <span class="toc-text">上图解释：</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E8%A7%84%E5%88%92"><span class="toc-number"></span> <span class="toc-text">整数规划</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95"><span class="toc-number">0.1.</span> <span class="toc-text">分支定界法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E8%A7%84%E5%88%92lingo%E4%BB%A3%E7%A0%81"><span class="toc-number">0.2.</span> <span class="toc-text">整数规划lingo代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E6%B4%BE%E9%97%AE%E9%A2%98%EF%BC%9A-%E4%BA%8C%E9%83%A8%E5%9B%BE%E6%9C%80%E5%B0%8F%E6%9D%83%E5%8C%B9%E9%85%8D%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">指派问题：(二部图最小权匹配问题)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%88%E7%89%99%E5%88%A9%E8%A7%A3%E6%B3%95%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">匈牙利解法：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E6%B4%BE%E9%97%AE%E9%A2%98%E5%8F%98%E5%BC%8F%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">指派问题变式：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%E8%A7%84%E5%88%92"><span class="toc-number"></span> <span class="toc-text">多目标规划</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%97%A0%E9%87%8F%E7%BA%B2%E5%8C%96%EF%BC%9A"><span class="toc-number">0.0.1.</span> <span class="toc-text">无量纲化：</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%9B%AE%E6%A0%87%E8%A7%84%E5%88%92%E5%BD%A2%E5%BC%8F"><span class="toc-number">0.0.1.1.</span> <span class="toc-text">目标规划形式</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E8%A7%84%E5%88%92"><span class="toc-number"></span> <span class="toc-text">非线性规划</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正态分布检验"/></a><div class="content"><a class="title" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验">正态分布检验</a><time datetime="2022-08-16T14:19:27.000Z" title="Created 2022-08-16 22:19:27">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="优化模型"/></a><div class="content"><a class="title" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型">优化模型</a><time datetime="2022-08-16T13:55:34.000Z" title="Created 2022-08-16 21:55:34">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"/></a><div class="content"><a class="title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟"><img src="/img/white2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="蒙特卡洛模拟"/></a><div class="content"><a class="title" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟">蒙特卡洛模拟</a><time datetime="2022-08-14T10:42:45.000Z" title="Created 2022-08-14 18:42:45">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型"><img src="/img/konachan318763.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="经典的传染病模型"/></a><div class="content"><a class="title" href="/2022/08/14/%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BC%A0%E6%9F%93%E7%97%85%E6%A8%A1%E5%9E%8B/" title="经典的传染病模型">经典的传染病模型</a><time datetime="2022-08-14T10:18:40.000Z" title="Created 2022-08-14 18:18:40">2022-08-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Little P</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
