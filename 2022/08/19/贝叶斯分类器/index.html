@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>贝叶斯分类器 | 小P的猫舍</title><meta name="keywords" content="学习笔记 日记"><meta name="author" content="Little P"><meta name="copyright" content="Little P"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="对于一个多分类任务，假设有$N$种可能的类别标记，即 $y&#x3D;\{c_1,c_2,\cdots,c_N\}$ ，$\lambda$是将一个真实标记$c_j$误分为$c_i$所产生的损失，基于后验概率 $P(c_i|x)$ 可获得将样本分类为$c_i$所产生的期望损失，即在样本$x$上的条件风险： \displaystyle R(c_i|x)&#x3D;\sum_{j&#x3D;2}^N\lambda_{ij}P(c_j">
+<meta property="og:type" content="article">
+<meta property="og:title" content="贝叶斯分类器">
+<meta property="og:url" content="http://example.com/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="对于一个多分类任务，假设有$N$种可能的类别标记，即 $y&#x3D;\{c_1,c_2,\cdots,c_N\}$ ，$\lambda$是将一个真实标记$c_j$误分为$c_i$所产生的损失，基于后验概率 $P(c_i|x)$ 可获得将样本分类为$c_i$所产生的期望损失，即在样本$x$上的条件风险： \displaystyle R(c_i|x)&#x3D;\sum_{j&#x3D;2}^N\lambda_{ij}P(c_j">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/QQ%E5%9B%BE%E7%89%8720220819210414.png">
+<meta property="article:published_time" content="2022-08-19T13:02:00.000Z">
+<meta property="article:modified_time" content="2022-08-19T15:51:34.078Z">
+<meta property="article:author" content="Little P">
+<meta property="article:tag" content="学习笔记 日记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/QQ%E5%9B%BE%E7%89%8720220819210414.png"><link rel="shortcut icon" href="/img/kamuyi.jpg"><link rel="canonical" href="http://example.com/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '贝叶斯分类器',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-08-19 23:51:34'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/kamuyi.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/QQ%E5%9B%BE%E7%89%8720220819210414.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小P的猫舍</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">贝叶斯分类器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-08-19T13:02:00.000Z" title="Created 2022-08-19 21:02:00">2022-08-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-08-19T15:51:34.078Z" title="Updated 2022-08-19 23:51:34">2022-08-19</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="贝叶斯分类器"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>对于一个多分类任务，假设有$N$种可能的类别标记，即 $y=\{c_1,c_2,\cdots,c_N\}$ ，$\lambda$是将一个真实标记$c_j$误分为$c_i$所产生的损失，基于后验概率 $P(c_i|x)$ 可获得将样本分类为$c_i$所产生的期望损失，即在样本$x$上的条件风险：</p>
+<script type="math/tex; mode=display">\displaystyle R(c_i|x)=\sum_{j=2}^N\lambda_{ij}P(c_j|x)</script><p>我们的任务是寻找一个判定准则 $h:\chi\to y$ 以最小化总体风险：</p>
+<script type="math/tex; mode=display">R(h)=E_x(R(h(x)|x))</script><p>贝叶斯准则：为最小化总体风险，只需在每个样本上选择能使条件风险 $R(c|x)$ 最小的类别标记</p>
+<script type="math/tex; mode=display">h^*(x)=\arg\min_{c\in y}R(c|x)</script><p>此时$h^<em>$称为贝叶斯最优分类器，$R(h^</em>)$称为贝叶斯风险，$1-R(h^*)$反映分类器能达到的最好性能。</p>
+<p>若目标为最小化分类错误率，则</p>
+<script type="math/tex; mode=display">\lambda_{ij}=\left\{\begin{array}{cc}0&if\,i=j\\1&others\end{array}\right.</script><script type="math/tex; mode=display">\displaystyle R(c|x)=1-P(c|x)\qquad h^*(x)=\arg\min_{c\in y}P(c|x)</script><p>即对每个样本$x$，选择能使后验概率最大的类别标记。在现实任务中，后验概率难以直接获得，估计后验概率主要有两种策略：</p>
+<ol>
+<li><p>判别式策略：给定 $x$ ,通过直接建模 $P(c|x)$ 预测$c$  </p>
+<p><code>前面的决策树、BP神经网络、支持向量机都是判别式策略</code></p>
+</li>
+<li><p>生成式模型：先对联合概率分布 $P(x,c)$ 建模，由此得到 $P(c|x)$ </p>
+</li>
+</ol>
+<p>对于生成式模型，考虑：</p>
+<script type="math/tex; mode=display">P(c|x)=\dfrac{P(x,c)}{P(x)}</script><p>基于贝叶斯定理，可写为</p>
+<script type="math/tex; mode=display">P(c|x)=\dfrac{P(c)P(x|c)}{P(x)}</script><p>其中 $P(c)$ 是类先验概率，表达了样本空间中各类样本所占的比例。</p>
+<p>$P(x|c)$ 是样本 $x$ 相对与类标记 $c$ 的类条件概率，或称为“似然”，涉及所有属性的联合概率，$P(x)$ 是用于归一化的证据因子，对给定样本 $x$ ，证据因子与类标记无关，因此估计后验概率就转化为基于训练数据来估计先验概率 $P(c)$ 和似然 $P(x|c)$ .</p>
+<p>若假设样本的$d$个属性都是二值的，那么样本空间将有 $2^d$ 种可能取值，取值情况太多，求所有属性的联合概率不实际。</p>
+<h4 id="极大似然估计"><a href="#极大似然估计" class="headerlink" title="极大似然估计"></a>极大似然估计</h4><p>估计类条件概率的一种常用的策略是先假定其具有某种确定的概率分布形式，再基于训练样本对概率分布进行参数估计。比如，关于类别  $c$ 的类条件概率为 $P(x|c)$ 具有确定的形式并且被参数向量 $\theta_c$ 唯一确定，我们要根据训练样本估计参数 $\theta_c$ ,并将 $P(x|c)$ 记为 $P(x|\theta_c)$ .对于参数估计常用的方法有：</p>
+<ol>
+<li>频率主义学派：认为参数虽然未知但是却是客观存在的固定值，可通过优化似然函数等准则来确定参数值</li>
+<li>贝叶斯学派：先假定参数符合一个先验分布，然后基于观测到的数据计算后验分布。</li>
+</ol>
+<p><code>极大似然估计基于概率主义学派</code></p>
+<p>极大似然估计根据数据采样来估计概率分布参数</p>
+<p>令 $D_c$ 表示训练集 $D$ 中第 $c$ 类样本组成的集合，假设这些样本都是独立分布的，则参数 $\theta_c$ 对于数据集 $D_c$ 的似然是：</p>
+<script type="math/tex; mode=display">\displaystyle P(D_c|\theta_c)=\prod_{x\in D_c}P(x|\theta_c)</script><p>对 $\theta_c$ 进行极大似然估计，就是找出能使 $P(D_c|\theta_c)$ 最大化的 $\theta_c$ 。但连乘操作易造成下溢，通常使用对数似然：</p>
+<script type="math/tex; mode=display">\displaystyle LL(\theta_c)=\log P(D_c|\theta_c)=\sum_{x\in D_c}\log P(x|\theta_c)</script><p>此时参数 $\theta_c$ 的极大似然估计 $\hat{\theta_c}$ 为：</p>
+<script type="math/tex; mode=display">\displaystyle \hat{\theta_c}=\arg\min_{\theta_c}LL(\theta_c)</script><hr>
+<h2 id="朴素贝叶斯分类器"><a href="#朴素贝叶斯分类器" class="headerlink" title="朴素贝叶斯分类器"></a>朴素贝叶斯分类器</h2><p>朴素贝叶斯分类器采用了:属性条件独立性假设，规避联合概率求解困难的问题。</p>
+<p>基于属性条件独立性假设，求后验概率的公式可写为：</p>
+<script type="math/tex; mode=display">\displaystyle P(c|x)=\dfrac{P(c)P(x|c)}{P(x)}=\dfrac{P(c)}{P(x)}\prod_{i=1}^d P(x_i|c)</script><p>其中 $d$ 为属性数目，$x_i$ 为 $x$  在第 $i$ 个属性上的取值。</p>
+<p>对于所有类别来说 $P(x)$ 相同，因此有贝叶斯判别准则：</p>
+<script type="math/tex; mode=display">\displaystyle h_{nb}(x)=\arg\max_{c\in y} P(c)\prod_{i=1}^d P(x_i|c)</script><p>令 $D_c$ 表示训练集 $D$ 中第 $c$ 类样本组成的集合，若有足够的独立的样本，则可估计出类先验概率 :</p>
+<script type="math/tex; mode=display">P(c)=\dfrac{|D_c|}{|D|}</script><p>对离散属性而言，令 $D_{c,x_i}$ 表示  $D_c$ 中在第 $i$ 个属性上取值为 $x_i$ 的样本组成的集合，则类条件概率 $P(x_i|c)$ 可估计为：</p>
+<script type="math/tex; mode=display">P(x_i|c)=\dfrac{D_{c,x_i}}{D_c}</script><p>对连续属性可以考虑概率密度函数，假定 $p(x_i|c)\sim \aleph(\mu_{c,i},\sigma^2_{c,i})$ ，其中$\mu_{c,i},\sigma^2_{c,i}$分别是第 $c$ 类样本在第 $i$ 个属性上取值的均值和方差，有：</p>
+<script type="math/tex; mode=display">P(x_i|c)=\dfrac{1}{\sqrt{2\pi}\sigma_{c,i}}\exp{(-\dfrac{x_i-\mu_{c,i}^2}{2\sigma^2_{c,i}})}</script><p><code>由于若是某连乘式中某一项为0，计算出的概率值恒为0，无论样本的其他属性是什么，显然不合理。</code></p>
+<h4 id="拉普拉斯修正"><a href="#拉普拉斯修正" class="headerlink" title="拉普拉斯修正"></a>拉普拉斯修正</h4><p>为了避免其他属性携带的信息被训练集中未出现的属性“抹去”，在估计概率时通常需要进行“平滑”，常用“拉普拉斯修正”。令 $N$ 表示训练集 $D$ 中可能的类别数，$N_i$ 表示第 $i$ 个属性可能的取值数，类先验概率和类条件概率为：</p>
+<script type="math/tex; mode=display">\hat{P}(c)=\dfrac{|D_c|+1}{|D|+N} \qquad \hat{P}(x_i|c)=\dfrac{|D_{c,x_i}|+1}{|D_c|+N_i}</script><p>拉普拉斯修正避免了因训练集样本不充分而导致概率估值为0的问题，并且在训练集变大时，修正过程所引入的先验概率的影响也会逐渐变得可忽略，使得估值渐趋向于实际概率值。</p>
+<hr>
+<h2 id="半朴素贝叶斯分类器"><a href="#半朴素贝叶斯分类器" class="headerlink" title="半朴素贝叶斯分类器"></a>半朴素贝叶斯分类器</h2><p>半朴素贝叶斯分类器常用“独依赖估计（ODE）”，假设每个属性在类别之外最多仅依赖于一个其他属性：</p>
+<script type="math/tex; mode=display">\displaystyle P(c|x)\propto P(c)\prod_{i=1}^d P(x_i|c,pa_i)</script><script type="math/tex; mode=display">P(x_i|c,pa_i)=\dfrac{|D_{c,x_i,pa_i}|+1}{|D_{c,pa_i}|+N_i}</script><p>其中 $pa_i$ 为属性 $x_i$ 所依赖的属性，称为 $x_i$ 的父属性，$D_{c,x_i,pa_i}$ 表示第 $c$ 类样本中第 $i$ 个属性上属性值为 $x_i$ ，在父属性上属性值为 $pa_i$  的样本集合。</p>
+<p>分类方法：</p>
+<ol>
+<li><p>SPODE(Super-Parent ODE)方法：假设所有属性都依赖于同一个属性，然后通过交叉验证等模型选择方法来确定超父属性</p>
+</li>
+<li><p>TAN(Tree Augmented naive Bayes)方法：在最大带权生成树的基础上，通过下列步骤将属性间依赖关系约简为树形结构：</p>
+<ul>
+<li><p>计算任意两个属性之间的条件互信息</p>
+<script type="math/tex; mode=display">\displaystyle I(x_i,x_j|y)=\sum_{x_i,x_j;c\in y}P(x_i,x_j|c)\log{\dfrac{P(x_i,x_j|c)}{P(x_i|c)P(x_j|c)}}</script></li>
+<li><p>以属性为结点构建完全图，任意两个结点之间边的权重设为 $I(x_i,x_j|y)$ </p>
+</li>
+<li><p>构建此完全图的最大带权生成树，挑选根变量，将边设置为有向</p>
+</li>
+<li><p>加入类别结点 $y$ ,增加从 $y$ 到每个属性的有向边</p>
+</li>
+</ul>
+</li>
+<li><p>AODE(Averaged One-Dependent Estimator)：将每个属性作为超父来构建SPODE，集成起来作为最终结果。</p>
+<script type="math/tex; mode=display">\displaystyle P(c|x)\propto\sum_{i=1,|D_{x_i}|\geqslant m^{’}}^dP(c,x_i)\prod_{j=1}^dP(x_j|c,x_i)</script><p>其中 $D_{x_i}$ 是在第 $i$ 个属性上取值为 $x_i$ 的样本的集合，$m^{‘}$ 为阈值常数</p>
+</li>
+</ol>
+<script type="math/tex; mode=display">\hat{P}(c,x_i)=\dfrac{|D_{c,x_i}|+1}{|D|+N\times N_i}\qquad \hat{P}(x_j|c,x_i)=\dfrac{|D_{c,x_i,x_j}|+1}{|D_{c,x_i|+N_j}}</script><hr>
+<h2 id="贝叶斯网"><a href="#贝叶斯网" class="headerlink" title="贝叶斯网"></a>贝叶斯网</h2><p>借助有向无环图来刻画属性之间的依赖关系。</p>
+<p>一个贝叶斯网 $B$ 由结构 $G$ 和参数 $\Theta$ 两部分构成，即 $B=<G,\Theta>$。网络结构 $G$ 是一个有向无环图，每个结点对应一个属性，若两个属性有直接依赖关系，则它们由一条边俩吧接起来；参数 $\Theta$ 定量描述了这种依赖关系。</p>
+<h4 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h4><p>贝叶斯网结构有效地表达了属性间的条件独立性，给定父节点集，贝叶斯网假设每个属性与它的非后裔属性独立。于是 $B=<G,\Theta>$ 将属性的联合概率分布定义为：</p>
+<script type="math/tex; mode=display">P_B(x_1,x_2,\cdots,x_d)=\prod_{i=1}^dP_B(x_i|\pi_i)=\prod_{i=1}^d\theta_{x_i|\pi_i}</script><p><img src="C:\Users\Lenovo\Desktop\Project\HexoBlog\blog\themes\Butterfly\source\img\QQ图片20220819223718.png" alt="QQ图片20220819223718"></p>
+<p>以上图为例，联合概率分布定义为：</p>
+<script type="math/tex; mode=display">P(x_1,x_2,x_3,x_4,x_5)=P(x_1)P(x_2)P(x_3|x_1)P(x_4|x_1,x_2)P(x_5|x_2)</script><p>显然， $x_3$ 和 $x_4$ 在给定 $x_1$ 的取值时独立，$x_4$ 和 $x_5$ 在给定 $x_2$ 的取值时独立，分别简记为 $x_3\bot x_4|x_1$ 和 $x_4\bot x_5|x_2$</p>
+<p>为了分析有向图中变量间的条件独立性，可使用“有向分离”，我们先把有向图转变为一个无向图：</p>
+<ul>
+<li>找出所有 $V$ 型结构，在 $V$ 型结构的两个父结点之间加上一条无向边</li>
+<li>将所有有向边改为无向边</li>
+</ul>
+<p>由此产生的无向图称为“道德图”，令父节点相连的过程称为“道德化”。</p>
+<p>基于道德图能直观、迅速地找到变量之间的条件独立性，假定道德图中有变量 $x,y$ 和变量集合 $z=\{z_i\}$ ，若变量 $x$ 和 $y$ 能在图上被 $z$ 分开，即从道德图中去除变量 $z$ 之后，$x$ 和 $y$ 分别属于两个连通分支。则称 $x$ 和 $y$ 被 $z$ 有向分离。即 $x\bot y|z$</p>
+<p> <img src="C:\Users\Lenovo\Desktop\Project\HexoBlog\blog\themes\Butterfly\source\img\QQ图片20220819231636.png" alt="QQ图片20220819231636"></p>
+<p>所有条件独立关系：$x_3\bot x_4|x_1\quad x_4\bot x_5|x_3\quad x_3\bot x_2|x_1\quad x_3\bot x_5|x_1\quad x_3\bot x_5|x_2$</p>
+<h4 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h4><p><strong>最小描述长度准则</strong>：定义一个评分函数，评估贝叶斯网与训练数据的契合程度，然后基于这个评分函数来寻找结构最优的贝叶斯网。常用评分函数通常基于信息论准则，此类准则将学习问题看作一个数据压缩任务，学习目标是找到一个能以最短编码长度描述训练数据的模型。此时编码长度包括描述模型自身所需的编码位数和使用该模型描述数据所需的编码位数。</p>
+<p>给定训练集 $D=\{x_1,x_2,\cdots,x_m\}$，贝叶斯网 $B=<G,\Theta>$ 在 $D$ 上的评分函数可写为：</p>
+<script type="math/tex; mode=display">s(B|D)=f(\theta)|B|-LL(B|D)</script><p>其中 $|B|$ 是贝叶斯的参数个数，$f(\theta)$ 表示描述每个参数 $\theta $ 所需的编码位数，而：</p>
+<script type="math/tex; mode=display">LL(B|D)=\sum_{i=1}^m \log{P_B(x_i)}</script><p>评分函数第一项是计算编码贝叶斯网所需的编码位数，第二项是计算 $B$ 所对应的概率分布 $P_B$ 对 $D$ 描述的有多好。</p>
+<p>若 $f(\theta)=1$  ，即每个参数用1编码位描述，则得到AIC评分函数：</p>
+<script type="math/tex; mode=display">AIC(B|D)=|B|-LL(B|D)</script><p>若 $f(\theta)=\dfrac{1}{2}\log m$ ，则得到BIC评分函数：</p>
+<script type="math/tex; mode=display">BIC(B|D)=\dfrac{\log m}{2}|B|-LL(B|D)</script></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Little P</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/">http://example.com/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/QQ%E5%9B%BE%E7%89%8720220819210414.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/"><img class="next-cover" src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">正态分布检验</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Little P</div><div class="author-info__description">记录生活</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">极大似然估计</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">朴素贝叶斯分类器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8B%89%E6%99%AE%E6%8B%89%E6%96%AF%E4%BF%AE%E6%AD%A3"><span class="toc-number">1.</span> <span class="toc-text">拉普拉斯修正</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8A%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">半朴素贝叶斯分类器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%BD%91"><span class="toc-number"></span> <span class="toc-text">贝叶斯网</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0"><span class="toc-number">2.</span> <span class="toc-text">学习</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/" title="贝叶斯分类器"><img src="/img/QQ%E5%9B%BE%E7%89%8720220819210414.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="贝叶斯分类器"/></a><div class="content"><a class="title" href="/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/" title="贝叶斯分类器">贝叶斯分类器</a><time datetime="2022-08-19T13:02:00.000Z" title="Created 2022-08-19 21:02:00">2022-08-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正态分布检验"/></a><div class="content"><a class="title" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验">正态分布检验</a><time datetime="2022-08-16T14:19:27.000Z" title="Created 2022-08-16 22:19:27">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816221358.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="优化模型"/></a><div class="content"><a class="title" href="/2022/08/16/%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B/" title="优化模型">优化模型</a><time datetime="2022-08-16T13:55:34.000Z" title="Created 2022-08-16 21:55:34">2022-08-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价"><img src="/img/perple2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="模糊综合评价"/></a><div class="content"><a class="title" href="/2022/08/14/%E6%A8%A1%E7%B3%8A%E7%BB%BC%E5%90%88%E8%AF%84%E4%BB%B7-1/" title="模糊综合评价">模糊综合评价</a><time datetime="2022-08-14T10:46:40.000Z" title="Created 2022-08-14 18:46:40">2022-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟"><img src="/img/white2022814.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="蒙特卡洛模拟"/></a><div class="content"><a class="title" href="/2022/08/14/%E8%92%99%E7%89%B9%E5%8D%A1%E6%B4%9B%E6%A8%A1%E6%8B%9F/" title="蒙特卡洛模拟">蒙特卡洛模拟</a><time datetime="2022-08-14T10:42:45.000Z" title="Created 2022-08-14 18:42:45">2022-08-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Little P</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
