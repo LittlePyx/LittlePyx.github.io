@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang="cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>信息融合 | 小P的猫舍</title><meta name="keywords" content="学习笔记 日记"><meta name="author" content="Little P"><meta name="copyright" content="Little P"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第一章：多源信息融合的基本概念信息融合的定义信息融合就是一种多层次、多方面的处理过程，包括对多源数据进行检测、相关、组合和估计，从而提高状态估计和身份估计的精度，以及对战场态势和威胁的重要程度进行适时完整的评价。 JDL数据融合模型 在JDL数据融合模型中，包括以下几种处理过程：  第一级处理：目标评估 第二级处理：态势评估 第三级处理：影响评估 第四级处理：过程评估  信息融合的级别按照融合系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息融合">
+<meta property="og:url" content="http://example.com/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="第一章：多源信息融合的基本概念信息融合的定义信息融合就是一种多层次、多方面的处理过程，包括对多源数据进行检测、相关、组合和估计，从而提高状态估计和身份估计的精度，以及对战场态势和威胁的重要程度进行适时完整的评价。 JDL数据融合模型 在JDL数据融合模型中，包括以下几种处理过程：  第一级处理：目标评估 第二级处理：态势评估 第三级处理：影响评估 第四级处理：过程评估  信息融合的级别按照融合系统">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/flower20231228.jpg">
+<meta property="article:published_time" content="2023-12-28T13:40:31.000Z">
+<meta property="article:modified_time" content="2023-12-28T15:42:12.909Z">
+<meta property="article:author" content="Little P">
+<meta property="article:tag" content="学习笔记 日记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/flower20231228.jpg"><link rel="shortcut icon" href="/img/kamuyi.jpg"><link rel="canonical" href="http://example.com/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '信息融合',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-12-28 23:42:12'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/kamuyi.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/flower20231228.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">小P的猫舍</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">信息融合</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-12-28T13:40:31.000Z" title="Created 2023-12-28 21:40:31">2023-12-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-12-28T15:42:12.909Z" title="Updated 2023-12-28 23:42:12">2023-12-28</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="信息融合"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="第一章：多源信息融合的基本概念"><a href="#第一章：多源信息融合的基本概念" class="headerlink" title="第一章：多源信息融合的基本概念"></a>第一章：多源信息融合的基本概念</h1><h3 id="信息融合的定义"><a href="#信息融合的定义" class="headerlink" title="信息融合的定义"></a>信息融合的定义</h3><p>信息融合就是一种多层次、多方面的处理过程，包括对多源数据进行检测、相关、组合和估计，从而提高状态估计和身份估计的精度，以及对战场态势和威胁的重要程度进行适时完整的评价。</p>
+<h3 id="JDL数据融合模型"><a href="#JDL数据融合模型" class="headerlink" title="JDL数据融合模型"></a>JDL数据融合模型</h3><p><img src="\img\image-20231228223345642.png" alt="image-20231228223345642"></p>
+<p>在JDL数据融合模型中，包括以下几种处理过程：</p>
+<ul>
+<li>第一级处理：目标评估</li>
+<li>第二级处理：态势评估</li>
+<li>第三级处理：影响评估</li>
+<li>第四级处理：过程评估</li>
+</ul>
+<h3 id="信息融合的级别"><a href="#信息融合的级别" class="headerlink" title="信息融合的级别"></a>信息融合的级别</h3><p>按照融合系统中的数据抽象层次，融合可划分位三个级别：数据级融合、特征级融合、决策级融合</p>
+<ul>
+<li>特征级融合：参量模板法、特征压缩、聚类方法、人工神经网络、K阶最近邻法</li>
+<li>决策级融合：Bayes推断、专家系统、D-S证据推理、模糊集理论</li>
+</ul>
+<h3 id="通用处理结构"><a href="#通用处理结构" class="headerlink" title="通用处理结构"></a>通用处理结构</h3><ul>
+<li>集中式结构</li>
+<li>分布式结构</li>
+<li>混合式结构</li>
+</ul>
+<h3 id="按融合技术分类"><a href="#按融合技术分类" class="headerlink" title="按融合技术分类"></a>按融合技术分类</h3><ul>
+<li>假设检验型信息融合</li>
+<li>滤波跟踪型信息融合</li>
+<li>聚类分析型信息融合</li>
+<li>模式识别型信息融合</li>
+<li>人工智能型信息融合</li>
+</ul>
+<h3 id="按信息融合的目的分类"><a href="#按信息融合的目的分类" class="headerlink" title="按信息融合的目的分类"></a>按信息融合的目的分类</h3><ul>
+<li>检测融合</li>
+<li>估计融合</li>
+<li>属性融合、</li>
+</ul>
+<h3 id="应用领域"><a href="#应用领域" class="headerlink" title="应用领域"></a>应用领域</h3><ul>
+<li>人工智能机器人</li>
+<li>智能交通系统</li>
+<li>汽车控制</li>
+<li>图像融合、检测与处理</li>
+<li>遥感遥测</li>
+<li>入侵检测</li>
+</ul>
+<h1 id="第二章：量测和观测方程"><a href="#第二章：量测和观测方程" class="headerlink" title="第二章：量测和观测方程"></a>第二章：量测和观测方程</h1><h3 id="窄带随机噪声"><a href="#窄带随机噪声" class="headerlink" title="窄带随机噪声"></a>窄带随机噪声</h3><p>如果噪声$n(t)$的功率谱密度$P_n(\omega)$在频率$f=f_0$和$f=-f_0$附近一个很窄的频率范围内存在，而频率$f_0$相当高，则通常把这种高频限带噪声称为窄带噪声：</p>
+<script type="math/tex; mode=display">
+n(t)=a_n(t)\cos[\omega_0t+\theta_n(t)]=n_R(t)\cos\omega_0t-n_I(t)\sin\omega_0t</script><p>设噪声$n(t)$是均值为0，方差为$\sigma^2$的平稳高斯随机过程，可以推得正交随机分量$n_R(t)$和$n_I(t)$也是均值为0，方差为$\sigma^2$的高斯噪声，而且两者是不相关的。</p>
+<p>于是，$n_R(t)$和$n_I(t)$的联合概率密度函数（隐去时间变量t后）为：</p>
+<script type="math/tex; mode=display">
+p(n_R,n_I)=\frac{1}{2\pi\sigma_n^2}\exp\left(-\frac{n_R^2+n_I^2}{2\sigma_n^2}\right)</script><p>最后可求得噪声的包络$a_n(t)$、相位$\theta_n(t)$的概率密度函数，由包络$a_n(t)$、相位$\theta_n(t)$与$n_R(t)$和$n_I(t)$的关系，利用二维雅克比变换，可得隐去时间变量的包络$a_n(t)$、相位$\theta_n(t)$的联合概率密度函数。</p>
+<script type="math/tex; mode=display">
+p(a_n,\theta_n)=\frac{a_n}{2\pi\sigma_n^2}\exp\left(-\frac{a_n^2}{2\sigma_n^2}\right)\qquad a_n\geq0, -\pi\leq\theta_n\leq\pi</script><p>噪声的包络$a_n(t)$和相位$\theta_n(t)$的密度函数：</p>
+<p>相位的包络为瑞利分布：</p>
+<script type="math/tex; mode=display">
+p\left( a_n \right) =\left\{ \begin{array}{c}
+    \frac{a_n}{\sigma _{n}^{2}}\exp \left( -\frac{a_{n}^{2}}{2\sigma _{n}^{2}} \right) ,    a_n\ge 0\\
+    0,                       a_n\le 0\\
+\end{array} \right.</script><p>相位为均匀分布：</p>
+<script type="math/tex; mode=display">
+p\left( \theta _n \right) =\left\{ \begin{array}{c}
+    \frac{1}{2\pi}, -\pi \le \theta _n\le \pi\\
+    0,       others\\
+\end{array} \right.</script><h3 id="WSN的三维多点定位"><a href="#WSN的三维多点定位" class="headerlink" title="WSN的三维多点定位"></a>WSN的三维多点定位</h3><p>传感器观测信号是到达时间$t_i$或到达时间差$\Delta t_i$</p>
+<p>融合处理的状态参数是特定目标的位置</p>
+<script type="math/tex; mode=display">
+\left( x-x_1 \right) ^2+\left( y-y_1 \right) ^2+\left( z-z_1 \right) ^2={r_1}^2=\left( Ct_1 \right) ^2
+\\
+\left( x-x_2 \right) ^2+\left( y-y_2 \right) ^2+\left( z-z_2 \right) ^2={r_2}^2=\left( Ct_2 \right) ^2
+\\
+\cdots 
+\\
+\left( x-x_n \right) ^2+\left( y-y_n \right) ^2+\left( z-z_n \right) ^2={r_n}^2=\left( Ct_n \right) ^2</script><p>多点定位法的量测模型：</p>
+<script type="math/tex; mode=display">
+\Delta T=f\left( X \right) +W
+\\
+\Delta T=\left( \Delta t_i \right) ^T, W=\left( w_i \right) ^T, w_i\sim N\left( 0,\sigma _{i}^{2} \right) \,\,</script><h3 id="量测建模"><a href="#量测建模" class="headerlink" title="量测建模"></a>量测建模</h3><p>量测建模的概念：在进行目标信息的检测、估计以及目标信息融合处理需要建立观测方程，也称为量测方程：</p>
+<script type="math/tex; mode=display">
+Z:\text{观测信号}=f\left( X:\text{状态变量} \right) +g\left( W:\text{观测噪声} \right)</script><p>一般状态变量$X$是目标的位置坐标，或位置信息加上速度信息：</p>
+<script type="math/tex; mode=display">
+X=\left( x,y,z \right) ^T
+\\
+X=\left( x,y,z,v_x,v_y,v_z \right) ^T=\left( x,y,z,\dot{x},\dot{y},\dot{z} \right) ^T</script><p>以传感器坐标系的观测信号，对于雷达系统观测信号是方位角、仰角、距离，或包括多普勒频率计算的距离变化率：</p>
+<script type="math/tex; mode=display">
+X=\left( x,y,z \right) ^T
+\\
+X=\left( x,y,z,v_x,v_y,v_z \right) ^T=\left( x,y,z,\dot{x},\dot{y},\dot{z} \right) ^T</script><p>建立雷达系统的观测方程：</p>
+<script type="math/tex; mode=display">
+\boldsymbol{z}=h\left( \boldsymbol{x} \right) +\boldsymbol{w}
+\\
+\boldsymbol{z}=\left( \hat{\theta}_i,\hat{\eta}_i,\hat{r}_i,\hat{\dot{r}}_i \right) ^T
+\\
+\hat{\theta}_i=\theta _i+w_{\theta}=\mathrm{arc}\tan \left( y/x \right) +w_{\theta}
+\\
+\hat{\eta}_i=\eta _i+w_{\eta}=\mathrm{arc}\tan \left( z/\sqrt{x^2+y^2} \right) +w_{\eta}
+\\
+\hat{r}_i=r_i+w_r=\sqrt{x^2+y^2+z^2}+w_r
+\\
+\hat{\dot{r}}_i=\dot{r}_i+\omega _{\dot{r}}=\left( x\dot{x}+y\dot{y}+z\dot{z} \right) /\sqrt{x^2+y^2+z^2}+w_{\dot{r}}</script></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">Little P</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/">http://example.com/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/flower20231228.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/09/10/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"><img class="next-cover" src="/img/pink20230910.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">数学建模</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Little P</div><div class="author-info__description">记录生活</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%AB%A0%EF%BC%9A%E5%A4%9A%E6%BA%90%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">第一章：多源信息融合的基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.0.1.</span> <span class="toc-text">信息融合的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDL%E6%95%B0%E6%8D%AE%E8%9E%8D%E5%90%88%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.0.2.</span> <span class="toc-text">JDL数据融合模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88%E7%9A%84%E7%BA%A7%E5%88%AB"><span class="toc-number">1.0.3.</span> <span class="toc-text">信息融合的级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E5%A4%84%E7%90%86%E7%BB%93%E6%9E%84"><span class="toc-number">1.0.4.</span> <span class="toc-text">通用处理结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E8%9E%8D%E5%90%88%E6%8A%80%E6%9C%AF%E5%88%86%E7%B1%BB"><span class="toc-number">1.0.5.</span> <span class="toc-text">按融合技术分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88%E7%9A%84%E7%9B%AE%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.0.6.</span> <span class="toc-text">按信息融合的目的分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E9%A2%86%E5%9F%9F"><span class="toc-number">1.0.7.</span> <span class="toc-text">应用领域</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0%EF%BC%9A%E9%87%8F%E6%B5%8B%E5%92%8C%E8%A7%82%E6%B5%8B%E6%96%B9%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">第二章：量测和观测方程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AA%84%E5%B8%A6%E9%9A%8F%E6%9C%BA%E5%99%AA%E5%A3%B0"><span class="toc-number">2.0.1.</span> <span class="toc-text">窄带随机噪声</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WSN%E7%9A%84%E4%B8%89%E7%BB%B4%E5%A4%9A%E7%82%B9%E5%AE%9A%E4%BD%8D"><span class="toc-number">2.0.2.</span> <span class="toc-text">WSN的三维多点定位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8F%E6%B5%8B%E5%BB%BA%E6%A8%A1"><span class="toc-number">2.0.3.</span> <span class="toc-text">量测建模</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合"><img src="/img/flower20231228.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信息融合"/></a><div class="content"><a class="title" href="/2023/12/28/%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合">信息融合</a><time datetime="2023-12-28T13:40:31.000Z" title="Created 2023-12-28 21:40:31">2023-12-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/09/10/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/" title="数学建模"><img src="/img/pink20230910.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数学建模"/></a><div class="content"><a class="title" href="/2023/09/10/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/" title="数学建模">数学建模</a><time datetime="2023-09-10T12:56:27.000Z" title="Created 2023-09-10 20:56:27">2023-09-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/10/29/mysqlnote/" title="mysqlnote"><img src="/img/20221029.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysqlnote"/></a><div class="content"><a class="title" href="/2022/10/29/mysqlnote/" title="mysqlnote">mysqlnote</a><time datetime="2022-10-29T03:58:19.000Z" title="Created 2022-10-29 11:58:19">2022-10-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/" title="贝叶斯分类器"><img src="/img/QQ%E5%9B%BE%E7%89%8720220819210414.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="贝叶斯分类器"/></a><div class="content"><a class="title" href="/2022/08/19/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8/" title="贝叶斯分类器">贝叶斯分类器</a><time datetime="2022-08-19T13:02:00.000Z" title="Created 2022-08-19 21:02:00">2022-08-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验"><img src="/img/QQ%E5%9B%BE%E7%89%8720220816222218.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="正态分布检验"/></a><div class="content"><a class="title" href="/2022/08/16/%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83%E6%A3%80%E9%AA%8C/" title="正态分布检验">正态分布检验</a><time datetime="2022-08-16T14:19:27.000Z" title="Created 2022-08-16 22:19:27">2022-08-16</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Little P</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
