@@ -23,3 +23,29 @@
   display: block;
   margin: 0 auto;
 }
+
+/* ===============================
+ * 首页大图标题整体下移
+ * =============================== */
+#page-header #site-info {
+  top: 55% !important;   /* 默认约 50%，调大=下移 */
+  transform: translateY(-50%);
+}
+
+/* ===============================
+ * 主标题（站点名）放大
+ * =============================== */
+#page-header #site-title {
+  font-size: 3.2rem !important;   /* 默认约 2.5rem */
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* ===============================
+ * 副标题（打字机）放大
+ * =============================== */
+#page-header #site-subtitle {
+  margin-top: 1.2rem;
+  font-size: 1.6rem !important;   /* 默认约 1.2rem */
+  opacity: 0.9;
+}
