@@ -1,0 +1,25 @@
+/* 文章封面渐变遮罩（科研风） */
+#page-header.post-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 30, 60, 0.65),
+    rgba(0, 0, 0, 0.35)
+  );
+  z-index: 1;
+}
+
+#page-header.post-bg * {
+  position: relative;
+  z-index: 2;
+}
+
+/* 修复首页文章卡片被图片撑爆 */
+#recent-posts .recent-post-item img {
+  max-height: 260px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
