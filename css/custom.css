@@ -49,3 +49,581 @@
   font-size: 1.6rem !important;   /* 默认约 1.2rem */
   opacity: 0.9;
 }
+
+/* 算法笔记：滑动窗口交互演示 */
+#min-window-demo {
+  --demo-bg: rgba(247, 249, 252, 0.92);
+  --demo-border: rgba(80, 100, 130, 0.18);
+  --demo-text: #263241;
+  --demo-muted: #607086;
+  --demo-blue: #2f7df6;
+  --demo-blue-soft: rgba(47, 125, 246, 0.14);
+  --demo-green: #16a36b;
+  --demo-orange: #e68a00;
+  --demo-red: #d64545;
+  margin: 1.2rem 0;
+  padding: 1rem;
+  border: 1px solid var(--demo-border);
+  border-radius: 8px;
+  background: var(--demo-bg);
+  color: var(--demo-text);
+  box-shadow: 0 8px 24px rgba(24, 36, 56, 0.08);
+}
+
+[data-theme="dark"] #min-window-demo {
+  --demo-bg: rgba(30, 36, 48, 0.92);
+  --demo-border: rgba(170, 185, 210, 0.2);
+  --demo-text: #eef3fb;
+  --demo-muted: #a8b5c8;
+  --demo-blue-soft: rgba(77, 145, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+#min-window-demo .demo-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+#min-window-demo .demo-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  font-weight: 700;
+}
+
+#min-window-demo .demo-pill,
+#min-window-demo .demo-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.75rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid var(--demo-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--demo-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] #min-window-demo .demo-pill,
+[data-theme="dark"] #min-window-demo .demo-stat {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#min-window-demo .demo-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.8rem 0;
+}
+
+#min-window-demo .demo-array {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(42px, 1fr));
+  gap: 0.55rem;
+  margin: 0.9rem 0 0.75rem;
+}
+
+#min-window-demo .demo-cell {
+  position: relative;
+  min-height: 62px;
+  padding: 0.55rem 0.3rem 0.35rem;
+  border: 2px solid var(--demo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+[data-theme="dark"] #min-window-demo .demo-cell {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#min-window-demo .demo-cell.in-window {
+  border-color: var(--demo-blue);
+  background: var(--demo-blue-soft);
+}
+
+#min-window-demo .demo-cell.best-window {
+  box-shadow: inset 0 0 0 2px var(--demo-green);
+}
+
+#min-window-demo .demo-cell.added {
+  border-color: var(--demo-orange);
+  transform: translateY(-2px);
+}
+
+#min-window-demo .demo-cell.removed {
+  border-color: var(--demo-red);
+  background: rgba(214, 69, 69, 0.14);
+}
+
+#min-window-demo .demo-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+#min-window-demo .demo-index {
+  display: block;
+  color: var(--demo-muted);
+  font-size: 0.76rem;
+}
+
+#min-window-demo .demo-pointer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--demo-blue);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#min-window-demo .demo-pointer.left {
+  bottom: -1.2rem;
+}
+
+#min-window-demo .demo-pointer.right {
+  top: -1.2rem;
+}
+
+#min-window-demo .demo-note {
+  min-height: 3.2rem;
+  margin-top: 1.45rem;
+  padding: 0.75rem 0.85rem;
+  border-left: 4px solid var(--demo-blue);
+  border-radius: 6px;
+  background: rgba(47, 125, 246, 0.08);
+  color: var(--demo-text);
+  line-height: 1.65;
+}
+
+#min-window-demo .demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+#min-window-demo button {
+  min-height: 2.1rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--demo-border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--demo-text);
+  cursor: pointer;
+}
+
+[data-theme="dark"] #min-window-demo button {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#min-window-demo button:hover {
+  border-color: var(--demo-blue);
+}
+
+#min-window-demo .demo-step {
+  margin-left: auto;
+  color: var(--demo-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 680px) {
+  #min-window-demo {
+    padding: 0.85rem;
+  }
+
+  #min-window-demo .demo-array {
+    grid-template-columns: repeat(3, minmax(58px, 1fr));
+    row-gap: 1.55rem;
+  }
+
+  #min-window-demo .demo-step {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* 算法笔记：通用交互演示组件 */
+.algo-demo {
+  --algo-bg: rgba(247, 249, 252, 0.92);
+  --algo-border: rgba(80, 100, 130, 0.18);
+  --algo-text: #263241;
+  --algo-muted: #607086;
+  --algo-blue: #2f7df6;
+  --algo-blue-soft: rgba(47, 125, 246, 0.14);
+  --algo-green: #16a36b;
+  --algo-green-soft: rgba(22, 163, 107, 0.14);
+  --algo-orange: #e68a00;
+  --algo-orange-soft: rgba(230, 138, 0, 0.15);
+  --algo-red: #d64545;
+  --algo-red-soft: rgba(214, 69, 69, 0.13);
+  margin: 1.2rem 0;
+  padding: 1rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 8px;
+  background: var(--algo-bg);
+  color: var(--algo-text);
+  box-shadow: 0 8px 24px rgba(24, 36, 56, 0.08);
+}
+
+[data-theme="dark"] .algo-demo {
+  --algo-bg: rgba(30, 36, 48, 0.92);
+  --algo-border: rgba(170, 185, 210, 0.2);
+  --algo-text: #eef3fb;
+  --algo-muted: #a8b5c8;
+  --algo-blue-soft: rgba(77, 145, 255, 0.2);
+  --algo-green-soft: rgba(22, 163, 107, 0.2);
+  --algo-orange-soft: rgba(230, 138, 0, 0.22);
+  --algo-red-soft: rgba(214, 69, 69, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+.algo-demo .algo-demo-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  font-weight: 700;
+}
+
+.algo-demo .algo-pill,
+.algo-demo .algo-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.75rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--algo-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .algo-demo .algo-pill,
+[data-theme="dark"] .algo-demo .algo-stat {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.algo-demo .algo-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.8rem 0;
+}
+
+.algo-demo .algo-grid {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1rem 0 0.75rem;
+}
+
+.algo-demo .algo-grid.binary-grid {
+  grid-template-columns: repeat(6, minmax(42px, 1fr));
+}
+
+.algo-demo .algo-grid.move-zeroes-grid {
+  grid-template-columns: repeat(5, minmax(48px, 1fr));
+}
+
+.algo-demo .algo-grid.subarray-sum-grid {
+  grid-template-columns: repeat(4, minmax(52px, 1fr));
+}
+
+.algo-demo .algo-grid.diff-grid {
+  grid-template-columns: repeat(6, minmax(46px, 1fr));
+}
+
+.algo-demo .algo-grid.diff-result-grid {
+  grid-template-columns: repeat(5, minmax(48px, 1fr));
+}
+
+.algo-demo .algo-grid.spiral-matrix-grid {
+  grid-template-columns: repeat(4, minmax(52px, 1fr));
+  max-width: 440px;
+}
+
+.algo-demo .algo-cell {
+  position: relative;
+  min-height: 64px;
+  padding: 0.55rem 0.3rem 0.35rem;
+  border: 2px solid var(--algo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  transition: border-color 180ms ease, background 180ms ease, opacity 180ms ease, transform 180ms ease;
+}
+
+[data-theme="dark"] .algo-demo .algo-cell {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.algo-demo .algo-cell.active {
+  border-color: var(--algo-blue);
+  background: var(--algo-blue-soft);
+}
+
+.algo-demo .algo-cell.mid,
+.algo-demo .algo-cell.scanning {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+  transform: translateY(-2px);
+}
+
+.algo-demo .algo-cell.answer,
+.algo-demo .algo-cell.written {
+  border-color: var(--algo-green);
+  background: var(--algo-green-soft);
+  box-shadow: inset 0 0 0 2px var(--algo-green);
+}
+
+.algo-demo .algo-cell.discarded,
+.algo-demo .algo-cell.zero-fill {
+  border-color: var(--algo-red);
+  background: var(--algo-red-soft);
+}
+
+.algo-demo .algo-cell.inactive {
+  opacity: 0.44;
+}
+
+.algo-demo .algo-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.algo-demo .algo-index {
+  display: block;
+  color: var(--algo-muted);
+  font-size: 0.76rem;
+}
+
+.algo-demo .algo-pointer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.algo-demo .algo-pointer.top {
+  top: -1.2rem;
+}
+
+.algo-demo .algo-pointer.bottom {
+  bottom: -1.2rem;
+}
+
+.algo-demo .algo-pointer.left,
+.algo-demo .algo-pointer.slow {
+  color: var(--algo-blue);
+}
+
+.algo-demo .algo-pointer.right,
+.algo-demo .algo-pointer.fast {
+  color: var(--algo-green);
+}
+
+.algo-demo .algo-pointer.mid {
+  color: var(--algo-orange);
+}
+
+.algo-demo .algo-pointer.end {
+  color: var(--algo-red);
+}
+
+.algo-demo .algo-note {
+  min-height: 3.2rem;
+  margin-top: 1.45rem;
+  padding: 0.75rem 0.85rem;
+  border-left: 4px solid var(--algo-blue);
+  border-radius: 6px;
+  background: rgba(47, 125, 246, 0.08);
+  color: var(--algo-text);
+  line-height: 1.65;
+}
+
+.algo-demo .algo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+.algo-demo button {
+  min-height: 2.1rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--algo-text);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .algo-demo button {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.algo-demo button:hover {
+  border-color: var(--algo-blue);
+}
+
+.algo-demo .algo-step {
+  margin-left: auto;
+  color: var(--algo-muted);
+  font-size: 0.9rem;
+}
+
+.algo-demo .algo-result-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: center;
+  margin-top: 0.8rem;
+  color: var(--algo-muted);
+}
+
+.algo-demo .algo-output {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(48px, 1fr));
+  gap: 0.55rem;
+}
+
+.algo-demo .algo-row-block {
+  margin-top: 0.85rem;
+}
+
+.algo-demo .algo-row-heading {
+  margin-bottom: 0.45rem;
+  color: var(--algo-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.algo-demo .algo-map-wrap {
+  margin: 0.85rem 0 0.6rem;
+}
+
+.algo-demo .algo-map-title {
+  margin-bottom: 0.45rem;
+  color: var(--algo-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.algo-demo .algo-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 0.5rem;
+}
+
+.algo-demo .algo-map-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--algo-text);
+}
+
+[data-theme="dark"] .algo-demo .algo-map-item {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.algo-demo .algo-map-item.match {
+  border-color: var(--algo-green);
+  background: var(--algo-green-soft);
+}
+
+.algo-demo .algo-map-item.updated {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+}
+
+.algo-demo .algo-match-list {
+  min-height: 1.6rem;
+  margin-top: 0.45rem;
+  color: var(--algo-green);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.algo-demo .algo-sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  align-items: center;
+}
+
+.algo-demo .algo-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--algo-text);
+  font-weight: 800;
+}
+
+[data-theme="dark"] .algo-demo .algo-token {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.algo-demo .algo-token.current {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+}
+
+.algo-demo .algo-token.empty {
+  color: var(--algo-muted);
+  font-weight: 600;
+}
+
+@media (max-width: 680px) {
+  .algo-demo {
+    padding: 0.85rem;
+  }
+
+  .algo-demo .algo-grid.binary-grid,
+  .algo-demo .algo-grid.move-zeroes-grid,
+  .algo-demo .algo-grid.subarray-sum-grid,
+  .algo-demo .algo-grid.diff-grid,
+  .algo-demo .algo-grid.diff-result-grid,
+  .algo-demo .algo-grid.spiral-matrix-grid,
+  .algo-demo .algo-output {
+    grid-template-columns: repeat(3, minmax(58px, 1fr));
+    row-gap: 1.55rem;
+  }
+
+  .algo-demo .algo-result-row {
+    grid-template-columns: 1fr;
+  }
+
+  .algo-demo .algo-step {
+    width: 100%;
+    margin-left: 0;
+  }
+}
