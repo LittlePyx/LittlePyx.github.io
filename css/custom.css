@@ -35,10 +35,29 @@
 /* ===============================
  * 主标题（站点名）放大
  * =============================== */
-#page-header #site-title {
+#page-header.full_page #site-title {
   font-size: 3.2rem !important;   /* 默认约 2.5rem */
   font-weight: 700;
   letter-spacing: 2px;
+}
+
+/* 非首页页面标题：避免手机端长标题过大、换行拥挤 */
+#page-header.not-home-page #site-title {
+  max-width: min(92vw, 860px);
+  margin: 0 auto;
+  padding: 0 1rem;
+  font-size: 2.45rem !important;
+  line-height: 1.25;
+  letter-spacing: 0;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 680px) {
+  #page-header.not-home-page #site-title {
+    max-width: 94vw;
+    font-size: clamp(1.45rem, 6vw, 1.75rem) !important;
+    line-height: 1.35;
+  }
 }
 
 /* ===============================
