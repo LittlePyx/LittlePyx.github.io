@@ -16,6 +16,24 @@
   z-index: 2;
 }
 
+/* 算法笔记页面头图遮罩：保证标题在代码背景上可读 */
+#page-header.not-home-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 20, 34, 0.72),
+    rgba(12, 44, 72, 0.52)
+  );
+  z-index: 1;
+}
+
+#page-header.not-home-page > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* 修复首页文章卡片被图片撑爆 */
 #recent-posts .recent-post-item img {
   max-height: 260px;
