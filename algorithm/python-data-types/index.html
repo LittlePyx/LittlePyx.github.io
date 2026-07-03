@@ -1,0 +1,603 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>算法刷题 Python 常用数据类型速查 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="返回算法笔记总览   开始刷题模块：数组与双指针  1. 刷题时怎么选数据类型 Python 刷题时，很多题不是卡在算法思想，而是卡在“这个地方该用什么容器”。容器选对了，代码会很自然；容器选错了，常常会写出很多补丁。 先记一个速查表：    需求 优先选择 典型场景     按下标访问、双指针、原地覆盖 list 数组、栈、排序、双指针   字符串处理 str 子串、匹配、字符统计   作">
+<meta property="og:type" content="website">
+<meta property="og:title" content="算法刷题 Python 常用数据类型速查">
+<meta property="og:url" content="https://littlepyx.github.io/algorithm/python-data-types/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="返回算法笔记总览   开始刷题模块：数组与双指针  1. 刷题时怎么选数据类型 Python 刷题时，很多题不是卡在算法思想，而是卡在“这个地方该用什么容器”。容器选对了，代码会很自然；容器选错了，常常会写出很多补丁。 先记一个速查表：    需求 优先选择 典型场景     按下标访问、双指针、原地覆盖 list 数组、栈、排序、双指针   字符串处理 str 子串、匹配、字符统计   作">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-07-03T02:36:43.842Z">
+<meta property="article:modified_time" content="2026-07-03T02:36:43.842Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Data Structures">
+<meta property="article:tag" content="LeetCode">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/algorithm/python-data-types/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '算法刷题 Python 常用数据类型速查',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'page'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load', preloader.endLoading)
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/img/algorithm-header-code.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">算法刷题 Python 常用数据类型速查</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><div class="algorithm-module-nav algorithm-module-nav-top">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/array/">开始刷题模块：数组与双指针</a>
+</div>
+<h2 id="1-刷题时怎么选数据类型">1. 刷题时怎么选数据类型</h2>
+<p>Python 刷题时，很多题不是卡在算法思想，而是卡在“这个地方该用什么容器”。容器选对了，代码会很自然；容器选错了，常常会写出很多补丁。</p>
+<p>先记一个速查表：</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>优先选择</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>按下标访问、双指针、原地覆盖</td>
+<td><code>list</code></td>
+<td>数组、栈、排序、双指针</td>
+</tr>
+<tr>
+<td>字符串处理</td>
+<td><code>str</code></td>
+<td>子串、匹配、字符统计</td>
+</tr>
+<tr>
+<td>作为不可变组合 key</td>
+<td><code>tuple</code></td>
+<td>坐标、状态、频率签名</td>
+</tr>
+<tr>
+<td>判断是否出现过、去重</td>
+<td><code>set</code></td>
+<td>快乐数、交集、去重</td>
+</tr>
+<tr>
+<td>建立映射关系</td>
+<td><code>dict</code></td>
+<td>两数之和、前缀和计数、状态映射</td>
+</tr>
+<tr>
+<td>统计频率</td>
+<td><code>Counter</code> / <code>defaultdict(int)</code></td>
+<td>异位词、频率统计</td>
+</tr>
+<tr>
+<td>队列、双端弹出</td>
+<td><code>deque</code></td>
+<td>BFS、滑动窗口、队列模拟</td>
+</tr>
+<tr>
+<td>每次取最小 / 最大</td>
+<td><code>heapq</code></td>
+<td>Top K、合并有序结构、优先队列</td>
+</tr>
+</tbody>
+</table>
+<p>判断顺序可以很简单：</p>
+<ul>
+<li>要顺序、下标、排序：先想 <code>list</code>。</li>
+<li>要查“有没有”：先想 <code>set</code>。</li>
+<li>要查“对应什么”：先想 <code>dict</code>。</li>
+<li>要查“出现几次”：先想 <code>Counter</code>。</li>
+<li>要从两头进出：先想 <code>deque</code>。</li>
+<li>要反复取最小：先想 <code>heapq</code>。</li>
+</ul>
+<h2 id="2-可变、不可变和可哈希">2. 可变、不可变和可哈希</h2>
+<p>Python 里有两个概念对刷题很重要：<strong>可变</strong> 和 <strong>可哈希</strong>。</p>
+<p>可变对象的内容可以被修改，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nums = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line">nums[<span class="number">0</span>] = <span class="number">9</span></span><br></pre></td></tr></table></figure>
+<p>不可变对象创建后不能原地修改，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">&quot;abc&quot;</span></span><br><span class="line"><span class="comment"># s[0] = &quot;x&quot;  # 会报错</span></span><br></pre></td></tr></table></figure>
+<p>可哈希对象才能作为 <code>dict</code> 的 key 或放进 <code>set</code>。常见规则可以先这样记：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>可变吗</th>
+<th>可作为 dict key / set 元素吗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td>否</td>
+<td>可以</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td>否</td>
+<td>可以</td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td>否</td>
+<td>可以</td>
+</tr>
+<tr>
+<td><code>tuple</code></td>
+<td>否</td>
+<td>通常可以</td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td>是</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td>是</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>是</td>
+<td>不可以</td>
+</tr>
+</tbody>
+</table>
+<p><code>tuple</code> 需要里面的元素也可哈希，才能整体可哈希：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">key = (<span class="number">1</span>, <span class="number">2</span>)       <span class="comment"># 可以</span></span><br><span class="line">bad = ([<span class="number">1</span>, <span class="number">2</span>], <span class="number">3</span>)  <span class="comment"># 不可以作为 dict key，因为里面有 list</span></span><br></pre></td></tr></table></figure>
+<p>这在状态压缩和图搜索里很常见。比如二维坐标不要写成列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">seen.add([row, col])  <span class="comment"># 错，list 不可哈希</span></span><br></pre></td></tr></table></figure>
+<p>应该写成元组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">seen.add((row, col))</span><br></pre></td></tr></table></figure>
+<p>一句话：<strong>会变的东西通常不能当 key；想当 key，就把它变成不可变表示。</strong></p>
+<h2 id="3-常用类型底层怎么实现">3. 常用类型底层怎么实现</h2>
+<p>Python 有多个实现版本，比如 CPython、PyPy。平时 LeetCode 和大多数本地环境默认说的 Python，通常指 <strong>CPython</strong>。下面这些实现理解不用背源码，重点是用来解释复杂度和选型。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>CPython 里大致怎么实现</th>
+<th>刷题时对应的直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>动态数组，内部是一段连续的对象引用数组</td>
+<td>下标快，尾部追加快，头部插入/删除慢</td>
+</tr>
+<tr>
+<td><code>tuple</code></td>
+<td>固定长度的对象引用数组</td>
+<td>不能改，适合做状态 key</td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td>不可变 Unicode 字符序列</td>
+<td>修改会创建新字符串，循环拼接要谨慎</td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td>哈希表</td>
+<td>key 查找平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，适合映射</td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td>只存 key 的哈希表</td>
+<td>判断存在平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，适合去重</td>
+</tr>
+<tr>
+<td><code>Counter</code></td>
+<td><code>dict</code> 的子类，value 是计数</td>
+<td>适合频率统计</td>
+</tr>
+<tr>
+<td><code>defaultdict</code></td>
+<td><code>dict</code> 的子类，带默认值工厂</td>
+<td>适合自动初始化计数或列表</td>
+</tr>
+<tr>
+<td><code>deque</code></td>
+<td>分块的双端队列</td>
+<td>两端进出都是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>heapq</code></td>
+<td>在 <code>list</code> 上维护二叉堆</td>
+<td>每次取最小值是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<p><code>list</code> 不是链表，而是动态数组。它内部存的是对象引用，不是把对象本体直接塞进数组里。因为引用数组是连续的，所以 <code>nums[i]</code> 可以直接算位置，访问是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>。尾部 <code>append</code> 通常也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，因为 CPython 会预留一些额外空间，避免每次追加都重新分配；但如果在开头插入或删除，后面的元素引用都要移动，所以是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>。</p>
+<p><code>tuple</code> 可以理解成固定长度的 <code>list</code>。创建后长度和元素引用都不能改，所以它可以表达“稳定状态”。如果里面的元素也都可哈希，整个 tuple 就能作为 <code>dict</code> 的 key 或 <code>set</code> 的元素。</p>
+<p><code>str</code> 是不可变的 Unicode 字符序列。不可变带来的好处是可以安全作为 key，也便于缓存哈希值；代价是修改字符串时不能原地改，切片或拼接通常会创建新字符串。所以需要频繁修改字符时，先转成 <code>list</code> 再 <code>''.join(...)</code> 更稳。</p>
+<p><code>dict</code> 和 <code>set</code> 的核心都是哈希表。查找一个 key 时，Python 先算 key 的哈希值，再根据哈希值去表里找位置。平均情况下查找、插入、删除接近 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>。如果发生哈希冲突，会继续探测其他位置，并用 <code>==</code> 判断是不是同一个 key。刷题时不用纠结冲突细节，只要记住：key 必须可哈希，而且哈希表用空间换时间。</p>
+<p><code>Counter</code> 和 <code>defaultdict</code> 本质上还是字典。<code>Counter</code> 把不存在的计数当成 0，更适合直接做频率统计；<code>defaultdict</code> 在 key 不存在时会自动调用默认工厂，比如 <code>int()</code> 生成 0，<code>list()</code> 生成空列表。</p>
+<p><code>deque</code> 不是普通链表，也不是单纯的动态数组。它内部由一块块固定大小的数组连接起来，所以两端追加和弹出都很快。它适合队列、BFS、滑动窗口；但如果你要大量随机访问中间元素，<code>list</code> 更合适。</p>
+<p><code>heapq</code> 不是一个新的容器类型，而是一组函数，用普通 <code>list</code> 维护小根堆。堆里下标关系是固定的：对下标 <code>i</code>，左孩子是 <code>2 * i + 1</code>，右孩子是 <code>2 * i + 2</code>。每次 <code>heappush</code> 或 <code>heappop</code> 都要沿着树高调整，所以复杂度是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>。</p>
+<p>这一节的复习目的很简单：看到操作就能想到成本。下标访问选 <code>list</code>，队头弹出选 <code>deque</code>，存在性判断选 <code>set</code>，映射和计数选 <code>dict</code> 系列，反复取最小选 <code>heapq</code>。</p>
+<h2 id="4-list：最常用的顺序容器">4. list：最常用的顺序容器</h2>
+<p><code>list</code> 是刷题里最常见的数据类型。它支持下标访问、修改、追加、排序，也可以当栈用。</p>
+<p>常用操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nums = [<span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">nums.append(<span class="number">4</span>)      <span class="comment"># 尾部加入</span></span><br><span class="line">last = nums.pop()   <span class="comment"># 尾部弹出</span></span><br><span class="line">nums.sort()         <span class="comment"># 原地排序</span></span><br><span class="line">nums[::-<span class="number">1</span>]          <span class="comment"># 反转切片，生成新列表</span></span><br></pre></td></tr></table></figure>
+<p><code>list</code> 的下标访问是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nums[i]</span><br></pre></td></tr></table></figure>
+<p>尾部 <code>append</code> 和 <code>pop</code> 平均也是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>。但头部插入和头部删除通常是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>，因为后面的元素要整体移动：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nums.insert(<span class="number">0</span>, x)  <span class="comment"># 慢</span></span><br><span class="line">nums.pop(<span class="number">0</span>)        <span class="comment"># 慢</span></span><br></pre></td></tr></table></figure>
+<p>所以如果题目需要频繁从队头弹出，不要用 <code>list.pop(0)</code>，应该换成 <code>deque.popleft()</code>。</p>
+<p><code>list</code> 很适合当栈：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">stack = []</span><br><span class="line">stack.append(x)</span><br><span class="line">top = stack.pop()</span><br></pre></td></tr></table></figure>
+<p><code>20. 有效的括号</code>、<code>1047. 删除字符串中的所有相邻重复项</code> 这类题都可以用列表当栈。判断栈是否为空时，直接写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> stack:</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>不要写 <code>if stack == []</code>，虽然能用，但不够 Pythonic。</p>
+<h2 id="5-str：不可变的字符序列">5. str：不可变的字符序列</h2>
+<p><code>str</code> 是不可变对象，所以不能直接修改某个位置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">&quot;abc&quot;</span></span><br><span class="line"><span class="comment"># s[1] = &quot;x&quot;  # 不允许</span></span><br></pre></td></tr></table></figure>
+<p>如果题目要求频繁修改字符串，通常先转成列表，改完再拼回字符串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chars = <span class="built_in">list</span>(s)</span><br><span class="line">chars[<span class="number">1</span>] = <span class="string">&quot;x&quot;</span></span><br><span class="line">s = <span class="string">&quot;&quot;</span>.join(chars)</span><br></pre></td></tr></table></figure>
+<p>字符串拼接要小心。如果在循环里不断 <code>ans += ch</code>，字符串每次都会创建新对象，数据大时可能变慢。更稳的写法是先放进列表，最后 <code>join</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">parts = []</span><br><span class="line"><span class="keyword">for</span> ch <span class="keyword">in</span> s:</span><br><span class="line">    parts.append(ch)</span><br><span class="line"></span><br><span class="line">ans = <span class="string">&quot;&quot;</span>.join(parts)</span><br></pre></td></tr></table></figure>
+<p>常用方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s.strip()       <span class="comment"># 去掉两端空白</span></span><br><span class="line">s.split()       <span class="comment"># 按空白切分</span></span><br><span class="line">s.split(<span class="string">&quot;,&quot;</span>)    <span class="comment"># 按逗号切分</span></span><br><span class="line">s.lower()       <span class="comment"># 转小写</span></span><br><span class="line">s.isdigit()     <span class="comment"># 是否全是数字字符</span></span><br></pre></td></tr></table></figure>
+<p>刷字符串题时要记住：<code>s[i:j]</code> 是左闭右开区间，包含 <code>i</code>，不包含 <code>j</code>。这和数组切片一样。</p>
+<h2 id="6-tuple：不可变序列，常用作状态-key">6. tuple：不可变序列，常用作状态 key</h2>
+<p><code>tuple</code> 和 <code>list</code> 很像，区别是 tuple 不可变。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">point = (<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">row, col = point</span><br></pre></td></tr></table></figure>
+<p>它最常见的用途是作为 <code>dict</code> 或 <code>set</code> 的 key：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">seen = <span class="built_in">set</span>()</span><br><span class="line">seen.add((row, col))</span><br></pre></td></tr></table></figure>
+<p>在图论、BFS、DFS、动态规划记忆化里，状态经常要放进集合或字典。只要状态里有多个维度，就可以用 tuple 表示。</p>
+<p>比如岛屿类题里记录坐标：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visited.add((r, c))</span><br></pre></td></tr></table></figure>
+<p>比如记忆化搜索里记录两个指针：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memo[(i, j)] = ans</span><br></pre></td></tr></table></figure>
+<p>如果状态是一个列表，比如一个排列结果，想放进集合去重，也要先转成 tuple：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">seen.add(<span class="built_in">tuple</span>(path))</span><br></pre></td></tr></table></figure>
+<h2 id="7-set：存在性判断和去重">7. set：存在性判断和去重</h2>
+<p><code>set</code> 只关心元素有没有出现，不关心出现次数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">seen = <span class="built_in">set</span>()</span><br><span class="line">seen.add(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> x <span class="keyword">in</span> seen:</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>常见用途：</p>
+<ul>
+<li>判断是否重复。</li>
+<li>判断状态是否出现过。</li>
+<li>求交集、并集、差集。</li>
+</ul>
+<p>集合运算很简洁：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">b = &#123;<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line"></span><br><span class="line">a &amp; b  <span class="comment"># 交集 &#123;2, 3&#125;</span></span><br><span class="line">a | b  <span class="comment"># 并集 &#123;1, 2, 3, 4&#125;</span></span><br><span class="line">a - b  <span class="comment"># 差集 &#123;1&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>202. 快乐数</code> 用 <code>set</code> 记录出现过的状态；<code>349. 两个数组的交集</code> 用 <code>set</code> 去重并求交集。</p>
+<p>如果题目要求保留重复次数，<code>set</code> 就不合适。比如 <code>[2, 2]</code> 和 <code>[2, 2, 2]</code> 的交集 II 要返回两个 <code>2</code>，这就需要频率统计。</p>
+<h2 id="8-dict：映射关系">8. dict：映射关系</h2>
+<p><code>dict</code> 存的是 key 到 value 的映射：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pos = &#123;&#125;</span><br><span class="line">pos[num] = i</span><br></pre></td></tr></table></figure>
+<p>最典型的是 <code>1. 两数之和</code>：key 是数值，value 是下标。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">two_sum</span>(<span class="params">nums: <span class="built_in">list</span>[<span class="built_in">int</span>], target: <span class="built_in">int</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    pos = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i, num <span class="keyword">in</span> <span class="built_in">enumerate</span>(nums):</span><br><span class="line">        need = target - num</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> need <span class="keyword">in</span> pos:</span><br><span class="line">            <span class="keyword">return</span> [pos[need], i]</span><br><span class="line"></span><br><span class="line">        pos[num] = i</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<p>使用 <code>dict</code> 时要说清楚两个问题：</p>
+<ul>
+<li>key 是什么？</li>
+<li>value 是什么？</li>
+</ul>
+<p>不同题的 value 可能完全不同：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">value -&gt; index</span><br><span class="line">prefix_sum -&gt; count</span><br><span class="line">node -&gt; copied_node</span><br><span class="line">state -&gt; answer</span><br></pre></td></tr></table></figure>
+<p>访问不存在的 key 时，普通字典会报错：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cnt = &#123;&#125;</span><br><span class="line"><span class="comment"># cnt[&quot;a&quot;] += 1  # KeyError</span></span><br></pre></td></tr></table></figure>
+<p>可以用 <code>get</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnt[<span class="string">&quot;a&quot;</span>] = cnt.get(<span class="string">&quot;a&quot;</span>, <span class="number">0</span>) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>也可以用 <code>defaultdict</code> 或 <code>Counter</code>。</p>
+<h2 id="9-Counter-和-defaultdict：频率统计">9. Counter 和 defaultdict：频率统计</h2>
+<p><code>Counter</code> 和 <code>defaultdict</code> 都来自 <code>collections</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> Counter, defaultdict</span><br></pre></td></tr></table></figure>
+<p><code>Counter</code> 适合直接统计：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cnt = Counter(<span class="string">&quot;aabbc&quot;</span>)</span><br><span class="line"><span class="comment"># Counter(&#123;&#x27;a&#x27;: 2, &#x27;b&#x27;: 2, &#x27;c&#x27;: 1&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>它访问不存在的 key 会返回 0：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnt[<span class="string">&quot;x&quot;</span>]  <span class="comment"># 0</span></span><br></pre></td></tr></table></figure>
+<p>所以 <code>242. 有效的字母异位词</code> 可以直接写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> Counter(s) == Counter(t)</span><br></pre></td></tr></table></figure>
+<p><code>defaultdict(int)</code> 适合手动累加：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cnt = defaultdict(<span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">for</span> num <span class="keyword">in</span> nums:</span><br><span class="line">    cnt[num] += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><code>defaultdict(list)</code> 适合分组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groups = defaultdict(<span class="built_in">list</span>)</span><br><span class="line">groups[key].append(word)</span><br></pre></td></tr></table></figure>
+<p><code>49. 字母异位词分组</code> 就可以用这个写法：把排序后的字符串作为 key，把同一组异位词放进同一个列表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">group_anagrams</span>(<span class="params">strs: <span class="built_in">list</span>[<span class="built_in">str</span>]</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">list</span>[<span class="built_in">str</span>]]:</span><br><span class="line">    groups = defaultdict(<span class="built_in">list</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> strs:</span><br><span class="line">        key = <span class="string">&quot;&quot;</span>.join(<span class="built_in">sorted</span>(word))</span><br><span class="line">        groups[key].append(word)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">list</span>(groups.values())</span><br></pre></td></tr></table></figure>
+<p>简单区分：</p>
+<ul>
+<li>直接统计已有序列：<code>Counter(nums)</code>。</li>
+<li>边遍历边自定义统计：<code>defaultdict(int)</code>。</li>
+<li>按 key 分组收集列表：<code>defaultdict(list)</code>。</li>
+</ul>
+<h2 id="10-deque：队列和双端队列">10. deque：队列和双端队列</h2>
+<p><code>deque</code> 也来自 <code>collections</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</span><br></pre></td></tr></table></figure>
+<p>它适合从两端加入和弹出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">q = deque()</span><br><span class="line">q.append(x)       <span class="comment"># 右边入队</span></span><br><span class="line">q.popleft()       <span class="comment"># 左边出队</span></span><br><span class="line">q.appendleft(x)   <span class="comment"># 左边加入</span></span><br><span class="line">q.pop()           <span class="comment"># 右边弹出</span></span><br></pre></td></tr></table></figure>
+<p>BFS 最常用 <code>deque</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</span><br><span class="line"></span><br><span class="line">q = deque([start])</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> q:</span><br><span class="line">    node = q.popleft()</span><br><span class="line">    <span class="keyword">for</span> nxt <span class="keyword">in</span> graph[node]:</span><br><span class="line">        q.append(nxt)</span><br></pre></td></tr></table></figure>
+<p>不要用 <code>list.pop(0)</code> 写 BFS，因为它是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>。<code>deque.popleft()</code> 是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>。</p>
+<p><code>deque</code> 也常用于单调队列，比如滑动窗口最大值。这个场景里队列里通常存下标，而不是直接存值，因为要判断队头是否已经滑出窗口。</p>
+<h2 id="11-heapq：堆和优先队列">11. heapq：堆和优先队列</h2>
+<p>Python 的堆在 <code>heapq</code> 模块里，默认是小根堆，也就是每次弹出最小值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> heapq</span><br><span class="line"></span><br><span class="line">heap = []</span><br><span class="line">heapq.heappush(heap, x)</span><br><span class="line">smallest = heapq.heappop(heap)</span><br></pre></td></tr></table></figure>
+<p>常见用途：</p>
+<ul>
+<li>Top K。</li>
+<li>合并多个有序链表或数组。</li>
+<li>Dijkstra 最短路。</li>
+<li>每次取当前最小或最大。</li>
+</ul>
+<p>如果想要最大堆，可以把数取负数存进去：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">heapq.heappush(heap, -x)</span><br><span class="line">max_value = -heapq.heappop(heap)</span><br></pre></td></tr></table></figure>
+<p>如果堆里存多个字段，通常用 tuple：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heapq.heappush(heap, (distance, node))</span><br></pre></td></tr></table></figure>
+<p>Python 会先比较 tuple 的第一个元素，如果相同再比较第二个元素。所以如果第二个元素不可比较，可能会报错。更稳的做法是加一个递增编号作为兜底：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">heapq.heappush(heap, (priority, order, item))</span><br></pre></td></tr></table></figure>
+<p>刷题时看到“每次取最小”“动态维护前 K 个”“合并 K 个有序结构”，就要想到堆。</p>
+<h2 id="12-常用复杂度速查">12. 常用复杂度速查</h2>
+<p>常见操作可以先记大概：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>操作</th>
+<th>平均复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td><code>nums[i]</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td><code>append</code> / <code>pop()</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td><code>insert(0, x)</code> / <code>pop(0)</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td><code>sort()</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n \log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>str</code></td>
+<td>切片 <code>s[i:j]</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>set</code></td>
+<td><code>x in seen</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 平均</td>
+</tr>
+<tr>
+<td><code>dict</code></td>
+<td><code>key in d</code> / <code>d[key]</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 平均</td>
+</tr>
+<tr>
+<td><code>deque</code></td>
+<td><code>append</code> / <code>popleft</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>heapq</code></td>
+<td><code>heappush</code> / <code>heappop</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<p>注意字符串和列表切片会创建新对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nums[i:j]</span><br><span class="line">s[i:j]</span><br></pre></td></tr></table></figure>
+<p>长度是 <code>k</code> 的切片，复杂度就是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(k)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)</span></span></span></span>。有些题如果在循环里频繁切片，会从看似 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> 变成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。</p>
+<h2 id="13-复习总览">13. 复习总览</h2>
+<ul>
+<li>顺序访问、下标、排序、栈：<code>list</code>。</li>
+<li>字符串不可变，频繁修改时先转成 <code>list</code>，最后 <code>''.join(...)</code>。</li>
+<li>多维状态要做 key：用 <code>tuple</code>。</li>
+<li>判断是否出现过：<code>set</code>。</li>
+<li>建立映射：<code>dict</code>。</li>
+<li>统计频率：<code>Counter</code> 或 <code>defaultdict(int)</code>。</li>
+<li>分组收集：<code>defaultdict(list)</code>。</li>
+<li>BFS 队列：<code>deque</code>。</li>
+<li>动态取最小 / Top K：<code>heapq</code>。</li>
+<li><code>dict</code> 和 <code>set</code> 的 key 必须可哈希，<code>list</code> 不能当 key。</li>
+<li>看到 <code>pop(0)</code> 要警惕，队列场景大多应该换 <code>deque.popleft()</code>。</li>
+<li>记住底层直觉：<code>list</code> 是动态数组，<code>dict/set</code> 是哈希表，<code>deque</code> 是分块双端队列，<code>heapq</code> 是 list 上的二叉堆。</li>
+</ul>
+<p>刷题时不要只背 API，要说清楚容器承担的角色：它是在存顺序、存存在性、存频率、存映射，还是存待处理队列。角色清楚，数据类型自然就选对了。</p>
+<div class="algorithm-module-nav algorithm-module-nav-bottom">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/array/">开始刷题模块：数组与双指针</a>
+</div>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+光学、成像、量子、深度学习<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%B7%E9%A2%98%E6%97%B6%E6%80%8E%E4%B9%88%E9%80%89%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-text">1. 刷题时怎么选数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8F%AF%E5%8F%98%E3%80%81%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%92%8C%E5%8F%AF%E5%93%88%E5%B8%8C"><span class="toc-text">2. 可变、不可变和可哈希</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%9E%8B%E5%BA%95%E5%B1%82%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0"><span class="toc-text">3. 常用类型底层怎么实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-list%EF%BC%9A%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E9%A1%BA%E5%BA%8F%E5%AE%B9%E5%99%A8"><span class="toc-text">4. list：最常用的顺序容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-str%EF%BC%9A%E4%B8%8D%E5%8F%AF%E5%8F%98%E7%9A%84%E5%AD%97%E7%AC%A6%E5%BA%8F%E5%88%97"><span class="toc-text">5. str：不可变的字符序列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-tuple%EF%BC%9A%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%BA%8F%E5%88%97%EF%BC%8C%E5%B8%B8%E7%94%A8%E4%BD%9C%E7%8A%B6%E6%80%81-key"><span class="toc-text">6. tuple：不可变序列，常用作状态 key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-set%EF%BC%9A%E5%AD%98%E5%9C%A8%E6%80%A7%E5%88%A4%E6%96%AD%E5%92%8C%E5%8E%BB%E9%87%8D"><span class="toc-text">7. set：存在性判断和去重</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-dict%EF%BC%9A%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB"><span class="toc-text">8. dict：映射关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Counter-%E5%92%8C-defaultdict%EF%BC%9A%E9%A2%91%E7%8E%87%E7%BB%9F%E8%AE%A1"><span class="toc-text">9. Counter 和 defaultdict：频率统计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-deque%EF%BC%9A%E9%98%9F%E5%88%97%E5%92%8C%E5%8F%8C%E7%AB%AF%E9%98%9F%E5%88%97"><span class="toc-text">10. deque：队列和双端队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-heapq%EF%BC%9A%E5%A0%86%E5%92%8C%E4%BC%98%E5%85%88%E9%98%9F%E5%88%97"><span class="toc-text">11. heapq：堆和优先队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%B8%B8%E7%94%A8%E5%A4%8D%E6%9D%82%E5%BA%A6%E9%80%9F%E6%9F%A5"><span class="toc-text">12. 常用复杂度速查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%A4%8D%E4%B9%A0%E6%80%BB%E8%A7%88"><span class="toc-text">13. 复习总览</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程"><img src="/img/cover-image-20260120.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo + GitHub 博客搭建教程"/></a><div class="content"><a class="title" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程">Hexo + GitHub 博客搭建教程</a><time datetime="2026-01-20T09:32:53.000Z" title="发表于 2026-01-20 17:32:53">2026-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合"><img src="/img/cover-image-202601192.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信息融合"/></a><div class="content"><a class="title" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合">信息融合</a><time datetime="2026-01-19T14:33:52.000Z" title="发表于 2026-01-19 22:33:52">2026-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/optical-generation/" title="光学生成模型"><img src="/img/cover-image-20260119.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="光学生成模型"/></a><div class="content"><a class="title" href="/2026/01/19/optical-generation/" title="光学生成模型">光学生成模型</a><time datetime="2026-01-19T11:49:17.000Z" title="发表于 2026-01-19 19:49:17">2026-01-19</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Notes/"><span class="card-category-list-name">Notes</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Tutorial/"><span class="card-category-list-name">Tutorial</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Optics/" style="font-size: 1.1em; color: #999">Optics</a> <a href="/tags/Technology/" style="font-size: 1.1em; color: #999">Technology</a> <a href="/tags/Information/" style="font-size: 1.1em; color: #999">Information</a> <a href="/tags/Theory/" style="font-size: 1.5em; color: #99a9bf">Theory</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/01/">
+            <span class="card-archive-list-date">
+              一月 2026
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">3</div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-07-03T05:19:47.369Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script></div></body></html>
