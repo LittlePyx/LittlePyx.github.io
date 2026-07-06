@@ -695,6 +695,177 @@
   font-weight: 600;
 }
 
+/* 字符串：KMP 前缀表与匹配交互演示 */
+.algo-demo.kmp-demo .kmp-board {
+  margin-top: 0.95rem;
+  overflow-x: auto;
+  padding: 0.2rem 0.1rem 0.35rem;
+}
+
+.algo-demo.kmp-demo .kmp-row {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 520px;
+  margin-top: 1.25rem;
+}
+
+.algo-demo.kmp-demo .kmp-row:first-child {
+  margin-top: 0.4rem;
+}
+
+.algo-demo.kmp-demo .kmp-row.lps-row {
+  margin-top: 0.55rem;
+}
+
+.algo-demo.kmp-demo .kmp-cell {
+  min-height: 78px;
+  padding: 1.25rem 0.3rem 1.15rem;
+  overflow: visible;
+}
+
+.algo-demo.kmp-demo .kmp-cell.placeholder {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .algo-demo.kmp-demo .kmp-cell.placeholder {
+  background: transparent;
+}
+
+.algo-demo.kmp-demo .kmp-cell.matched {
+  border-color: var(--algo-green);
+  background: var(--algo-green-soft);
+}
+
+.algo-demo.kmp-demo .kmp-cell.mismatch {
+  border-color: var(--algo-red);
+  background: var(--algo-red-soft);
+  transform: translateY(-2px);
+}
+
+.algo-demo.kmp-demo .kmp-cell.fallback {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+}
+
+.algo-demo.kmp-demo .algo-pointer {
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  min-height: 1.15rem;
+  padding: 0 0.28rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.76rem;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(24, 36, 56, 0.12);
+}
+
+[data-theme="dark"] .algo-demo.kmp-demo .algo-pointer {
+  background: rgba(30, 36, 48, 0.96);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.algo-demo.kmp-demo .algo-pointer.top {
+  top: 0.18rem;
+}
+
+.algo-demo.kmp-demo .algo-pointer.bottom {
+  bottom: 0.18rem;
+}
+
+.algo-demo.kmp-demo .kmp-cell.i-focus:not(.mismatch) {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+  box-shadow: inset 0 0 0 2px rgba(230, 138, 0, 0.38);
+}
+
+.algo-demo.kmp-demo .kmp-cell.j-focus:not(.mismatch) {
+  border-color: var(--algo-blue);
+  background: var(--algo-blue-soft);
+  box-shadow: inset 0 0 0 2px rgba(47, 125, 246, 0.34);
+}
+
+.algo-demo.kmp-demo .kmp-pointer-i {
+  color: var(--algo-orange);
+}
+
+.algo-demo.kmp-demo .kmp-pointer-j {
+  color: var(--algo-blue);
+}
+
+.algo-demo.kmp-demo .kmp-stat-i {
+  border-color: rgba(230, 138, 0, 0.36);
+  background: var(--algo-orange-soft);
+  color: var(--algo-orange);
+}
+
+.algo-demo.kmp-demo .kmp-stat-j {
+  border-color: rgba(47, 125, 246, 0.34);
+  background: var(--algo-blue-soft);
+  color: var(--algo-blue);
+}
+
+.algo-demo.kmp-demo .kmp-cell.pending {
+  opacity: 0.42;
+}
+
+.algo-demo.kmp-demo .kmp-section-note {
+  margin: 0.35rem 0 0.2rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.algo-demo.kmp-demo .kmp-explain-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.85rem 0 0.25rem;
+}
+
+.algo-demo.kmp-demo .kmp-explain-item {
+  min-height: 4.2rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .algo-demo.kmp-demo .kmp-explain-item {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.algo-demo.kmp-demo .kmp-explain-label {
+  display: block;
+  margin-bottom: 0.28rem;
+  color: var(--algo-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.algo-demo.kmp-demo .kmp-explain-value {
+  display: block;
+  color: var(--algo-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+@media (max-width: 680px) {
+  .algo-demo.kmp-demo .kmp-row {
+    min-width: 480px;
+  }
+
+  .algo-demo.kmp-demo .kmp-explain-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 链表：环入口交互演示 */
 .algo-demo .linked-cycle-canvas {
   width: 100%;
