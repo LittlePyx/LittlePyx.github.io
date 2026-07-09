@@ -1,0 +1,1165 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>代码随想录刷题笔记：二叉树递归体系 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="二叉树递归体系刷题笔记，整理前中后序遍历、层序遍历、深度高度、路径问题、构造二叉树、BST 和最近公共祖先。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="代码随想录刷题笔记：二叉树递归体系">
+<meta property="og:url" content="https://littlepyx.github.io/algorithm/binary-tree/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="二叉树递归体系刷题笔记，整理前中后序遍历、层序遍历、深度高度、路径问题、构造二叉树、BST 和最近公共祖先。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-07-09T08:35:16.115Z">
+<meta property="article:modified_time" content="2026-07-09T08:35:16.115Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="CodeThinking">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Binary Tree">
+<meta property="article:tag" content="Recursion">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/algorithm/binary-tree/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '代码随想录刷题笔记：二叉树递归体系',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'page'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/img/algorithm-header-code.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">代码随想录刷题笔记：二叉树递归体系</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><div class="algorithm-module-nav algorithm-module-nav-top">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/stack-queue/">上一篇：栈与队列</a>
+  <a href="/algorithm/backtracking/">下一篇：回溯算法模板</a>
+</div>
+<h2 id="1-怎么看二叉树题">1. 怎么看二叉树题</h2>
+<p>二叉树题最重要的不是记住很多遍历代码，而是想清楚：<strong>当前节点要从左右子树拿什么信息，又要把什么信息返回给父节点。</strong></p>
+<p>链表题考“指针怎么变”，数组题考“下标怎么动”，二叉树题考“递归怎么分工”。每个节点都可以看成一个小问题：</p>
+<ul>
+<li>我在当前节点要做什么？</li>
+<li>左子树和右子树分别能给我什么？</li>
+<li>我要把什么结果返回给上一层？</li>
+</ul>
+<p>LeetCode 里的树节点通常长这样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TreeNode</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, val=<span class="number">0</span>, left=<span class="literal">None</span>, right=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.val = val</span><br><span class="line">        <span class="variable language_">self</span>.left = left</span><br><span class="line">        <span class="variable language_">self</span>.right = right</span><br></pre></td></tr></table></figure>
+<p>刷二叉树题时，我先按题目目标分类：</p>
+<ul>
+<li>要输出节点顺序：前序、中序、后序、层序。</li>
+<li>要算高度、深度、节点数、是否平衡：重点是递归返回值。</li>
+<li>要判断两棵树是否相同、是否对称、是否翻转：重点是成对比较。</li>
+<li>要找路径、路径和、所有根到叶子路径：重点是回溯和叶子节点判断。</li>
+<li>要构造树：重点是用遍历序列切分左右子树。</li>
+<li>遇到 BST：优先利用中序有序、左小右大。</li>
+<li>要找最近公共祖先：重点是“左右子树有没有目标节点”。</li>
+</ul>
+<p>二叉树递归可以先记一句话：<strong>先定义函数含义，再写空节点，再处理左右子树，最后组织返回值。</strong> 不要一上来就写代码，先把递归函数当成一个可靠工具。</p>
+<h2 id="2-遍历顺序：递归里当前节点放在哪里">2. 遍历顺序：递归里当前节点放在哪里</h2>
+<p>前序、中序、后序的区别，本质是当前节点 <code>root</code> 的处理位置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">前序：中 左 右</span><br><span class="line">中序：左 中 右</span><br><span class="line">后序：左 右 中</span><br></pre></td></tr></table></figure>
+<p><code>144. 二叉树的前序遍历</code> 要返回前序遍历结果。前序适合“先处理当前节点，再处理子树”的场景，比如复制树、序列化树、从根开始传递状态。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">preorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        ans.append(node.val)</span><br><span class="line">        dfs(node.left)</span><br><span class="line">        dfs(node.right)</span><br><span class="line"></span><br><span class="line">    dfs(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>这里 <code>dfs(node)</code> 的含义是：把以 <code>node</code> 为根的子树按前序加入 <code>ans</code>。空节点什么都不做。</p>
+<p><code>94. 二叉树的中序遍历</code> 对普通二叉树只是遍历顺序，对 BST 特别重要，因为 BST 的中序遍历是递增序列。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">inorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        dfs(node.left)</span><br><span class="line">        ans.append(node.val)</span><br><span class="line">        dfs(node.right)</span><br><span class="line"></span><br><span class="line">    dfs(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p><code>145. 二叉树的后序遍历</code> 适合“先拿左右子树结果，再处理当前节点”的题，比如高度、平衡二叉树、删除树、判断子树信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">postorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        dfs(node.left)</span><br><span class="line">        dfs(node.right)</span><br><span class="line">        ans.append(node.val)</span><br><span class="line"></span><br><span class="line">    dfs(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>复习遍历时不要只背“三种顺序”。真正做题时要问：当前节点的答案能不能在访问左右子树前确定？如果能，偏前序；如果必须依赖左右子树返回值，偏后序；如果是 BST，先想中序。</p>
+<h2 id="3-迭代遍历：栈保存还没处理完的节点">3. 迭代遍历：栈保存还没处理完的节点</h2>
+<p>递归本质上依赖系统调用栈。迭代写法就是自己维护一个栈。</p>
+<p>前序迭代比较直观：弹出当前节点，先记录它，再把右孩子、左孩子依次入栈。因为栈是后进先出，左孩子后入栈，反而会先被处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">preorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    stack = [root]</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> stack:</span><br><span class="line">        node = stack.pop()</span><br><span class="line">        ans.append(node.val)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> node.right:</span><br><span class="line">            stack.append(node.right)</span><br><span class="line">        <span class="keyword">if</span> node.left:</span><br><span class="line">            stack.append(node.left)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>中序迭代更像“沿着左边一路走到底，然后回头处理节点，再去右边”：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">inorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    stack = []</span><br><span class="line">    ans = []</span><br><span class="line">    cur = root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> cur <span class="keyword">or</span> stack:</span><br><span class="line">        <span class="keyword">while</span> cur:</span><br><span class="line">            stack.append(cur)</span><br><span class="line">            cur = cur.left</span><br><span class="line"></span><br><span class="line">        cur = stack.pop()</span><br><span class="line">        ans.append(cur.val)</span><br><span class="line">        cur = cur.right</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>这段代码里，<code>stack</code> 保存的是“左链上还没处理的祖先节点”。当 <code>cur</code> 走到空，说明左边已经到底了，这时弹出最近的祖先处理，再转向它的右子树。</p>
+<p>后序迭代可以用“前序变形再反转”：前序是中左右，如果我们改成中右左，最后反转就是左右中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">postorder_traversal</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    stack = [root]</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> stack:</span><br><span class="line">        node = stack.pop()</span><br><span class="line">        ans.append(node.val)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> node.left:</span><br><span class="line">            stack.append(node.left)</span><br><span class="line">        <span class="keyword">if</span> node.right:</span><br><span class="line">            stack.append(node.right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ans[::-<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>迭代遍历的易错点是入栈顺序。前序要得到中左右，所以入栈时先右后左；后序变形要得到中右左，所以入栈时先左后右。</p>
+<h2 id="4-层序遍历：队列按层推进">4. 层序遍历：队列按层推进</h2>
+<p>层序遍历不是递归主导，而是队列主导。队列里放当前层还没处理的节点；每次循环先固定当前队列长度，这个长度就是这一层的节点数。</p>
+<p><code>102. 二叉树的层序遍历</code> 要按层返回节点值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">level_order</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">list</span>[<span class="built_in">int</span>]]:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    q = deque([root])</span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> q:</span><br><span class="line">        level = []</span><br><span class="line">        size = <span class="built_in">len</span>(q)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(size):</span><br><span class="line">            node = q.popleft()</span><br><span class="line">            level.append(node.val)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> node.left:</span><br><span class="line">                q.append(node.left)</span><br><span class="line">            <span class="keyword">if</span> node.right:</span><br><span class="line">                q.append(node.right)</span><br><span class="line"></span><br><span class="line">        ans.append(level)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>这里 <code>size = len(q)</code> 必须在进入当前层循环之前固定。因为循环过程中会不断把下一层节点加进队列，如果直接 <code>while q</code> 处理，就会把多层混在一起。</p>
+<p>很多层序题都是这个框架的变形：</p>
+<ul>
+<li><code>107. 二叉树的层序遍历 II</code>：最后把 <code>ans</code> 反转。</li>
+<li><code>199. 二叉树的右视图</code>：每层取最后一个节点。</li>
+<li><code>637. 二叉树的层平均值</code>：每层求和除以节点数。</li>
+<li><code>515. 在每个树行中找最大值</code>：每层取最大值。</li>
+<li><code>116. 填充每个节点的下一个右侧节点指针</code>：每层把相邻节点连起来。</li>
+</ul>
+<p>层序题的关键不是“会用队列”，而是明确每次循环处理的是一整层，还是单个节点。如果题目出现“每一层”“最底层”“右视图”“层平均”，优先想层序。</p>
+<h2 id="5-高度、深度、节点数：先设计返回值">5. 高度、深度、节点数：先设计返回值</h2>
+<p>二叉树递归题里，返回值设计比代码更重要。</p>
+<p><code>104. 二叉树的最大深度</code> 要求从根到最远叶子节点的节点数。函数可以定义成：<code>max_depth(node)</code> 返回以 <code>node</code> 为根的树的最大深度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">max_depth</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    left = max_depth(root.left)</span><br><span class="line">    right = max_depth(root.right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">max</span>(left, right) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这就是后序：先拿左右子树深度，再加上当前节点这一层。</p>
+<p><code>111. 二叉树的最小深度</code> 容易错。最小深度是到最近叶子节点的深度，叶子节点必须左右孩子都为空。不能简单写 <code>min(left, right) + 1</code>，因为如果某一边为空，深度是 0，但这不是一条到叶子的路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">min_depth</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root.left:</span><br><span class="line">        <span class="keyword">return</span> min_depth(root.right) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root.right:</span><br><span class="line">        <span class="keyword">return</span> min_depth(root.left) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">min</span>(min_depth(root.left), min_depth(root.right)) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>比如只有右孩子的一条链，左子树深度是 0，但不能说最小深度是 1，因为根节点不是叶子。</p>
+<p><code>110. 平衡二叉树</code> 要判断每个节点左右子树高度差是否不超过 1。普通写法每个节点都反复算高度，容易变成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。更好的写法是让递归返回高度；如果子树已经不平衡，就返回 <code>-1</code> 作为失败信号。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_balanced</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">height</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        left = height(node.left)</span><br><span class="line">        <span class="keyword">if</span> left == -<span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line"></span><br><span class="line">        right = height(node.right)</span><br><span class="line">        <span class="keyword">if</span> right == -<span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">abs</span>(left - right) &gt; <span class="number">1</span>:</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">max</span>(left, right) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> height(root) != -<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这里 <code>height(node)</code> 的含义不是单纯返回高度，而是：如果以 <code>node</code> 为根的子树平衡，返回高度；否则返回 <code>-1</code>。这就是二叉树题里很常见的“返回值带状态”。</p>
+<p><code>222. 完全二叉树的节点个数</code> 可以普通递归数节点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">count_nodes</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count_nodes(root.left) + count_nodes(root.right) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>如果利用完全二叉树性质，还可以判断左右边界高度是否相同。若相同，说明这棵子树是满二叉树，节点数直接是 <code>2 ** height - 1</code>；否则继续递归。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">count_nodes</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    left = root.left</span><br><span class="line">    right = root.right</span><br><span class="line">    left_height = <span class="number">1</span></span><br><span class="line">    right_height = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> left:</span><br><span class="line">        left_height += <span class="number">1</span></span><br><span class="line">        left = left.left</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> right:</span><br><span class="line">        right_height += <span class="number">1</span></span><br><span class="line">        right = right.right</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> left_height == right_height:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">2</span> ** left_height - <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> count_nodes(root.left) + count_nodes(root.right) + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这类题复习时先问：函数返回的是单个数字，还是带失败信号的数字？当前节点的结果是否依赖左右子树？如果依赖，通常就是后序。</p>
+<h2 id="6-翻转、对称、相同：成对处理左右子树">6. 翻转、对称、相同：成对处理左右子树</h2>
+<p><code>226. 翻转二叉树</code> 要把每个节点的左右孩子交换。当前节点要做的事很简单：交换左右孩子，然后递归处理左右子树。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">invert_tree</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    root.left, root.right = root.right, root.left</span><br><span class="line">    invert_tree(root.left)</span><br><span class="line">    invert_tree(root.right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> root</span><br></pre></td></tr></table></figure>
+<p>这题可以前序，也可以后序。只要每个节点都交换一次，顺序并不敏感。</p>
+<p><code>101. 对称二叉树</code> 不是比较一个节点的左孩子和右孩子值这么简单，而是比较两棵子树是否镜像：</p>
+<ul>
+<li>左子树的左边，要和右子树的右边相同。</li>
+<li>左子树的右边，要和右子树的左边相同。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_symmetric</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">compare</span>(<span class="params">left: TreeNode | <span class="literal">None</span>, right: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> left <span class="keyword">and</span> <span class="keyword">not</span> right:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> left <span class="keyword">or</span> <span class="keyword">not</span> right:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> left.val != right.val:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> compare(left.left, right.right) <span class="keyword">and</span> compare(left.right, right.left)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> compare(root.left, root.right)</span><br></pre></td></tr></table></figure>
+<p>这题最容易错的是递归方向。如果写成 <code>compare(left.left, right.left)</code>，那是在比较同向结构，不是镜像结构。</p>
+<p><code>100. 相同的树</code> 和对称二叉树很像，只是比较方向不同：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_same_tree</span>(<span class="params">p: TreeNode | <span class="literal">None</span>, q: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> p <span class="keyword">and</span> <span class="keyword">not</span> q:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> p <span class="keyword">or</span> <span class="keyword">not</span> q:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> p.val != q.val:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> is_same_tree(p.left, q.left) <span class="keyword">and</span> is_same_tree(p.right, q.right)</span><br></pre></td></tr></table></figure>
+<p>成对递归题的关键是把两个节点一起传进去。每一层先处理空节点情况，再比较当前值，最后比较下一层结构。</p>
+<h2 id="7-路径题：路径列表跟着递归进出">7. 路径题：路径列表跟着递归进出</h2>
+<p>路径题通常从根节点出发，走到叶子节点。这里最容易混的是“什么时候算一条完整路径”。只有当前节点是叶子节点时，也就是 <code>not node.left and not node.right</code>，根到当前节点的路径才完整。</p>
+<p><code>257. 二叉树的所有路径</code> 要返回所有根到叶子的路径：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">binary_tree_paths</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">str</span>]:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    ans = []</span><br><span class="line">    path = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">node: TreeNode</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        path.append(<span class="built_in">str</span>(node.val))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node.left <span class="keyword">and</span> <span class="keyword">not</span> node.right:</span><br><span class="line">            ans.append(<span class="string">&quot;-&gt;&quot;</span>.join(path))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> node.left:</span><br><span class="line">                dfs(node.left)</span><br><span class="line">            <span class="keyword">if</span> node.right:</span><br><span class="line">                dfs(node.right)</span><br><span class="line"></span><br><span class="line">        path.pop()</span><br><span class="line"></span><br><span class="line">    dfs(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>这里 <code>path.append</code> 和 <code>path.pop</code> 是一对。进入节点时加入路径，离开节点时撤销选择。这和回溯的思想一样。</p>
+<p><code>112. 路径总和</code> 要判断是否存在一条根到叶子路径，使路径和等于 <code>targetSum</code>。可以递归传剩余目标值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">has_path_sum</span>(<span class="params">root: TreeNode | <span class="literal">None</span>, target_sum: <span class="built_in">int</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root.left <span class="keyword">and</span> <span class="keyword">not</span> root.right:</span><br><span class="line">        <span class="keyword">return</span> target_sum == root.val</span><br><span class="line"></span><br><span class="line">    rest = target_sum - root.val</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> has_path_sum(root.left, rest) <span class="keyword">or</span> has_path_sum(root.right, rest)</span><br></pre></td></tr></table></figure>
+<p>注意空节点返回 <code>False</code>，不是判断 <code>target_sum == 0</code>。因为题目要求路径必须到叶子节点，空节点不是合法路径。</p>
+<p><code>113. 路径总和 II</code> 要返回所有满足条件的路径。这时不仅要判断，还要保存路径：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">path_sum</span>(<span class="params">root: TreeNode | <span class="literal">None</span>, target_sum: <span class="built_in">int</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">list</span>[<span class="built_in">int</span>]]:</span><br><span class="line">    ans = []</span><br><span class="line">    path = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dfs</span>(<span class="params">node: TreeNode | <span class="literal">None</span>, rest: <span class="built_in">int</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        path.append(node.val)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node.left <span class="keyword">and</span> <span class="keyword">not</span> node.right <span class="keyword">and</span> rest == node.val:</span><br><span class="line">            ans.append(path[:])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            dfs(node.left, rest - node.val)</span><br><span class="line">            dfs(node.right, rest - node.val)</span><br><span class="line"></span><br><span class="line">        path.pop()</span><br><span class="line"></span><br><span class="line">    dfs(root, target_sum)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>这里 <code>ans.append(path[:])</code> 很重要。不能直接 <code>ans.append(path)</code>，因为 <code>path</code> 后面会继续被修改，最后答案里的路径会被一起改掉。</p>
+<p>路径题的复习重点是三个条件：</p>
+<ul>
+<li>是否必须从根开始？</li>
+<li>是否必须到叶子结束？</li>
+<li>是只判断存在性，还是要返回所有路径？</li>
+</ul>
+<p>这三个问题决定递归参数和返回方式。</p>
+<h2 id="8-构造二叉树：用根节点切分左右区间">8. 构造二叉树：用根节点切分左右区间</h2>
+<p>构造树题的核心是：找到根节点，然后把剩下的节点切成左子树和右子树。</p>
+<p><code>105. 从前序与中序遍历序列构造二叉树</code> 中，前序第一个元素一定是根节点；在中序里找到根节点位置，左边就是左子树，右边就是右子树。</p>
+<p>下面用 <code>preorder = [3, 9, 20, 15, 7]</code>、<code>inorder = [9, 3, 15, 20, 7]</code> 演示一次。按“下一步”看：每次先从前序区间拿根，再去中序区间找到根的位置，用左子树数量反推出前序里的左右区间。</p>
+<div id="build-tree-demo" class="algo-demo build-tree-demo">
+  <div class="algo-demo-title">
+    <span>前序 + 中序构造二叉树演示</span>
+    <span class="algo-pill">preorder = [3, 9, 20, 15, 7]</span>
+    <span class="algo-pill">inorder = [9, 3, 15, 20, 7]</span>
+  </div>
+  <div class="build-array-panel">
+    <div class="build-array-row">
+      <span class="build-array-label">preorder</span>
+      <div class="build-token-row" data-preorder-row></div>
+    </div>
+    <div class="build-array-row">
+      <span class="build-array-label">inorder</span>
+      <div class="build-token-row" data-inorder-row></div>
+    </div>
+  </div>
+  <div class="algo-stats">
+    <span class="algo-stat">阶段 <strong data-phase>准备</strong></span>
+    <span class="algo-stat">根 <strong data-root>-</strong></span>
+    <span class="algo-stat">left_size <strong data-left-size>-</strong></span>
+    <span class="algo-stat">pre <strong data-pre-range>-</strong></span>
+    <span class="algo-stat">in <strong data-in-range>-</strong></span>
+  </div>
+  <div class="build-tree-layout">
+    <div class="build-tree-canvas">
+      <svg viewBox="0 0 640 260" role="img" aria-label="前序和中序构造二叉树演示" data-tree-svg></svg>
+    </div>
+    <div class="build-detail-panel" data-detail></div>
+  </div>
+  <div class="algo-note" data-note></div>
+  <div class="algo-controls">
+    <button type="button" data-prev>上一步</button>
+    <button type="button" data-next>下一步</button>
+    <button type="button" data-play>播放</button>
+    <button type="button" data-reset>重置</button>
+    <span class="algo-step" data-step></span>
+  </div>
+  <script>
+    (() => {
+      const root = document.getElementById('build-tree-demo')
+      if (!root) return
+
+      const preorder = [3, 9, 20, 15, 7]
+      const inorder = [9, 3, 15, 20, 7]
+
+      const treeNodes = {
+        3: { x: 320, y: 52 },
+        9: { x: 188, y: 138 },
+        20: { x: 452, y: 138 },
+        15: { x: 382, y: 224 },
+        7: { x: 522, y: 224 },
+      }
+      const treeEdges = [
+        [3, 9],
+        [3, 20],
+        [20, 15],
+        [20, 7],
+      ]
+
+      const steps = [
+        {
+          phase: '准备',
+          rootValue: '-',
+          leftSize: '-',
+          preRange: [0, 4],
+          inRange: [0, 4],
+          built: [],
+          detail: [
+            '先看整棵树：preorder[0..4] 和 inorder[0..4] 表示同一批节点。',
+            '前序负责告诉我们“根是谁”，中序负责告诉我们“左右子树怎么切”。',
+          ],
+          note: '构造树的递归函数可以理解成：用一段 preorder 和一段 inorder，拼出这一棵子树。',
+        },
+        {
+          phase: '取整棵树的根',
+          rootValue: 3,
+          leftSize: 1,
+          preRange: [0, 4],
+          inRange: [0, 4],
+          preRoot: 0,
+          inRoot: 1,
+          built: [3],
+          activeNode: 3,
+          detail: [
+            'preorder[0] = 3，所以 3 是整棵树的根。',
+            '在 inorder 里找到 3，位置是 1。',
+            'inorder 中 3 左边有 1 个节点，所以 left_size = 1。',
+          ],
+          note: '前序第一个元素永远是当前子树的根。这里先把根节点 3 放进树里。',
+        },
+        {
+          phase: '切开根 3 的左右子树',
+          rootValue: 3,
+          leftSize: 1,
+          preRange: [0, 4],
+          inRange: [0, 4],
+          preRoot: 0,
+          inRoot: 1,
+          preLeft: [1, 1],
+          preRight: [2, 4],
+          inLeft: [0, 0],
+          inRight: [2, 4],
+          built: [3],
+          activeNode: 3,
+          detail: [
+            '左子树有 1 个节点，所以 preorder[1..1] 是左子树。',
+            '剩下 preorder[2..4] 是右子树。',
+            'inorder[0..0] 是左子树，inorder[2..4] 是右子树。',
+          ],
+          note: '这一步最关键：中序切出左右范围，left_size 决定前序里左子树占几个位置。',
+        },
+        {
+          phase: '构造左子树',
+          rootValue: 9,
+          leftSize: 0,
+          preRange: [1, 1],
+          inRange: [0, 0],
+          preRoot: 1,
+          inRoot: 0,
+          built: [3, 9],
+          activeNode: 9,
+          detail: [
+            '现在递归构造左子树：preorder[1..1]、inorder[0..0]。',
+            'preorder[1] = 9，所以 9 是左子树的根。',
+            '这一段只有一个节点，9 就是叶子节点。',
+          ],
+          note: '区间里只剩一个节点时，直接生成叶子节点。左子树完成后，回到根 3 继续构造右子树。',
+        },
+        {
+          phase: '构造右子树的根',
+          rootValue: 20,
+          leftSize: 1,
+          preRange: [2, 4],
+          inRange: [2, 4],
+          preRoot: 2,
+          inRoot: 3,
+          built: [3, 9, 20],
+          activeNode: 20,
+          detail: [
+            '现在递归构造右子树：preorder[2..4]、inorder[2..4]。',
+            'preorder[2] = 20，所以 20 是这棵右子树的根。',
+            '在 inorder[2..4] 里，20 左边有 1 个节点。',
+          ],
+          note: '递归进入右子树后，规则完全一样：先拿当前前序区间的第一个值当根。',
+        },
+        {
+          phase: '切开 20 的左右子树',
+          rootValue: 20,
+          leftSize: 1,
+          preRange: [2, 4],
+          inRange: [2, 4],
+          preRoot: 2,
+          inRoot: 3,
+          preLeft: [3, 3],
+          preRight: [4, 4],
+          inLeft: [2, 2],
+          inRight: [4, 4],
+          built: [3, 9, 20],
+          activeNode: 20,
+          detail: [
+            '20 的左子树在 inorder 里是 [15]，右子树是 [7]。',
+            'left_size = 1，所以 preorder[3..3] 是左子树。',
+            'preorder[4..4] 是右子树。',
+          ],
+          note: '不要硬背边界，先问左子树有几个节点，再去前序里数出同样多的位置。',
+        },
+        {
+          phase: '构造 20 的左孩子',
+          rootValue: 15,
+          leftSize: 0,
+          preRange: [3, 3],
+          inRange: [2, 2],
+          preRoot: 3,
+          inRoot: 2,
+          built: [3, 9, 20, 15],
+          activeNode: 15,
+          detail: [
+            '递归构造 20 的左子树：preorder[3..3]、inorder[2..2]。',
+            'preorder[3] = 15，所以生成节点 15。',
+            '区间长度为 1，15 是叶子节点。',
+          ],
+          note: '15 接到 20 的左边。这个小区间构造完后返回上一层。',
+        },
+        {
+          phase: '构造 20 的右孩子',
+          rootValue: 7,
+          leftSize: 0,
+          preRange: [4, 4],
+          inRange: [4, 4],
+          preRoot: 4,
+          inRoot: 4,
+          built: [3, 9, 20, 15, 7],
+          activeNode: 7,
+          detail: [
+            '递归构造 20 的右子树：preorder[4..4]、inorder[4..4]。',
+            'preorder[4] = 7，所以生成节点 7。',
+            '区间长度为 1，7 是叶子节点。',
+          ],
+          note: '7 接到 20 的右边。到这里所有非空区间都处理完了。',
+        },
+        {
+          phase: '完成',
+          rootValue: 3,
+          leftSize: '-',
+          preRange: [0, 4],
+          inRange: [0, 4],
+          built: [3, 9, 20, 15, 7],
+          activeNode: null,
+          detail: [
+            '整棵树构造完成。',
+            '最终结构是：3 的左孩子是 9，右孩子是 20；20 的左右孩子分别是 15 和 7。',
+            '以后遇到这类题，就按“前序定根，中序切左右，left_size 推边界”走。',
+          ],
+          note: '构造树的本质不是记公式，而是每层递归都在回答：根是谁？左边几个节点？右边从哪里开始？',
+        },
+      ]
+
+      const els = {
+        preorderRow: root.querySelector('[data-preorder-row]'),
+        inorderRow: root.querySelector('[data-inorder-row]'),
+        treeSvg: root.querySelector('[data-tree-svg]'),
+        detail: root.querySelector('[data-detail]'),
+        phase: root.querySelector('[data-phase]'),
+        rootValue: root.querySelector('[data-root]'),
+        leftSize: root.querySelector('[data-left-size]'),
+        preRange: root.querySelector('[data-pre-range]'),
+        inRange: root.querySelector('[data-in-range]'),
+        note: root.querySelector('[data-note]'),
+        step: root.querySelector('[data-step]'),
+        prev: root.querySelector('[data-prev]'),
+        next: root.querySelector('[data-next]'),
+        play: root.querySelector('[data-play]'),
+        reset: root.querySelector('[data-reset]'),
+      }
+
+      let index = 0
+      let timer = null
+
+      function inRange(indexValue, range) {
+        return Array.isArray(range) && indexValue >= range[0] && indexValue <= range[1]
+      }
+
+      function rangeText(range) {
+        if (!Array.isArray(range)) return '-'
+        if (range[0] > range[1]) return '空'
+        return `${range[0]}..${range[1]}`
+      }
+
+      function tokenRole(i, step, type) {
+        const rootIndex = type === 'preorder' ? step.preRoot : step.inRoot
+        const leftRange = type === 'preorder' ? step.preLeft : step.inLeft
+        const rightRange = type === 'preorder' ? step.preRight : step.inRight
+
+        if (i === rootIndex) return type === 'preorder' ? '根' : 'mid'
+        if (inRange(i, leftRange)) return '左'
+        if (inRange(i, rightRange)) return '右'
+        return inRange(i, type === 'preorder' ? step.preRange : step.inRange) ? '当前' : ''
+      }
+
+      function renderTokens(row, values, step, type) {
+        const activeRange = type === 'preorder' ? step.preRange : step.inRange
+        const rootIndex = type === 'preorder' ? step.preRoot : step.inRoot
+        const leftRange = type === 'preorder' ? step.preLeft : step.inLeft
+        const rightRange = type === 'preorder' ? step.preRight : step.inRight
+
+        row.innerHTML = values.map((value, i) => {
+          const classes = ['build-token']
+          if (inRange(i, activeRange)) classes.push('active-range')
+          if (inRange(i, leftRange)) classes.push('left-part')
+          if (inRange(i, rightRange)) classes.push('right-part')
+          if (i === rootIndex) classes.push('root-part')
+          if (!inRange(i, activeRange) && !inRange(i, leftRange) && !inRange(i, rightRange)) classes.push('inactive')
+
+          const role = tokenRole(i, step, type)
+          return `
+            <div class="${classes.join(' ')}">
+              <span class="build-token-value">${value}</span>
+              <span class="build-token-index">i=${i}</span>
+              <span class="build-token-role">${role}</span>
+            </div>
+          `
+        }).join('')
+      }
+
+      function renderTree(step) {
+        const built = new Set(step.built)
+        const active = step.activeNode
+        const radius = 22
+        const edgeMarkup = treeEdges
+          .filter(([from, to]) => built.has(from) && built.has(to))
+          .map(([from, to]) => {
+            const a = treeNodes[from]
+            const b = treeNodes[to]
+            return `<line class="build-tree-edge" x1="${a.x}" y1="${a.y + radius}" x2="${b.x}" y2="${b.y - radius}"></line>`
+          })
+          .join('')
+
+        const nodeMarkup = Object.entries(treeNodes)
+          .filter(([value]) => built.has(Number(value)))
+          .map(([value, point]) => {
+            const nodeValue = Number(value)
+            const state = nodeValue === active ? 'active' : 'done'
+            return `
+              <g class="build-tree-node ${state}">
+                <circle class="build-tree-node-circle" cx="${point.x}" cy="${point.y}" r="${radius}"></circle>
+                <text class="build-tree-node-value" x="${point.x}" y="${point.y + 6}">${value}</text>
+              </g>
+            `
+          })
+          .join('')
+
+        els.treeSvg.innerHTML = `
+          <text class="build-tree-caption" x="320" y="22">正在生成的二叉树</text>
+          ${edgeMarkup}
+          ${nodeMarkup}
+        `
+      }
+
+      function renderDetail(step) {
+        els.detail.innerHTML = `
+          <div class="build-detail-title">当前递归怎么想</div>
+          ${step.detail.map(item => `<p>${item}</p>`).join('')}
+        `
+      }
+
+      function render() {
+        const step = steps[index]
+        renderTokens(els.preorderRow, preorder, step, 'preorder')
+        renderTokens(els.inorderRow, inorder, step, 'inorder')
+        renderTree(step)
+        renderDetail(step)
+
+        els.phase.textContent = step.phase
+        els.rootValue.textContent = step.rootValue
+        els.leftSize.textContent = step.leftSize
+        els.preRange.textContent = rangeText(step.preRange)
+        els.inRange.textContent = rangeText(step.inRange)
+        els.note.textContent = step.note
+        els.step.textContent = `第 ${index + 1} / ${steps.length} 步`
+        els.prev.disabled = index === 0
+        els.next.disabled = index === steps.length - 1
+      }
+
+      function stop() {
+        if (!timer) return
+        window.clearInterval(timer)
+        timer = null
+        els.play.textContent = '播放'
+      }
+
+      function next() {
+        if (index < steps.length - 1) {
+          index += 1
+          render()
+        } else {
+          stop()
+        }
+      }
+
+      els.prev.addEventListener('click', () => {
+        stop()
+        index = Math.max(0, index - 1)
+        render()
+      })
+
+      els.next.addEventListener('click', () => {
+        stop()
+        next()
+      })
+
+      els.reset.addEventListener('click', () => {
+        stop()
+        index = 0
+        render()
+      })
+
+      els.play.addEventListener('click', () => {
+        if (timer) {
+          stop()
+          return
+        }
+        if (index === steps.length - 1) index = 0
+        render()
+        els.play.textContent = '暂停'
+        timer = window.setInterval(next, 1500)
+      })
+
+      render()
+    })()
+  </script>
+</div>
+<p>所以构造树不是凭空造节点，而是不断重复这件事：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">前序：拿第一个元素当根</span><br><span class="line">中序：用根的位置切开左右子树</span><br><span class="line">数量：用左子树节点数，反推出前序里的左右边界</span><br></pre></td></tr></table></figure>
+<p>为了避免反复切片，可以用下标区间。先用哈希表记录中序值到下标的映射：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_tree</span>(<span class="params">preorder: <span class="built_in">list</span>[<span class="built_in">int</span>], inorder: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">    pos = &#123;value: i <span class="keyword">for</span> i, value <span class="keyword">in</span> <span class="built_in">enumerate</span>(inorder)&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">pre_l: <span class="built_in">int</span>, pre_r: <span class="built_in">int</span>, in_l: <span class="built_in">int</span>, in_r: <span class="built_in">int</span></span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> pre_l &gt; pre_r:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        root_val = preorder[pre_l]</span><br><span class="line">        root = TreeNode(root_val)</span><br><span class="line">        mid = pos[root_val]</span><br><span class="line">        left_size = mid - in_l</span><br><span class="line"></span><br><span class="line">        root.left = build(pre_l + <span class="number">1</span>, pre_l + left_size, in_l, mid - <span class="number">1</span>)</span><br><span class="line">        root.right = build(pre_l + left_size + <span class="number">1</span>, pre_r, mid + <span class="number">1</span>, in_r)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> build(<span class="number">0</span>, <span class="built_in">len</span>(preorder) - <span class="number">1</span>, <span class="number">0</span>, <span class="built_in">len</span>(inorder) - <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>这题最容易错的是区间边界。建议固定左闭右闭区间：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">preorder[pre_l ... pre_r]</span><br><span class="line">inorder[in_l ... in_r]</span><br></pre></td></tr></table></figure>
+<p>在 Python 代码里我们没有真的切片，而是用下标表示。<code>left_size = mid - in_l</code> 是左子树节点数量。</p>
+<p>区间可以照着这张图推：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">preorder:  [root | 左子树 left_size 个 | 右子树]</span><br><span class="line">             ^</span><br><span class="line">             pre_l</span><br><span class="line"></span><br><span class="line">inorder:   [左子树 | root | 右子树]</span><br><span class="line">                     ^</span><br><span class="line">                     mid</span><br><span class="line"></span><br><span class="line">左子树：</span><br><span class="line">preorder: pre_l + 1             到 pre_l + left_size</span><br><span class="line">inorder:  in_l                  到 mid - 1</span><br><span class="line"></span><br><span class="line">右子树：</span><br><span class="line">preorder: pre_l + left_size + 1 到 pre_r</span><br><span class="line">inorder:  mid + 1               到 in_r</span><br></pre></td></tr></table></figure>
+<p><code>106. 从中序与后序遍历序列构造二叉树</code> 类似，只是后序最后一个元素是根节点。仍然用中序切分左右子树。</p>
+<p>下面用同一棵树再演示一次：</p>
+<div id="postorder-build-demo" class="algo-demo build-tree-demo postorder-build-demo">
+  <div class="algo-demo-title">
+    <span>中序 + 后序构造二叉树演示</span>
+    <span class="algo-pill">inorder = [9, 3, 15, 20, 7]</span>
+    <span class="algo-pill">postorder = [9, 15, 7, 20, 3]</span>
+  </div>
+  <div class="build-array-panel">
+    <div class="build-array-row">
+      <span class="build-array-label">inorder</span>
+      <div class="build-token-row" data-inorder-row></div>
+    </div>
+    <div class="build-array-row">
+      <span class="build-array-label">postorder</span>
+      <div class="build-token-row" data-postorder-row></div>
+    </div>
+  </div>
+  <div class="algo-stats">
+    <span class="algo-stat">阶段 <strong data-phase>准备</strong></span>
+    <span class="algo-stat">根 <strong data-root>-</strong></span>
+    <span class="algo-stat">left_size <strong data-left-size>-</strong></span>
+    <span class="algo-stat">right_size <strong data-right-size>-</strong></span>
+    <span class="algo-stat">in <strong data-in-range>-</strong></span>
+    <span class="algo-stat">post <strong data-post-range>-</strong></span>
+  </div>
+  <div class="build-tree-layout">
+    <div class="build-tree-canvas">
+      <svg viewBox="0 0 640 260" role="img" aria-label="中序和后序构造二叉树演示" data-tree-svg></svg>
+    </div>
+    <div class="build-detail-panel" data-detail></div>
+  </div>
+  <div class="algo-note" data-note></div>
+  <div class="algo-controls">
+    <button type="button" data-prev>上一步</button>
+    <button type="button" data-next>下一步</button>
+    <button type="button" data-play>播放</button>
+    <button type="button" data-reset>重置</button>
+    <span class="algo-step" data-step></span>
+  </div>
+  <script>
+    (() => {
+      const root = document.getElementById('postorder-build-demo')
+      if (!root) return
+
+      const inorder = [9, 3, 15, 20, 7]
+      const postorder = [9, 15, 7, 20, 3]
+
+      const treeNodes = {
+        3: { x: 320, y: 52 },
+        9: { x: 188, y: 138 },
+        20: { x: 452, y: 138 },
+        15: { x: 382, y: 224 },
+        7: { x: 522, y: 224 },
+      }
+      const treeEdges = [
+        [3, 9],
+        [3, 20],
+        [20, 15],
+        [20, 7],
+      ]
+
+      const steps = [
+        {
+          phase: '准备',
+          rootValue: '-',
+          leftSize: '-',
+          rightSize: '-',
+          inRange: [0, 4],
+          postRange: [0, 4],
+          built: [],
+          detail: [
+            '现在换成中序 + 后序。中序仍然负责切左右子树。',
+            '后序的顺序是左、右、根，所以当前后序区间的最后一个元素就是根。',
+          ],
+          note: '这类题的关键变化是根节点位置：前序看区间开头，后序看区间结尾。',
+        },
+        {
+          phase: '取整棵树的根',
+          rootValue: 3,
+          leftSize: 1,
+          rightSize: 3,
+          inRange: [0, 4],
+          postRange: [0, 4],
+          inRoot: 1,
+          postRoot: 4,
+          built: [3],
+          activeNode: 3,
+          detail: [
+            'postorder[4] = 3，所以 3 是整棵树的根。',
+            '去 inorder 里找到 3，位置是 1。',
+            '3 左边有 1 个节点，右边有 3 个节点。',
+          ],
+          note: '后序不是从左边拿根，而是从当前区间的最右边拿根。',
+        },
+        {
+          phase: '切开根 3 的左右子树',
+          rootValue: 3,
+          leftSize: 1,
+          rightSize: 3,
+          inRange: [0, 4],
+          postRange: [0, 4],
+          inRoot: 1,
+          postRoot: 4,
+          inLeft: [0, 0],
+          inRight: [2, 4],
+          postLeft: [0, 0],
+          postRight: [1, 3],
+          built: [3],
+          activeNode: 3,
+          detail: [
+            'inorder[0..0] 是左子树，inorder[2..4] 是右子树。',
+            '左子树有 1 个节点，所以 postorder[0..0] 是左子树。',
+            '根 3 已经占了 postorder[4]，中间 postorder[1..3] 就是右子树。',
+          ],
+          note: '后序区间里，根在最后；根前面仍然是左子树区间 + 右子树区间。',
+        },
+        {
+          phase: '构造左子树',
+          rootValue: 9,
+          leftSize: 0,
+          rightSize: 0,
+          inRange: [0, 0],
+          postRange: [0, 0],
+          inRoot: 0,
+          postRoot: 0,
+          built: [3, 9],
+          activeNode: 9,
+          detail: [
+            '递归构造左子树：inorder[0..0]、postorder[0..0]。',
+            'postorder[0] = 9，所以 9 是这棵小子树的根。',
+            '区间里只有一个节点，9 是叶子节点。',
+          ],
+          note: '叶子节点就是递归的最小非空问题：一个区间只对应一个节点。',
+        },
+        {
+          phase: '构造右子树的根',
+          rootValue: 20,
+          leftSize: 1,
+          rightSize: 1,
+          inRange: [2, 4],
+          postRange: [1, 3],
+          inRoot: 3,
+          postRoot: 3,
+          built: [3, 9, 20],
+          activeNode: 20,
+          detail: [
+            '现在处理右子树：inorder[2..4]、postorder[1..3]。',
+            'postorder[3] = 20，所以 20 是右子树的根。',
+            '在 inorder[2..4] 中，20 左边 1 个节点，右边 1 个节点。',
+          ],
+          note: '注意这里不是看 postorder[1]，而是看当前后序区间的右端 postorder[3]。',
+        },
+        {
+          phase: '切开 20 的左右子树',
+          rootValue: 20,
+          leftSize: 1,
+          rightSize: 1,
+          inRange: [2, 4],
+          postRange: [1, 3],
+          inRoot: 3,
+          postRoot: 3,
+          inLeft: [2, 2],
+          inRight: [4, 4],
+          postLeft: [1, 1],
+          postRight: [2, 2],
+          built: [3, 9, 20],
+          activeNode: 20,
+          detail: [
+            'inorder 里 20 左边是 [15]，右边是 [7]。',
+            'left_size = 1，所以 postorder[1..1] 是左子树。',
+            'right_size = 1，所以 postorder[2..2] 是右子树；postorder[3] 是根 20。',
+          ],
+          note: '中序切出左右数量，后序用数量把根前面的区间再切成左、右两段。',
+        },
+        {
+          phase: '构造 20 的左孩子',
+          rootValue: 15,
+          leftSize: 0,
+          rightSize: 0,
+          inRange: [2, 2],
+          postRange: [1, 1],
+          inRoot: 2,
+          postRoot: 1,
+          built: [3, 9, 20, 15],
+          activeNode: 15,
+          detail: [
+            '递归构造 20 的左子树：inorder[2..2]、postorder[1..1]。',
+            'postorder[1] = 15，所以生成节点 15。',
+            '它是单节点区间，直接返回给 20.left。',
+          ],
+          note: '15 接到 20 的左边。',
+        },
+        {
+          phase: '构造 20 的右孩子',
+          rootValue: 7,
+          leftSize: 0,
+          rightSize: 0,
+          inRange: [4, 4],
+          postRange: [2, 2],
+          inRoot: 4,
+          postRoot: 2,
+          built: [3, 9, 20, 15, 7],
+          activeNode: 7,
+          detail: [
+            '递归构造 20 的右子树：inorder[4..4]、postorder[2..2]。',
+            'postorder[2] = 7，所以生成节点 7。',
+            '它返回给 20.right。',
+          ],
+          note: '7 接到 20 的右边。右子树也完成了。',
+        },
+        {
+          phase: '完成',
+          rootValue: 3,
+          leftSize: '-',
+          rightSize: '-',
+          inRange: [0, 4],
+          postRange: [0, 4],
+          built: [3, 9, 20, 15, 7],
+          detail: [
+            '整棵树构造完成。',
+            '前序 + 中序和中序 + 后序构造出来的是同一棵树。',
+            '差别只是根节点来源：前序取左端，后序取右端；切左右子树都依赖中序。',
+          ],
+          note: '复习时抓住一句话：后序右端定根，中序定位根，左子树数量决定后序左区间和右区间的边界。',
+        },
+      ]
+
+      const els = {
+        inorderRow: root.querySelector('[data-inorder-row]'),
+        postorderRow: root.querySelector('[data-postorder-row]'),
+        treeSvg: root.querySelector('[data-tree-svg]'),
+        detail: root.querySelector('[data-detail]'),
+        phase: root.querySelector('[data-phase]'),
+        rootValue: root.querySelector('[data-root]'),
+        leftSize: root.querySelector('[data-left-size]'),
+        rightSize: root.querySelector('[data-right-size]'),
+        inRange: root.querySelector('[data-in-range]'),
+        postRange: root.querySelector('[data-post-range]'),
+        note: root.querySelector('[data-note]'),
+        step: root.querySelector('[data-step]'),
+        prev: root.querySelector('[data-prev]'),
+        next: root.querySelector('[data-next]'),
+        play: root.querySelector('[data-play]'),
+        reset: root.querySelector('[data-reset]'),
+      }
+
+      let index = 0
+      let timer = null
+
+      function inSpan(i, range) {
+        return Array.isArray(range) && i >= range[0] && i <= range[1]
+      }
+
+      function rangeText(range) {
+        if (!Array.isArray(range)) return '-'
+        if (range[0] > range[1]) return '空'
+        return `${range[0]}..${range[1]}`
+      }
+
+      function tokenRole(i, step, type) {
+        const rootIndex = type === 'postorder' ? step.postRoot : step.inRoot
+        const leftRange = type === 'postorder' ? step.postLeft : step.inLeft
+        const rightRange = type === 'postorder' ? step.postRight : step.inRight
+
+        if (i === rootIndex) return type === 'postorder' ? '根' : 'mid'
+        if (inSpan(i, leftRange)) return '左'
+        if (inSpan(i, rightRange)) return '右'
+        return inSpan(i, type === 'postorder' ? step.postRange : step.inRange) ? '当前' : ''
+      }
+
+      function renderTokens(row, values, step, type) {
+        const activeRange = type === 'postorder' ? step.postRange : step.inRange
+        const rootIndex = type === 'postorder' ? step.postRoot : step.inRoot
+        const leftRange = type === 'postorder' ? step.postLeft : step.inLeft
+        const rightRange = type === 'postorder' ? step.postRight : step.inRight
+
+        row.innerHTML = values.map((value, i) => {
+          const classes = ['build-token']
+          if (inSpan(i, activeRange)) classes.push('active-range')
+          if (inSpan(i, leftRange)) classes.push('left-part')
+          if (inSpan(i, rightRange)) classes.push('right-part')
+          if (i === rootIndex) classes.push('root-part')
+          if (!inSpan(i, activeRange) && !inSpan(i, leftRange) && !inSpan(i, rightRange)) classes.push('inactive')
+
+          const role = tokenRole(i, step, type)
+          return `
+            <div class="${classes.join(' ')}">
+              <span class="build-token-value">${value}</span>
+              <span class="build-token-index">i=${i}</span>
+              <span class="build-token-role">${role}</span>
+            </div>
+          `
+        }).join('')
+      }
+
+      function renderTree(step) {
+        const built = new Set(step.built)
+        const active = step.activeNode
+        const radius = 22
+        const edgeMarkup = treeEdges
+          .filter(([from, to]) => built.has(from) && built.has(to))
+          .map(([from, to]) => {
+            const a = treeNodes[from]
+            const b = treeNodes[to]
+            return `<line class="build-tree-edge" x1="${a.x}" y1="${a.y + radius}" x2="${b.x}" y2="${b.y - radius}"></line>`
+          })
+          .join('')
+
+        const nodeMarkup = Object.entries(treeNodes)
+          .filter(([value]) => built.has(Number(value)))
+          .map(([value, point]) => {
+            const nodeValue = Number(value)
+            const state = nodeValue === active ? 'active' : 'done'
+            return `
+              <g class="build-tree-node ${state}">
+                <circle class="build-tree-node-circle" cx="${point.x}" cy="${point.y}" r="${radius}"></circle>
+                <text class="build-tree-node-value" x="${point.x}" y="${point.y + 6}">${value}</text>
+              </g>
+            `
+          })
+          .join('')
+
+        els.treeSvg.innerHTML = `
+          <text class="build-tree-caption" x="320" y="22">正在生成的二叉树</text>
+          ${edgeMarkup}
+          ${nodeMarkup}
+        `
+      }
+
+      function renderDetail(step) {
+        els.detail.innerHTML = `
+          <div class="build-detail-title">当前递归怎么想</div>
+          ${step.detail.map(item => `<p>${item}</p>`).join('')}
+        `
+      }
+
+      function render() {
+        const step = steps[index]
+        renderTokens(els.inorderRow, inorder, step, 'inorder')
+        renderTokens(els.postorderRow, postorder, step, 'postorder')
+        renderTree(step)
+        renderDetail(step)
+
+        els.phase.textContent = step.phase
+        els.rootValue.textContent = step.rootValue
+        els.leftSize.textContent = step.leftSize
+        els.rightSize.textContent = step.rightSize
+        els.inRange.textContent = rangeText(step.inRange)
+        els.postRange.textContent = rangeText(step.postRange)
+        els.note.textContent = step.note
+        els.step.textContent = `第 ${index + 1} / ${steps.length} 步`
+        els.prev.disabled = index === 0
+        els.next.disabled = index === steps.length - 1
+      }
+
+      function stop() {
+        if (!timer) return
+        window.clearInterval(timer)
+        timer = null
+        els.play.textContent = '播放'
+      }
+
+      function next() {
+        if (index < steps.length - 1) {
+          index += 1
+          render()
+        } else {
+          stop()
+        }
+      }
+
+      els.prev.addEventListener('click', () => {
+        stop()
+        index = Math.max(0, index - 1)
+        render()
+      })
+
+      els.next.addEventListener('click', () => {
+        stop()
+        next()
+      })
+
+      els.reset.addEventListener('click', () => {
+        stop()
+        index = 0
+        render()
+      })
+
+      els.play.addEventListener('click', () => {
+        if (timer) {
+          stop()
+          return
+        }
+        if (index === steps.length - 1) index = 0
+        render()
+        els.play.textContent = '暂停'
+        timer = window.setInterval(next, 1500)
+      })
+
+      render()
+    })()
+  </script>
+</div>
+<p>区别只是根节点的位置变了：前序的根在最前面，后序的根在最后面。真正切左右子树，还是靠中序。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_tree</span>(<span class="params">inorder: <span class="built_in">list</span>[<span class="built_in">int</span>], postorder: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">    pos = &#123;value: i <span class="keyword">for</span> i, value <span class="keyword">in</span> <span class="built_in">enumerate</span>(inorder)&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">in_l: <span class="built_in">int</span>, in_r: <span class="built_in">int</span>, post_l: <span class="built_in">int</span>, post_r: <span class="built_in">int</span></span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> in_l &gt; in_r:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        root_val = postorder[post_r]</span><br><span class="line">        root = TreeNode(root_val)</span><br><span class="line">        mid = pos[root_val]</span><br><span class="line">        left_size = mid - in_l</span><br><span class="line"></span><br><span class="line">        root.left = build(in_l, mid - <span class="number">1</span>, post_l, post_l + left_size - <span class="number">1</span>)</span><br><span class="line">        root.right = build(mid + <span class="number">1</span>, in_r, post_l + left_size, post_r - <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> build(<span class="number">0</span>, <span class="built_in">len</span>(inorder) - <span class="number">1</span>, <span class="number">0</span>, <span class="built_in">len</span>(postorder) - <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>构造树题不要先背公式。先画出根节点在哪里，再问：左子树有几个节点？右子树从哪里开始？只要数量算对，边界就能推出来。</p>
+<h2 id="9-BST：中序有序是第一反应">9. BST：中序有序是第一反应</h2>
+<p>二叉搜索树 BST 的性质是：左子树所有节点值小于当前节点，右子树所有节点值大于当前节点。它最重要的推论是：<strong>中序遍历得到递增序列。</strong></p>
+<p><code>700. 二叉搜索树中的搜索</code> 可以利用大小关系决定往哪边走：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">search_bst</span>(<span class="params">root: TreeNode | <span class="literal">None</span>, val: <span class="built_in">int</span></span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> root.val == val:</span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> val &lt; root.val:</span><br><span class="line">        <span class="keyword">return</span> search_bst(root.left, val)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> search_bst(root.right, val)</span><br></pre></td></tr></table></figure>
+<p><code>98. 验证二叉搜索树</code> 不能只检查当前节点和左右孩子。错误写法是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误直觉：只比较 root.left.val &lt; root.val &lt; root.right.val</span></span><br></pre></td></tr></table></figure>
+<p>因为 BST 要求的是整棵左子树都小于根，整棵右子树都大于根。最稳的方式是中序遍历，检查序列是否严格递增：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_valid_bst</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    prev = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inorder</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="keyword">nonlocal</span> prev</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> inorder(node.left):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> prev <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">and</span> node.val &lt;= prev:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        prev = node.val</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> inorder(node.right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> inorder(root)</span><br></pre></td></tr></table></figure>
+<p>注意是严格递增，所以 <code>node.val &lt;= prev</code> 就不合法。</p>
+<p><code>530. 二叉搜索树的最小绝对差</code> 也是中序。中序相邻两个值的差，才可能是最小差：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_minimum_difference</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    prev = <span class="literal">None</span></span><br><span class="line">    ans = <span class="built_in">float</span>(<span class="string">&quot;inf&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inorder</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">nonlocal</span> prev, ans</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        inorder(node.left)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> prev <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            ans = <span class="built_in">min</span>(ans, node.val - prev)</span><br><span class="line"></span><br><span class="line">        prev = node.val</span><br><span class="line">        inorder(node.right)</span><br><span class="line"></span><br><span class="line">    inorder(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p><code>501. 二叉搜索树中的众数</code> 也可以中序处理，因为相同值会连续出现。只需要维护当前值出现次数和最大次数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">find_mode</span>(<span class="params">root: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    prev = <span class="literal">None</span></span><br><span class="line">    count = <span class="number">0</span></span><br><span class="line">    max_count = <span class="number">0</span></span><br><span class="line">    ans = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">value: <span class="built_in">int</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">nonlocal</span> prev, count, max_count, ans</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> prev == value:</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            prev = value</span><br><span class="line">            count = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> count == max_count:</span><br><span class="line">            ans.append(value)</span><br><span class="line">        <span class="keyword">elif</span> count &gt; max_count:</span><br><span class="line">            max_count = count</span><br><span class="line">            ans = [value]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inorder</span>(<span class="params">node: TreeNode | <span class="literal">None</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node:</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        inorder(node.left)</span><br><span class="line">        update(node.val)</span><br><span class="line">        inorder(node.right)</span><br><span class="line"></span><br><span class="line">    inorder(root)</span><br><span class="line">    <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+<p>BST 题先想中序；如果是查找、插入、删除，再想大小关系往左还是往右走。</p>
+<h2 id="10-最近公共祖先：左右子树分别找目标">10. 最近公共祖先：左右子树分别找目标</h2>
+<p><code>236. 二叉树的最近公共祖先</code> 给一棵普通二叉树和两个节点 <code>p</code>、<code>q</code>，要求找到它们最近的公共祖先。</p>
+<p>递归函数可以定义成：在以 <code>node</code> 为根的子树里寻找 <code>p</code> 或 <code>q</code>，如果找到了就返回对应节点；如果左右子树各找到一个，说明当前节点就是最近公共祖先。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">lowest_common_ancestor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    root: TreeNode | <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">    p: TreeNode,</span></span><br><span class="line"><span class="params">    q: TreeNode,</span></span><br><span class="line"><span class="params"></span>) -&gt; TreeNode | <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> root <span class="keyword">or</span> root == p <span class="keyword">or</span> root == q:</span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line"></span><br><span class="line">    left = lowest_common_ancestor(root.left, p, q)</span><br><span class="line">    right = lowest_common_ancestor(root.right, p, q)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> left <span class="keyword">and</span> right:</span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> left <span class="keyword">if</span> left <span class="keyword">else</span> right</span><br></pre></td></tr></table></figure>
+<p>这段代码的返回值有三种含义：</p>
+<ul>
+<li>返回 <code>None</code>：这棵子树里没有 <code>p</code> 或 <code>q</code>。</li>
+<li>返回 <code>p</code> 或 <code>q</code>：这棵子树里找到了其中一个目标。</li>
+<li>返回某个祖先节点：这棵子树里已经找到了最近公共祖先。</li>
+</ul>
+<p>如果左右都非空，说明 <code>p</code> 和 <code>q</code> 分别在当前节点两侧，当前节点就是答案。如果只有一边非空，就把那边的结果往上返回。</p>
+<p><code>235. 二叉搜索树的最近公共祖先</code> 可以利用 BST 性质。若 <code>p</code> 和 <code>q</code> 都小于当前节点，就去左边；都大于当前节点，就去右边；否则当前节点就是分叉点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">lowest_common_ancestor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    root: TreeNode,</span></span><br><span class="line"><span class="params">    p: TreeNode,</span></span><br><span class="line"><span class="params">    q: TreeNode,</span></span><br><span class="line"><span class="params"></span>) -&gt; TreeNode:</span><br><span class="line">    cur = root</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> cur:</span><br><span class="line">        <span class="keyword">if</span> p.val &lt; cur.val <span class="keyword">and</span> q.val &lt; cur.val:</span><br><span class="line">            cur = cur.left</span><br><span class="line">        <span class="keyword">elif</span> p.val &gt; cur.val <span class="keyword">and</span> q.val &gt; cur.val:</span><br><span class="line">            cur = cur.right</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> cur</span><br></pre></td></tr></table></figure>
+<p>普通二叉树的 LCA 依赖后序返回值；BST 的 LCA 依赖大小关系找分叉点。看到题目是不是 BST，要马上切换思路。</p>
+<h2 id="11-复习总览">11. 复习总览</h2>
+<ul>
+<li>二叉树题先定义递归函数含义：当前节点要返回什么给父节点。</li>
+<li>前序是中左右，适合先处理当前节点；中序是左中右，BST 中序递增；后序是左右中，适合依赖左右子树结果的题。</li>
+<li>迭代遍历用栈模拟递归，前序入栈先右后左，中序沿左链压栈。</li>
+<li>层序遍历用 <code>deque</code>，每层开始前固定 <code>size = len(q)</code>。</li>
+<li>最大深度是 <code>max(left, right) + 1</code>；最小深度要注意空子树不能当作叶子路径。</li>
+<li>平衡二叉树可以让递归返回高度，若不平衡返回 <code>-1</code>。</li>
+<li>翻转二叉树每个节点交换左右孩子；对称二叉树要比较外侧和内侧。</li>
+<li>路径题要判断是否必须到叶子；保存路径时 <code>append</code> 和 <code>pop</code> 要成对出现。</li>
+<li>构造树题先找根节点，再用中序位置切分左右子树，重点是区间边界。</li>
+<li>BST 题先想中序有序；验证 BST 要检查全局递增，不是只看父子节点。</li>
+<li>最近公共祖先：普通二叉树看左右子树返回值，BST 看 <code>p</code>、<code>q</code> 和当前节点的大小关系。</li>
+</ul>
+<p>二叉树题越往后越像“递归语义设计题”。复习时不要急着背整段代码，先用一句话说清楚函数的返回值。只要返回值定义稳，空节点、左右子树和当前节点的逻辑都会顺下来。</p>
+<div class="algorithm-module-nav algorithm-module-nav-bottom">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/stack-queue/">上一篇：栈与队列</a>
+  <a href="/algorithm/backtracking/">下一篇：回溯算法模板</a>
+</div>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+光学、成像、量子、深度学习<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%8E%E4%B9%88%E7%9C%8B%E4%BA%8C%E5%8F%89%E6%A0%91%E9%A2%98"><span class="toc-text">1. 怎么看二叉树题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%81%8D%E5%8E%86%E9%A1%BA%E5%BA%8F%EF%BC%9A%E9%80%92%E5%BD%92%E9%87%8C%E5%BD%93%E5%89%8D%E8%8A%82%E7%82%B9%E6%94%BE%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="toc-text">2. 遍历顺序：递归里当前节点放在哪里</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%BF%AD%E4%BB%A3%E9%81%8D%E5%8E%86%EF%BC%9A%E6%A0%88%E4%BF%9D%E5%AD%98%E8%BF%98%E6%B2%A1%E5%A4%84%E7%90%86%E5%AE%8C%E7%9A%84%E8%8A%82%E7%82%B9"><span class="toc-text">3. 迭代遍历：栈保存还没处理完的节点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%9A%E9%98%9F%E5%88%97%E6%8C%89%E5%B1%82%E6%8E%A8%E8%BF%9B"><span class="toc-text">4. 层序遍历：队列按层推进</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%AB%98%E5%BA%A6%E3%80%81%E6%B7%B1%E5%BA%A6%E3%80%81%E8%8A%82%E7%82%B9%E6%95%B0%EF%BC%9A%E5%85%88%E8%AE%BE%E8%AE%A1%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="toc-text">5. 高度、深度、节点数：先设计返回值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%BF%BB%E8%BD%AC%E3%80%81%E5%AF%B9%E7%A7%B0%E3%80%81%E7%9B%B8%E5%90%8C%EF%BC%9A%E6%88%90%E5%AF%B9%E5%A4%84%E7%90%86%E5%B7%A6%E5%8F%B3%E5%AD%90%E6%A0%91"><span class="toc-text">6. 翻转、对称、相同：成对处理左右子树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E8%B7%AF%E5%BE%84%E9%A2%98%EF%BC%9A%E8%B7%AF%E5%BE%84%E5%88%97%E8%A1%A8%E8%B7%9F%E7%9D%80%E9%80%92%E5%BD%92%E8%BF%9B%E5%87%BA"><span class="toc-text">7. 路径题：路径列表跟着递归进出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%A0%91%EF%BC%9A%E7%94%A8%E6%A0%B9%E8%8A%82%E7%82%B9%E5%88%87%E5%88%86%E5%B7%A6%E5%8F%B3%E5%8C%BA%E9%97%B4"><span class="toc-text">8. 构造二叉树：用根节点切分左右区间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-BST%EF%BC%9A%E4%B8%AD%E5%BA%8F%E6%9C%89%E5%BA%8F%E6%98%AF%E7%AC%AC%E4%B8%80%E5%8F%8D%E5%BA%94"><span class="toc-text">9. BST：中序有序是第一反应</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88%EF%BC%9A%E5%B7%A6%E5%8F%B3%E5%AD%90%E6%A0%91%E5%88%86%E5%88%AB%E6%89%BE%E7%9B%AE%E6%A0%87"><span class="toc-text">10. 最近公共祖先：左右子树分别找目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%A4%8D%E4%B9%A0%E6%80%BB%E8%A7%88"><span class="toc-text">11. 复习总览</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程"><img src="/img/cover-image-20260120.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo + GitHub 博客搭建教程"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程">Hexo + GitHub 博客搭建教程</a><time datetime="2026-01-20T09:32:53.000Z" title="发表于 2026-01-20 17:32:53">2026-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合"><img src="/img/cover-image-202601192.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信息融合"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合">信息融合</a><time datetime="2026-01-19T14:33:52.000Z" title="发表于 2026-01-19 22:33:52">2026-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/optical-generation/" title="光学生成模型"><img src="/img/cover-image-20260119.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="光学生成模型"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/optical-generation/" title="光学生成模型">光学生成模型</a><time datetime="2026-01-19T11:49:17.000Z" title="发表于 2026-01-19 19:49:17">2026-01-19</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Notes/"><span class="card-category-list-name">Notes</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Tutorial/"><span class="card-category-list-name">Tutorial</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Theory/" style="font-size: 1.5em; color: #99a9bf">Theory</a> <a href="/tags/Information/" style="font-size: 1.1em; color: #999">Information</a> <a href="/tags/Technology/" style="font-size: 1.1em; color: #999">Technology</a> <a href="/tags/Optics/" style="font-size: 1.1em; color: #999">Optics</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/01/">
+            <span class="card-archive-list-date">
+              一月 2026
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">3</div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-07-09T11:44:44.603Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
