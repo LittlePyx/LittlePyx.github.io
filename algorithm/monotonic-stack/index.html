@@ -1,0 +1,550 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>代码随想录刷题笔记：单调栈 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="单调栈刷题笔记，整理下一个更大或更小元素、每日温度、环形数组、接雨水和柱状图最大矩形的题型识别、统一模板与边界处理。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="代码随想录刷题笔记：单调栈">
+<meta property="og:url" content="https://littlepyx.github.io/algorithm/monotonic-stack/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="单调栈刷题笔记，整理下一个更大或更小元素、每日温度、环形数组、接雨水和柱状图最大矩形的题型识别、统一模板与边界处理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-07-20T09:59:48.533Z">
+<meta property="article:modified_time" content="2026-07-20T09:59:48.533Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="CodeThinking">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Monotonic Stack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/algorithm/monotonic-stack/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '代码随想录刷题笔记：单调栈',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'page'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url(/img/algorithm-header-code.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">代码随想录刷题笔记：单调栈</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><div class="algorithm-module-nav algorithm-module-nav-top">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/dynamic-programming/">上一篇：动态规划与背包问题</a>
+  <span class="algorithm-module-nav-disabled">下一篇：图论（整理中）</span>
+</div>
+<h2 id="1-什么时候想到单调栈">1. 什么时候想到单调栈</h2>
+<p>单调栈最擅长解决的是：<strong>对每个元素，寻找某一侧第一个比它更大或更小的元素。</strong></p>
+<p>如果直接从每个位置向后扫描，最坏需要 <code>O(n^2)</code>；单调栈把还没有找到答案的位置暂时保存起来，等到一个能够解决它们的新元素出现时，再批量结算。</p>
+<p>常见题目信号：</p>
+<table>
+<thead>
+<tr>
+<th>题目描述</th>
+<th>单调栈要寻找的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>还要等几天才会更暖</td>
+<td>右侧第一个严格更大的元素</td>
+</tr>
+<tr>
+<td>下一个更大元素</td>
+<td>右侧第一个严格更大的元素</td>
+</tr>
+<tr>
+<td>下一个更小元素</td>
+<td>右侧第一个严格更小的元素</td>
+</tr>
+<tr>
+<td>每根柱子能向左右延伸多远</td>
+<td>左右第一个更矮的柱子</td>
+</tr>
+<tr>
+<td>凹槽能够装多少水</td>
+<td>当前低点左右的挡板</td>
+</tr>
+<tr>
+<td>子数组最小值或最大值贡献</td>
+<td>每个元素作为最值的左右边界</td>
+</tr>
+</tbody>
+</table>
+<p>单调栈通常不是为了模拟入栈、出栈本身，而是利用栈顶表示<strong>离当前位置最近、并且仍在等待答案的候选位置</strong>。</p>
+<p>它和几个相近结构的区别：</p>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>主要解决什么问题</th>
+<th>过期元素怎样离开</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通栈</td>
+<td>括号匹配、表达式、撤销、路径</td>
+<td>由业务顺序决定</td>
+</tr>
+<tr>
+<td>单调栈</td>
+<td>最近更大或更小、左右边界</td>
+<td>被当前元素破坏单调性时弹出</td>
+</tr>
+<tr>
+<td>单调队列</td>
+<td>固定滑动窗口中的最大值或最小值</td>
+<td>队首过期、队尾失去竞争力</td>
+</tr>
+<tr>
+<td>堆</td>
+<td>动态集合中的全局最大值或最小值</td>
+<td>删除堆顶，或惰性删除</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-单调性到底怎样维护">2. 单调性到底怎样维护</h2>
+<h3 id="2-1-栈里优先保存下标">2.1 栈里优先保存下标</h3>
+<p>大多数题目应该保存下标，而不是只保存数值：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stack = [index1, index2, ...]</span><br></pre></td></tr></table></figure>
+<p>通过下标可以同时得到：</p>
+<ul>
+<li>元素值：<code>nums[stack[-1]]</code></li>
+<li>距离：<code>current - stack[-1]</code></li>
+<li>左右边界：弹出后查看新的 <code>stack[-1]</code></li>
+<li>正确处理重复值：相同数值处在不同位置，答案可能不同</li>
+</ul>
+<p>只有题目保证元素互不相同，并且只需要返回对应数值时，才适合直接保存数值。</p>
+<h3 id="2-2-栈的名称按“栈底到栈顶”的数值顺序描述">2.2 栈的名称按“栈底到栈顶”的数值顺序描述</h3>
+<p>寻找右侧第一个严格更大元素时，栈内数值从栈底到栈顶保持非递增：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">栈底 [大, ..., 小] 栈顶</span><br></pre></td></tr></table></figure>
+<p>一个更大的当前值到来后，会不断弹出栈顶较小值；这些被弹出的下标终于找到了右侧第一个更大元素。</p>
+<p>严格与非严格关系决定相等元素是否弹出：</p>
+<table>
+<thead>
+<tr>
+<th>要找的答案</th>
+<th>栈底到栈顶</th>
+<th>弹出条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>下一个严格更大</td>
+<td>非递增，相等可共存</td>
+<td><code>stack_top &lt; current</code></td>
+</tr>
+<tr>
+<td>下一个大于等于</td>
+<td>严格递减</td>
+<td><code>stack_top &lt;= current</code></td>
+</tr>
+<tr>
+<td>下一个严格更小</td>
+<td>非递减，相等可共存</td>
+<td><code>stack_top &gt; current</code></td>
+</tr>
+<tr>
+<td>下一个小于等于</td>
+<td>严格递增</td>
+<td><code>stack_top &gt;= current</code></td>
+</tr>
+</tbody>
+</table>
+<p>不要只背“递增栈找更大”或“递减栈找更大”。不同资料可能按栈顶观察方向命名，容易产生歧义；直接写出<strong>栈底到栈顶的关系和 <code>while</code> 条件</strong>更可靠。</p>
+<h3 id="2-3-每个下标只会入栈一次、出栈一次">2.3 每个下标只会入栈一次、出栈一次</h3>
+<p>代码里虽然有嵌套的 <code>while</code>，但一个下标一旦弹出就不会再次进入同一个栈：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">每个下标入栈最多 1 次</span><br><span class="line">每个下标出栈最多 1 次</span><br><span class="line">总操作次数不超过常数倍 n</span><br></pre></td></tr></table></figure>
+<p>因此一次完整扫描的时间复杂度是 <code>O(n)</code>，栈的空间复杂度是 <code>O(n)</code>。这叫摊还分析，不是把内外循环简单相乘成 <code>O(n^2)</code>。</p>
+<h2 id="3-一套统一的“下一个严格更大”模板">3. 一套统一的“下一个严格更大”模板</h2>
+<p>先写一个返回下标的通用版本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">next_strictly_greater_indices</span>(<span class="params">nums: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    answer = [-<span class="number">1</span>] * <span class="built_in">len</span>(nums)</span><br><span class="line">    stack: <span class="built_in">list</span>[<span class="built_in">int</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> current <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(nums)):</span><br><span class="line">        <span class="keyword">while</span> stack <span class="keyword">and</span> nums[stack[-<span class="number">1</span>]] &lt; nums[current]:</span><br><span class="line">            waiting = stack.pop()</span><br><span class="line">            answer[waiting] = current</span><br><span class="line"></span><br><span class="line">        stack.append(current)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> answer</span><br></pre></td></tr></table></figure>
+<p>理解模板时只看两个角色：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">waiting：过去出现、仍在等待答案的下标</span><br><span class="line">current：当前到来、可能解决若干 waiting 的下标</span><br></pre></td></tr></table></figure>
+<p>从这个模板可以直接改出不同返回形式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">返回更大元素的下标：answer[waiting] = current</span><br><span class="line">返回更大元素的数值：answer[waiting] = nums[current]</span><br><span class="line">返回还要等待的距离：answer[waiting] = current - waiting</span><br></pre></td></tr></table></figure>
+<p>遍历结束后仍留在栈中的位置，说明右侧不存在符合条件的元素，因此保留初始化答案，例如 <code>-1</code> 或 <code>0</code>。</p>
+<p>写题前先回答四个问题：</p>
+<ol>
+<li>栈里保存下标还是数值？</li>
+<li>谁在等待答案，谁触发结算？</li>
+<li>要找严格更大、更大等于、严格更小，还是更小等于？</li>
+<li>找不到答案时应该返回 <code>-1</code>、<code>0</code> 还是数组边界？</li>
+</ol>
+<h2 id="4-739-每日温度：单调栈入门题">4. 739. 每日温度：单调栈入门题</h2>
+<p>题目要求每一天距离右侧第一个更高温度还有几天，因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">栈中保存仍未找到更暖日期的下标</span><br><span class="line">当前温度更高时，批量结算栈顶日期</span><br><span class="line">答案是两个下标之差</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">daily_temperatures</span>(<span class="params">temperatures: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    answer = [<span class="number">0</span>] * <span class="built_in">len</span>(temperatures)</span><br><span class="line">    stack: <span class="built_in">list</span>[<span class="built_in">int</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> current, temperature <span class="keyword">in</span> <span class="built_in">enumerate</span>(temperatures):</span><br><span class="line">        <span class="keyword">while</span> (</span><br><span class="line">            stack</span><br><span class="line">            <span class="keyword">and</span> temperatures[stack[-<span class="number">1</span>]] &lt; temperature</span><br><span class="line">        ):</span><br><span class="line">            waiting = stack.pop()</span><br><span class="line">            answer[waiting] = current - waiting</span><br><span class="line"></span><br><span class="line">        stack.append(current)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> answer</span><br></pre></td></tr></table></figure>
+<p>以 <code>[73, 74, 75, 71, 69, 72, 76, 73]</code> 为例：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">当前温度</th>
+<th>发生的出栈</th>
+<th>结算结果</th>
+<th>处理后的待定温度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">73</td>
+<td>无</td>
+<td>无</td>
+<td><code>[73]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">74</td>
+<td>73</td>
+<td>第 0 天等待 1 天</td>
+<td><code>[74]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">75</td>
+<td>74</td>
+<td>第 1 天等待 1 天</td>
+<td><code>[75]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">71</td>
+<td>无</td>
+<td>无</td>
+<td><code>[75, 71]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">69</td>
+<td>无</td>
+<td>无</td>
+<td><code>[75, 71, 69]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">72</td>
+<td>69、71</td>
+<td>第 4 天等 1 天，第 3 天等 2 天</td>
+<td><code>[75, 72]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">76</td>
+<td>72、75</td>
+<td>第 5 天等 1 天，第 2 天等 4 天</td>
+<td><code>[76]</code></td>
+</tr>
+<tr>
+<td style="text-align:right">73</td>
+<td>无</td>
+<td>无</td>
+<td><code>[76, 73]</code></td>
+</tr>
+</tbody>
+</table>
+<p>相同温度不算“更暖”，所以判断条件必须是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">temperatures[stack[-<span class="number">1</span>]] &lt; temperature</span><br></pre></td></tr></table></figure>
+<p>如果写成 <code>&lt;=</code>，相同温度也会被错误地当成答案。最后仍在栈里的日期右侧没有更高温度，答案保持为 0。</p>
+<h2 id="5-下一个更大元素">5. 下一个更大元素</h2>
+<h3 id="5-1-496-下一个更大元素-I：先处理全集，再回答子集">5.1 496. 下一个更大元素 I：先处理全集，再回答子集</h3>
+<p><code>nums1</code> 是 <code>nums2</code> 的子集，并且元素互不相同。可以先扫描 <code>nums2</code>，记录每个数的下一个更大元素，再按 <code>nums1</code> 的顺序取答案：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">next_greater_element</span>(<span class="params"></span></span><br><span class="line"><span class="params">    nums1: <span class="built_in">list</span>[<span class="built_in">int</span>],</span></span><br><span class="line"><span class="params">    nums2: <span class="built_in">list</span>[<span class="built_in">int</span>],</span></span><br><span class="line"><span class="params"></span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    next_greater: <span class="built_in">dict</span>[<span class="built_in">int</span>, <span class="built_in">int</span>] = &#123;&#125;</span><br><span class="line">    stack: <span class="built_in">list</span>[<span class="built_in">int</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> current <span class="keyword">in</span> nums2:</span><br><span class="line">        <span class="keyword">while</span> stack <span class="keyword">and</span> stack[-<span class="number">1</span>] &lt; current:</span><br><span class="line">            waiting = stack.pop()</span><br><span class="line">            next_greater[waiting] = current</span><br><span class="line"></span><br><span class="line">        stack.append(current)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> [</span><br><span class="line">        next_greater.get(value, -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">for</span> value <span class="keyword">in</span> nums1</span><br><span class="line">    ]</span><br></pre></td></tr></table></figure>
+<p>这里可以直接保存数值，是因为题目保证 <code>nums2</code> 中所有整数互不相同。如果允许重复值，<code>value -&gt; answer</code> 无法区分不同位置，应该改成保存下标。</p>
+<h3 id="5-2-503-下一个更大元素-II：用取模模拟环形数组">5.2 503. 下一个更大元素 II：用取模模拟环形数组</h3>
+<p>环形数组中，末尾元素还可以继续查看数组开头。把下标范围扫描两遍，就相当于把数组复制了一份：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">next_greater_elements</span>(<span class="params">nums: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">int</span>]:</span><br><span class="line">    size = <span class="built_in">len</span>(nums)</span><br><span class="line">    answer = [-<span class="number">1</span>] * size</span><br><span class="line">    stack: <span class="built_in">list</span>[<span class="built_in">int</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> step <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span> * size):</span><br><span class="line">        current = step % size</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (</span><br><span class="line">            stack</span><br><span class="line">            <span class="keyword">and</span> nums[stack[-<span class="number">1</span>]] &lt; nums[current]</span><br><span class="line">        ):</span><br><span class="line">            waiting = stack.pop()</span><br><span class="line">            answer[waiting] = nums[current]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 第二遍只负责帮助第一遍的下标找到答案。</span></span><br><span class="line">        <span class="keyword">if</span> step &lt; size:</span><br><span class="line">            stack.append(current)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> answer</span><br></pre></td></tr></table></figure>
+<p>第二遍不要再次把下标入栈，否则同一个位置会重复等待答案，既增加无效操作，也让状态难以解释。</p>
+<p>取模只是模拟访问顺序：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">step：0, 1, ..., n-1, n, ..., 2n-1</span><br><span class="line">下标：0, 1, ..., n-1, 0, ..., n-1</span><br></pre></td></tr></table></figure>
+<h2 id="6-42-接雨水：弹出的是凹槽底部">6. 42. 接雨水：弹出的是凹槽底部</h2>
+<p>接雨水使用单调栈时，栈中保存尚未找到右侧挡板的柱子下标。当前柱子比栈顶更高，说明出现了右挡板，可以按水平方向计算一层积水。</p>
+<p>弹出一个凹槽底部 <code>bottom</code> 后：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">right = 当前下标</span><br><span class="line">left = 弹出 bottom 后的新栈顶</span><br><span class="line">宽度 = right - left - 1</span><br><span class="line">有效水位 = min(height[left], height[right])</span><br><span class="line">积水高度 = 有效水位 - height[bottom]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">trap</span>(<span class="params">height: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    water = <span class="number">0</span></span><br><span class="line">    stack: <span class="built_in">list</span>[<span class="built_in">int</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> right, right_height <span class="keyword">in</span> <span class="built_in">enumerate</span>(height):</span><br><span class="line">        <span class="keyword">while</span> (</span><br><span class="line">            stack</span><br><span class="line">            <span class="keyword">and</span> height[stack[-<span class="number">1</span>]] &lt; right_height</span><br><span class="line">        ):</span><br><span class="line">            bottom = stack.pop()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 没有左挡板，无法形成凹槽。</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> stack:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">            left = stack[-<span class="number">1</span>]</span><br><span class="line">            width = right - left - <span class="number">1</span></span><br><span class="line">            bounded_height = (</span><br><span class="line">                <span class="built_in">min</span>(height[left], right_height)</span><br><span class="line">                - height[bottom]</span><br><span class="line">            )</span><br><span class="line">            water += width * bounded_height</span><br><span class="line"></span><br><span class="line">        stack.append(right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> water</span><br></pre></td></tr></table></figure>
+<p>这里最容易错的地方：</p>
+<ol>
+<li><code>bottom</code> 弹出以后，新的栈顶才是左挡板。</li>
+<li>弹出后栈为空，说明没有左挡板，必须停止当前轮计算。</li>
+<li>宽度不包含左右挡板，所以是 <code>right - left - 1</code>。</li>
+<li>水位由较矮挡板决定，所以使用 <code>min(left_height, right_height)</code>。</li>
+<li>一次弹出计算的是一层横向积水，不是某一根柱子上方的全部水量。</li>
+</ol>
+<h2 id="7-84-柱状图中最大的矩形：弹出时确定左右边界">7. 84. 柱状图中最大的矩形：弹出时确定左右边界</h2>
+<p>对于每根柱子，希望知道它作为矩形最低高度时，能够向左右延伸到哪里。当前柱子更矮时，栈顶较高柱子不能再向右延伸，此时就可以结算它的最大面积。</p>
+<p>为了让所有柱子最终都能结算，在数组两端各加入一个高度为 0 的哨兵：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">原数组：[2, 1, 5, 6, 2, 3]</span><br><span class="line">扩展后：[0, 2, 1, 5, 6, 2, 3, 0]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">largest_rectangle_area</span>(<span class="params">heights: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    extended = [<span class="number">0</span>, *heights, <span class="number">0</span>]</span><br><span class="line">    stack = [<span class="number">0</span>]</span><br><span class="line">    best = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> right <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(extended)):</span><br><span class="line">        current_height = extended[right]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (</span><br><span class="line">            <span class="built_in">len</span>(stack) &gt; <span class="number">1</span></span><br><span class="line">            <span class="keyword">and</span> extended[stack[-<span class="number">1</span>]] &gt;= current_height</span><br><span class="line">        ):</span><br><span class="line">            middle = stack.pop()</span><br><span class="line">            left = stack[-<span class="number">1</span>]</span><br><span class="line">            width = right - left - <span class="number">1</span></span><br><span class="line">            area = extended[middle] * width</span><br><span class="line">            best = <span class="built_in">max</span>(best, area)</span><br><span class="line"></span><br><span class="line">        stack.append(right)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> best</span><br></pre></td></tr></table></figure>
+<p>弹出 <code>middle</code> 时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">right：右侧第一个阻止 middle 继续延伸的位置</span><br><span class="line">left：弹出 middle 后，栈中最近的更矮位置</span><br><span class="line">可用宽度：right - left - 1</span><br><span class="line">矩形高度：height[middle]</span><br></pre></td></tr></table></figure>
+<p>使用 <code>&gt;=</code> 会把相同高度的旧下标弹出，让更新的下标作为这一高度的新代表。<code>len(stack) &gt; 1</code> 用来保护最左侧的 0 哨兵不被弹出。</p>
+<p>左右哨兵分别解决两个边界问题：</p>
+<ul>
+<li>左侧 0 保证弹出真实柱子后仍然有左边界。</li>
+<li>右侧 0 强制栈中剩余柱子全部完成结算。</li>
+</ul>
+<h2 id="8-接雨水和柱状图为什么看起来相反">8. 接雨水和柱状图为什么看起来相反</h2>
+<p>这两题都使用 <code>right - left - 1</code>，但弹出的对象和面积含义不同：</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>接雨水</th>
+<th>最大矩形</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>栈内趋势</td>
+<td>柱高非递增</td>
+<td>柱高递增</td>
+</tr>
+<tr>
+<td>当前元素触发条件</td>
+<td>当前柱更高</td>
+<td>当前柱更矮或相等</td>
+</tr>
+<tr>
+<td>弹出的元素</td>
+<td>凹槽底部</td>
+<td>待结算的矩形高度</td>
+</tr>
+<tr>
+<td>左右边界用途</td>
+<td>两侧挡板</td>
+<td>第一个限制延伸的位置</td>
+</tr>
+<tr>
+<td>面积</td>
+<td><code>宽度 * 水层高度</code></td>
+<td><code>宽度 * 柱子高度</code></td>
+</tr>
+<tr>
+<td>核心视角</td>
+<td>横向一层层接水</td>
+<td>以每根柱子为最低高度向两侧扩展</td>
+</tr>
+</tbody>
+</table>
+<p>可以这样记：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">接雨水：高柱出现，凹槽闭合</span><br><span class="line">柱状图：矮柱出现，高矩形闭合</span><br></pre></td></tr></table></figure>
+<h2 id="9-从“下一个元素”推广到左右边界">9. 从“下一个元素”推广到左右边界</h2>
+<p>单调栈不仅能直接返回下一个更大元素，还经常用来同时确定左右边界。</p>
+<p>当当前下标使栈顶 <code>middle</code> 出栈时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">当前下标 current 通常是 middle 的右边界</span><br><span class="line">弹出后的新栈顶通常是 middle 的左边界</span><br></pre></td></tr></table></figure>
+<p>这正是柱状图最大矩形的来源。类似地，在“子数组最小值之和”中，可以计算每个元素作为最小值时，向左和向右能够覆盖多少个子数组，再把贡献累加。</p>
+<p>使用这种贡献法时，重复元素必须一侧严格、一侧非严格，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">左边找严格更小</span><br><span class="line">右边找小于等于</span><br></pre></td></tr></table></figure>
+<p>如果两侧都使用严格关系，相同元素覆盖的子数组可能被重复统计；如果两侧都使用非严格关系，又可能漏掉一部分。具体选择哪一侧严格并不唯一，但两侧必须配套。</p>
+<h2 id="10-常见错误">10. 常见错误</h2>
+<h3 id="10-1-把当前下标和待结算下标写反">10.1 把当前下标和待结算下标写反</h3>
+<p>答案通常属于被弹出的旧下标：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">waiting = stack.pop()</span><br><span class="line">answer[waiting] = current - waiting</span><br></pre></td></tr></table></figure>
+<p>当前元素只是触发结算，不一定是在计算自己的答案。</p>
+<h3 id="10-2-栈里存下标，却直接比较下标大小">10.2 栈里存下标，却直接比较下标大小</h3>
+<p>如果栈保存的是下标，比较时要回到原数组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nums[stack[-<span class="number">1</span>]] &lt; nums[current]</span><br></pre></td></tr></table></figure>
+<p>不要误写成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stack[-<span class="number">1</span>] &lt; current</span><br></pre></td></tr></table></figure>
+<p>后者比较的是位置，不是元素值。</p>
+<h3 id="10-3-没有单独决定相等元素的处理">10.3 没有单独决定相等元素的处理</h3>
+<p><code>&lt;</code> 与 <code>&lt;=</code>、<code>&gt;</code> 与 <code>&gt;=</code> 会改变边界定义。每日温度要求严格更暖，相等温度不能出栈；贡献计数题又经常需要一侧处理相等值。</p>
+<h3 id="10-4-忘记处理永远等不到答案的元素">10.4 忘记处理永远等不到答案的元素</h3>
+<p>遍历结束后栈可能不为空。应该在初始化时给这些位置放好默认答案：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">每日温度：0</span><br><span class="line">下一个更大元素：-1</span><br><span class="line">左右边界：-1 或 n</span><br></pre></td></tr></table></figure>
+<h3 id="10-5-看到两层循环就误判为-O-n²">10.5 看到两层循环就误判为 O(n²)</h3>
+<p>检查每个下标能否被重复压栈。如果每个下标只入栈、出栈一次，总复杂度仍然是 <code>O(n)</code>。</p>
+<h3 id="10-6-环形数组第二遍重复入栈">10.6 环形数组第二遍重复入栈</h3>
+<p>第二遍扫描只用于补齐第一遍元素的答案，通常只在第一遍执行 <code>stack.append(current)</code>。</p>
+<h2 id="11-一份实用的单调栈检查清单">11. 一份实用的单调栈检查清单</h2>
+<ol>
+<li>题目是否在问某一侧第一个更大或更小元素？</li>
+<li>栈中保存的是仍在等待答案的谁？</li>
+<li>当前元素在什么条件下能够结算栈顶？</li>
+<li>栈保存下标还是数值？是否需要距离和边界？</li>
+<li>相等元素应该保留还是弹出？</li>
+<li>答案属于当前元素还是被弹出的元素？</li>
+<li>弹出以后是否需要读取新的栈顶作为左边界？</li>
+<li>找不到答案时的默认值是什么？</li>
+<li>环形数组是否只在第一遍入栈？</li>
+<li>是否需要左右哨兵强制完成边界结算？</li>
+</ol>
+<h2 id="12-复习总览">12. 复习总览</h2>
+<ul>
+<li>单调栈解决“对每个元素寻找一侧第一个更大或更小元素”，把暴力扫描从 <code>O(n^2)</code> 降为 <code>O(n)</code>。</li>
+<li>栈中通常保存下标，以便同时读取数值、计算距离并确定左右边界。</li>
+<li>寻找右侧严格更大元素时，过去较小的元素等待在栈中；更大的当前元素到来后批量结算它们。</li>
+<li>严格与非严格关系决定相等元素是否出栈，必须直接检查 <code>while</code> 条件。</li>
+<li>每日温度返回下标差；下一个更大元素返回对应数值；环形数组通过扫描两遍和取模补齐答案。</li>
+<li>接雨水弹出凹槽底部，用左右挡板计算横向水层。</li>
+<li>柱状图最大矩形弹出待结算高度，用左右限制位置计算矩形宽度。</li>
+<li>接雨水遇到更高柱结算凹槽；柱状图遇到更矮柱结算矩形。</li>
+<li>两端哨兵可以统一边界并强制栈内剩余元素完成结算。</li>
+<li>单调栈中的 <code>while</code> 虽然嵌套在 <code>for</code> 内，但每个下标只入栈、出栈一次，总时间仍然是 <code>O(n)</code>。</li>
+</ul>
+<p>复习单调栈时不要先背“递增栈还是递减栈”，先说清楚：谁在等待什么答案、当前元素为什么能让谁出栈、相等时要不要弹出。三个问题确定以后，栈的方向会自然得到。</p>
+<div class="algorithm-module-nav algorithm-module-nav-bottom">
+  <a href="/algorithm/">返回算法笔记总览</a>
+  <a href="/algorithm/dynamic-programming/">上一篇：动态规划与背包问题</a>
+  <span class="algorithm-module-nav-disabled">下一篇：图论（整理中）</span>
+</div>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+光学、成像、量子、深度学习<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E6%83%B3%E5%88%B0%E5%8D%95%E8%B0%83%E6%A0%88"><span class="toc-text">1. 什么时候想到单调栈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%8D%95%E8%B0%83%E6%80%A7%E5%88%B0%E5%BA%95%E6%80%8E%E6%A0%B7%E7%BB%B4%E6%8A%A4"><span class="toc-text">2. 单调性到底怎样维护</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%A0%88%E9%87%8C%E4%BC%98%E5%85%88%E4%BF%9D%E5%AD%98%E4%B8%8B%E6%A0%87"><span class="toc-text">2.1 栈里优先保存下标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%A0%88%E7%9A%84%E5%90%8D%E7%A7%B0%E6%8C%89%E2%80%9C%E6%A0%88%E5%BA%95%E5%88%B0%E6%A0%88%E9%A1%B6%E2%80%9D%E7%9A%84%E6%95%B0%E5%80%BC%E9%A1%BA%E5%BA%8F%E6%8F%8F%E8%BF%B0"><span class="toc-text">2.2 栈的名称按“栈底到栈顶”的数值顺序描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%AF%8F%E4%B8%AA%E4%B8%8B%E6%A0%87%E5%8F%AA%E4%BC%9A%E5%85%A5%E6%A0%88%E4%B8%80%E6%AC%A1%E3%80%81%E5%87%BA%E6%A0%88%E4%B8%80%E6%AC%A1"><span class="toc-text">2.3 每个下标只会入栈一次、出栈一次</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%B8%80%E5%A5%97%E7%BB%9F%E4%B8%80%E7%9A%84%E2%80%9C%E4%B8%8B%E4%B8%80%E4%B8%AA%E4%B8%A5%E6%A0%BC%E6%9B%B4%E5%A4%A7%E2%80%9D%E6%A8%A1%E6%9D%BF"><span class="toc-text">3. 一套统一的“下一个严格更大”模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-739-%E6%AF%8F%E6%97%A5%E6%B8%A9%E5%BA%A6%EF%BC%9A%E5%8D%95%E8%B0%83%E6%A0%88%E5%85%A5%E9%97%A8%E9%A2%98"><span class="toc-text">4. 739. 每日温度：单调栈入门题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E5%85%83%E7%B4%A0"><span class="toc-text">5. 下一个更大元素</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-496-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E5%85%83%E7%B4%A0-I%EF%BC%9A%E5%85%88%E5%A4%84%E7%90%86%E5%85%A8%E9%9B%86%EF%BC%8C%E5%86%8D%E5%9B%9E%E7%AD%94%E5%AD%90%E9%9B%86"><span class="toc-text">5.1 496. 下一个更大元素 I：先处理全集，再回答子集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-503-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%A4%A7%E5%85%83%E7%B4%A0-II%EF%BC%9A%E7%94%A8%E5%8F%96%E6%A8%A1%E6%A8%A1%E6%8B%9F%E7%8E%AF%E5%BD%A2%E6%95%B0%E7%BB%84"><span class="toc-text">5.2 503. 下一个更大元素 II：用取模模拟环形数组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-42-%E6%8E%A5%E9%9B%A8%E6%B0%B4%EF%BC%9A%E5%BC%B9%E5%87%BA%E7%9A%84%E6%98%AF%E5%87%B9%E6%A7%BD%E5%BA%95%E9%83%A8"><span class="toc-text">6. 42. 接雨水：弹出的是凹槽底部</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-84-%E6%9F%B1%E7%8A%B6%E5%9B%BE%E4%B8%AD%E6%9C%80%E5%A4%A7%E7%9A%84%E7%9F%A9%E5%BD%A2%EF%BC%9A%E5%BC%B9%E5%87%BA%E6%97%B6%E7%A1%AE%E5%AE%9A%E5%B7%A6%E5%8F%B3%E8%BE%B9%E7%95%8C"><span class="toc-text">7. 84. 柱状图中最大的矩形：弹出时确定左右边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%8E%A5%E9%9B%A8%E6%B0%B4%E5%92%8C%E6%9F%B1%E7%8A%B6%E5%9B%BE%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9C%8B%E8%B5%B7%E6%9D%A5%E7%9B%B8%E5%8F%8D"><span class="toc-text">8. 接雨水和柱状图为什么看起来相反</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E4%BB%8E%E2%80%9C%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E2%80%9D%E6%8E%A8%E5%B9%BF%E5%88%B0%E5%B7%A6%E5%8F%B3%E8%BE%B9%E7%95%8C"><span class="toc-text">9. 从“下一个元素”推广到左右边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF"><span class="toc-text">10. 常见错误</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E6%8A%8A%E5%BD%93%E5%89%8D%E4%B8%8B%E6%A0%87%E5%92%8C%E5%BE%85%E7%BB%93%E7%AE%97%E4%B8%8B%E6%A0%87%E5%86%99%E5%8F%8D"><span class="toc-text">10.1 把当前下标和待结算下标写反</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E6%A0%88%E9%87%8C%E5%AD%98%E4%B8%8B%E6%A0%87%EF%BC%8C%E5%8D%B4%E7%9B%B4%E6%8E%A5%E6%AF%94%E8%BE%83%E4%B8%8B%E6%A0%87%E5%A4%A7%E5%B0%8F"><span class="toc-text">10.2 栈里存下标，却直接比较下标大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E6%B2%A1%E6%9C%89%E5%8D%95%E7%8B%AC%E5%86%B3%E5%AE%9A%E7%9B%B8%E7%AD%89%E5%85%83%E7%B4%A0%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">10.3 没有单独决定相等元素的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E5%BF%98%E8%AE%B0%E5%A4%84%E7%90%86%E6%B0%B8%E8%BF%9C%E7%AD%89%E4%B8%8D%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E5%85%83%E7%B4%A0"><span class="toc-text">10.4 忘记处理永远等不到答案的元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E7%9C%8B%E5%88%B0%E4%B8%A4%E5%B1%82%E5%BE%AA%E7%8E%AF%E5%B0%B1%E8%AF%AF%E5%88%A4%E4%B8%BA-O-n%C2%B2"><span class="toc-text">10.5 看到两层循环就误判为 O(n²)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-%E7%8E%AF%E5%BD%A2%E6%95%B0%E7%BB%84%E7%AC%AC%E4%BA%8C%E9%81%8D%E9%87%8D%E5%A4%8D%E5%85%A5%E6%A0%88"><span class="toc-text">10.6 环形数组第二遍重复入栈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%B8%80%E4%BB%BD%E5%AE%9E%E7%94%A8%E7%9A%84%E5%8D%95%E8%B0%83%E6%A0%88%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">11. 一份实用的单调栈检查清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%A4%8D%E4%B9%A0%E6%80%BB%E8%A7%88"><span class="toc-text">12. 复习总览</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程"><img src="/img/cover-image-20260120.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo + GitHub 博客搭建教程"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程">Hexo + GitHub 博客搭建教程</a><time datetime="2026-01-20T09:32:53.000Z" title="发表于 2026-01-20 17:32:53">2026-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合"><img src="/img/cover-image-202601192.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信息融合"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合">信息融合</a><time datetime="2026-01-19T14:33:52.000Z" title="发表于 2026-01-19 22:33:52">2026-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/optical-generation/" title="光学生成模型"><img src="/img/cover-image-20260119.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="光学生成模型"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/optical-generation/" title="光学生成模型">光学生成模型</a><time datetime="2026-01-19T11:49:17.000Z" title="发表于 2026-01-19 19:49:17">2026-01-19</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Notes/"><span class="card-category-list-name">Notes</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Tutorial/"><span class="card-category-list-name">Tutorial</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Optics/" style="font-size: 1.1em; color: #999">Optics</a> <a href="/tags/Theory/" style="font-size: 1.5em; color: #99a9bf">Theory</a> <a href="/tags/Information/" style="font-size: 1.1em; color: #999">Information</a> <a href="/tags/Technology/" style="font-size: 1.1em; color: #999">Technology</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/01/">
+            <span class="card-archive-list-date">
+              一月 2026
+            </span>
+            <span class="card-archive-list-count">3</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">3</div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-07-20T10:05:06.076Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
