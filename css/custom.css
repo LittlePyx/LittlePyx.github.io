@@ -43,6 +43,10 @@
 }
 
 /* 算法模块页：返回总览 / 上一篇 / 下一篇 */
+html {
+  scroll-padding-top: 5.5rem;
+}
+
 .algorithm-module-nav {
   display: flex;
   flex-wrap: wrap;
@@ -83,6 +87,15 @@
   border-color: rgba(120, 130, 145, 0.2);
   background: rgba(120, 130, 145, 0.08);
   color: #748093;
+}
+
+/* 跨模块链接跳转后，为固定顶部导航预留空间。 */
+.algorithm-section-anchor {
+  display: block;
+  position: relative;
+  top: -5.5rem;
+  scroll-margin-top: 5.5rem;
+  visibility: hidden;
 }
 
 @media (max-width: 680px) {
@@ -4189,4 +4202,955 @@
 
 .edit-distance-demo .lcs-detail {
   min-height: 3.3rem;
+}
+
+/* Monotonic stack: next strictly greater step-through */
+.algo-demo.monotonic-stack-template-demo {
+  --ms-stack: var(--algo-blue);
+  --ms-stack-soft: var(--algo-blue-soft);
+}
+
+.monotonic-stack-template-demo .ms-code-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.monotonic-stack-template-demo .ms-code-flow code {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--algo-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: normal;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+[data-theme="dark"] .monotonic-stack-template-demo .ms-code-flow code {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.monotonic-stack-template-demo .ms-code-flow code.active {
+  border-color: var(--algo-blue);
+  background: var(--algo-blue-soft);
+  color: var(--algo-text);
+  transform: translateY(-2px);
+}
+
+.monotonic-stack-template-demo .ms-array {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(40px, 1fr));
+  gap: 0.45rem;
+  margin: 1.65rem 0 0.9rem;
+}
+
+.monotonic-stack-template-demo .ms-cell {
+  position: relative;
+  min-height: 68px;
+  padding: 0.55rem 0.25rem 0.35rem;
+  border: 2px solid var(--algo-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease, opacity 180ms ease;
+}
+
+[data-theme="dark"] .monotonic-stack-template-demo .ms-cell {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.monotonic-stack-template-demo .ms-cell strong,
+.monotonic-stack-template-demo .ms-answer-item strong,
+.monotonic-stack-template-demo .ms-stack-item strong {
+  display: block;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.monotonic-stack-template-demo .ms-cell span,
+.monotonic-stack-template-demo .ms-answer-item span,
+.monotonic-stack-template-demo .ms-stack-item span,
+.monotonic-stack-template-demo .ms-stack-item small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--algo-muted);
+  font-size: 0.74rem;
+}
+
+.monotonic-stack-template-demo .ms-cell.in-stack {
+  border-color: var(--ms-stack);
+  background: var(--ms-stack-soft);
+}
+
+.monotonic-stack-template-demo .ms-cell.is-current {
+  border-color: var(--algo-orange);
+  background: var(--algo-orange-soft);
+  transform: translateY(-3px);
+}
+
+.monotonic-stack-template-demo .ms-cell.compare-true {
+  border-color: var(--algo-green);
+  box-shadow: inset 0 0 0 2px var(--algo-green);
+}
+
+.monotonic-stack-template-demo .ms-cell.compare-false {
+  border-color: var(--algo-red);
+  box-shadow: inset 0 0 0 2px var(--algo-red);
+}
+
+.monotonic-stack-template-demo .ms-cell.is-resolved {
+  border-color: var(--algo-green);
+  background: var(--algo-green-soft);
+  animation: ms-resolve-pulse 520ms ease;
+}
+
+.monotonic-stack-template-demo .ms-pointer {
+  position: absolute;
+  top: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--algo-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.monotonic-stack-template-demo .ms-lanes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 0.7rem;
+}
+
+.monotonic-stack-template-demo .ms-lane {
+  min-width: 0;
+}
+
+.monotonic-stack-template-demo .ms-lane-title {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.monotonic-stack-template-demo .ms-stack,
+.monotonic-stack-template-demo .ms-answer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  min-height: 78px;
+  padding: 0.55rem;
+  border: 1px dashed var(--algo-border);
+  border-radius: 7px;
+}
+
+.monotonic-stack-template-demo .ms-stack-item {
+  min-width: 62px;
+  padding: 0.45rem 0.4rem;
+  border: 1px solid var(--ms-stack);
+  border-radius: 7px;
+  background: var(--ms-stack-soft);
+  text-align: center;
+  animation: ms-stack-enter 260ms ease;
+}
+
+.monotonic-stack-template-demo .ms-stack-item.is-compared {
+  box-shadow: inset 0 0 0 2px var(--algo-orange);
+}
+
+.monotonic-stack-template-demo .ms-arrow {
+  color: var(--algo-muted);
+  font-style: normal;
+}
+
+.monotonic-stack-template-demo .ms-empty {
+  color: var(--algo-muted);
+}
+
+.monotonic-stack-template-demo .ms-pop-result {
+  flex-basis: 100%;
+  padding: 0.35rem 0.5rem;
+  border-left: 3px solid var(--algo-green);
+  background: var(--algo-green-soft);
+  color: var(--algo-text);
+  font-size: 0.82rem;
+  animation: ms-resolve-pulse 520ms ease;
+}
+
+.monotonic-stack-template-demo .ms-answer {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(40px, 1fr));
+}
+
+.monotonic-stack-template-demo .ms-answer-item {
+  min-width: 0;
+  padding: 0.45rem 0.2rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  opacity: 0.62;
+  transition: border-color 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+[data-theme="dark"] .monotonic-stack-template-demo .ms-answer-item {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.monotonic-stack-template-demo .ms-answer-item.is-written {
+  border-color: var(--algo-green);
+  background: var(--algo-green-soft);
+  opacity: 1;
+}
+
+.monotonic-stack-template-demo .ms-answer-item.just-written {
+  box-shadow: inset 0 0 0 2px var(--algo-green);
+  animation: ms-resolve-pulse 520ms ease;
+}
+
+.monotonic-stack-template-demo .ms-answer-item.final-default {
+  border-color: var(--algo-red);
+  background: var(--algo-red-soft);
+  opacity: 1;
+}
+
+.monotonic-stack-template-demo .ms-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.monotonic-stack-template-demo .ms-speed select {
+  min-height: 2.1rem;
+  padding: 0.3rem 1.7rem 0.3rem 0.55rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 6px;
+  background: var(--algo-bg);
+  color: var(--algo-text);
+}
+
+.monotonic-stack-template-demo button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.monotonic-stack-template-demo button:focus-visible,
+.monotonic-stack-template-demo select:focus-visible {
+  outline: 3px solid var(--algo-blue-soft);
+  outline-offset: 2px;
+}
+
+@keyframes ms-resolve-pulse {
+  0% { transform: scale(0.96); }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ms-stack-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monotonic-stack-template-demo .ms-code-flow code,
+  .monotonic-stack-template-demo .ms-cell,
+  .monotonic-stack-template-demo .ms-stack-item,
+  .monotonic-stack-template-demo .ms-pop-result,
+  .monotonic-stack-template-demo .ms-answer-item {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .algo-demo.monotonic-stack-template-demo {
+    padding: 0.8rem;
+  }
+
+  .monotonic-stack-template-demo .ms-code-flow,
+  .monotonic-stack-template-demo .ms-lanes {
+    grid-template-columns: 1fr;
+  }
+
+  .monotonic-stack-template-demo .ms-code-flow code {
+    min-height: 0;
+  }
+
+  .monotonic-stack-template-demo .ms-cell {
+    min-height: 62px;
+  }
+
+  .monotonic-stack-template-demo .algo-controls button {
+    flex: 1 1 70px;
+  }
+
+  .monotonic-stack-template-demo .ms-speed {
+    flex: 1 1 100%;
+  }
+
+  .monotonic-stack-template-demo .algo-step {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
+
+/* Monotonic stack: trapping rain water elevation diagram */
+.trapping-rain-water-demo .algo-demo-title code {
+  margin-left: auto;
+  color: var(--algo-muted);
+  font-weight: 400;
+}
+
+.trapping-rain-water-demo .rw-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0.8rem 0 0.35rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--algo-border);
+  border-bottom: 1px solid var(--algo-border);
+}
+
+.trapping-rain-water-demo .rw-status span {
+  min-width: 0;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.trapping-rain-water-demo .rw-status strong {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--algo-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.trapping-rain-water-demo .rw-chart {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.trapping-rain-water-demo .rw-elevation {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--algo-text);
+}
+
+.trapping-rain-water-demo .rw-grid line {
+  stroke: var(--algo-border);
+  stroke-width: 1;
+}
+
+.trapping-rain-water-demo .rw-grid text,
+.trapping-rain-water-demo .rw-height-label,
+.trapping-rain-water-demo .rw-index-label {
+  fill: var(--algo-muted);
+  font-size: 12px;
+}
+
+.trapping-rain-water-demo .rw-height-label {
+  fill: var(--algo-text);
+  font-weight: 700;
+}
+
+.trapping-rain-water-demo .rw-bar {
+  fill: var(--algo-text);
+  opacity: 0.72;
+  transition: fill 180ms ease, opacity 180ms ease;
+}
+
+.trapping-rain-water-demo .rw-bar.is-left {
+  fill: var(--algo-green);
+  opacity: 0.88;
+}
+
+.trapping-rain-water-demo .rw-bar.is-bottom {
+  fill: var(--algo-red);
+  opacity: 0.88;
+}
+
+.trapping-rain-water-demo .rw-bar.is-right {
+  fill: var(--algo-orange);
+  opacity: 0.9;
+}
+
+.trapping-rain-water-demo .rw-water-cell {
+  fill: var(--algo-blue-soft);
+  stroke: var(--algo-blue);
+  stroke-width: 1;
+}
+
+.trapping-rain-water-demo .rw-water-cell.is-new {
+  fill: var(--algo-blue);
+  fill-opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: rw-water-rise 520ms ease-out;
+}
+
+.trapping-rain-water-demo .rw-layer-outline {
+  fill: none;
+  stroke: var(--algo-blue);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  pointer-events: none;
+}
+
+.trapping-rain-water-demo .rw-role-line {
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.trapping-rain-water-demo .rw-role-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trapping-rain-water-demo .rw-role-line.left {
+  stroke: var(--algo-green);
+}
+
+.trapping-rain-water-demo .rw-role-label.left {
+  fill: var(--algo-green);
+}
+
+.trapping-rain-water-demo .rw-role-line.bottom {
+  stroke: var(--algo-red);
+}
+
+.trapping-rain-water-demo .rw-role-label.bottom {
+  fill: var(--algo-red);
+}
+
+.trapping-rain-water-demo .rw-role-line.right {
+  stroke: var(--algo-orange);
+}
+
+.trapping-rain-water-demo .rw-role-label.right {
+  fill: var(--algo-orange);
+}
+
+.trapping-rain-water-demo .rw-formula {
+  min-height: 2.6rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--algo-border);
+  border-bottom: 1px solid var(--algo-border);
+  color: var(--algo-text);
+  font-family: Consolas, Monaco, monospace;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.trapping-rain-water-demo .rw-code-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0.8rem 0;
+}
+
+.trapping-rain-water-demo .rw-code-flow code {
+  display: flex;
+  align-items: center;
+  min-height: 2.6rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid transparent;
+  background: var(--algo-blue-soft);
+  color: var(--algo-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  opacity: 0.55;
+  white-space: normal;
+  transition: border-color 180ms ease, color 180ms ease, opacity 180ms ease;
+}
+
+.trapping-rain-water-demo .rw-code-flow code.active {
+  border-left-color: var(--algo-blue);
+  color: var(--algo-text);
+  opacity: 1;
+}
+
+.trapping-rain-water-demo .rw-stack-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  margin-top: 0.75rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.trapping-rain-water-demo .rw-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 3rem;
+}
+
+.trapping-rain-water-demo .rw-stack > i {
+  color: var(--algo-muted);
+  font-style: normal;
+}
+
+.trapping-rain-water-demo .rw-stack-item {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.05rem 0.35rem;
+  min-width: 66px;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--algo-border);
+  background: transparent;
+  color: var(--algo-text);
+}
+
+.trapping-rain-water-demo .rw-stack-item small {
+  grid-column: 1 / -1;
+  color: var(--algo-muted);
+  font-size: 0.68rem;
+}
+
+.trapping-rain-water-demo .rw-stack-item strong,
+.trapping-rain-water-demo .rw-stack-item span {
+  font-size: 0.8rem;
+}
+
+.trapping-rain-water-demo .rw-stack-empty {
+  color: var(--algo-muted);
+}
+
+.trapping-rain-water-demo .rw-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.trapping-rain-water-demo .rw-speed select {
+  min-height: 2.1rem;
+  padding: 0.3rem 1.7rem 0.3rem 0.55rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 6px;
+  background: var(--algo-bg);
+  color: var(--algo-text);
+}
+
+.trapping-rain-water-demo button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.trapping-rain-water-demo button:focus-visible,
+.trapping-rain-water-demo select:focus-visible {
+  outline: 3px solid var(--algo-blue-soft);
+  outline-offset: 2px;
+}
+
+@keyframes rw-water-rise {
+  from {
+    opacity: 0.2;
+    transform: scaleY(0.05);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trapping-rain-water-demo .rw-bar,
+  .trapping-rain-water-demo .rw-water-cell,
+  .trapping-rain-water-demo .rw-code-flow code {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .algo-demo.trapping-rain-water-demo {
+    padding: 0.75rem;
+  }
+
+  .trapping-rain-water-demo .algo-demo-title code {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .trapping-rain-water-demo .rw-status {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .trapping-rain-water-demo .rw-status span {
+    display: flex;
+    gap: 0.45rem;
+    align-items: baseline;
+  }
+
+  .trapping-rain-water-demo .rw-status strong {
+    display: inline;
+    margin-top: 0;
+  }
+
+  .trapping-rain-water-demo .rw-code-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .trapping-rain-water-demo .rw-code-flow code {
+    min-height: 0;
+  }
+
+  .trapping-rain-water-demo .rw-stack-row {
+    grid-template-columns: 1fr;
+  }
+
+  .trapping-rain-water-demo .algo-controls button {
+    flex: 1 1 70px;
+  }
+
+  .trapping-rain-water-demo .rw-speed,
+  .trapping-rain-water-demo .algo-step {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
+
+/* Monotonic stack: largest rectangle in histogram */
+.largest-rectangle-demo .algo-demo-title code {
+  margin-left: auto;
+  color: var(--algo-muted);
+  font-weight: 400;
+}
+
+.largest-rectangle-demo .hist-status {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0.8rem 0 0.35rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--algo-border);
+  border-bottom: 1px solid var(--algo-border);
+}
+
+.largest-rectangle-demo .hist-status span {
+  min-width: 0;
+  color: var(--algo-muted);
+  font-size: 0.86rem;
+}
+
+.largest-rectangle-demo .hist-status strong {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--algo-text);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.largest-rectangle-demo .hist-chart {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.largest-rectangle-demo .hist-elevation {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--algo-text);
+}
+
+.largest-rectangle-demo .hist-grid line {
+  stroke: var(--algo-border);
+  stroke-width: 1;
+}
+
+.largest-rectangle-demo .hist-grid text,
+.largest-rectangle-demo .hist-height-label,
+.largest-rectangle-demo .hist-index-label,
+.largest-rectangle-demo .hist-extended-label {
+  fill: var(--algo-muted);
+  font-size: 11px;
+}
+
+.largest-rectangle-demo .hist-height-label {
+  fill: var(--algo-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.largest-rectangle-demo .hist-extended-label {
+  opacity: 0.8;
+}
+
+.largest-rectangle-demo .hist-bar {
+  fill: var(--algo-text);
+  opacity: 0.72;
+  transition: fill 180ms ease, opacity 180ms ease;
+}
+
+.largest-rectangle-demo .hist-bar.is-left {
+  fill: var(--algo-green);
+  opacity: 0.88;
+}
+
+.largest-rectangle-demo .hist-bar.is-middle {
+  fill: var(--algo-red);
+  opacity: 0.9;
+}
+
+.largest-rectangle-demo .hist-bar.is-right {
+  fill: var(--algo-orange);
+  opacity: 0.9;
+}
+
+.largest-rectangle-demo .hist-sentinel {
+  stroke: var(--algo-muted);
+  stroke-width: 4;
+}
+
+.largest-rectangle-demo .hist-sentinel.is-left {
+  stroke: var(--algo-green);
+}
+
+.largest-rectangle-demo .hist-sentinel.is-right {
+  stroke: var(--algo-orange);
+}
+
+.largest-rectangle-demo .hist-best-rectangle {
+  fill: var(--algo-green-soft);
+  stroke: var(--algo-green);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+
+.largest-rectangle-demo .hist-candidate-rectangle {
+  fill: var(--algo-orange-soft);
+  stroke: var(--algo-orange);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: hist-rectangle-rise 460ms ease-out;
+}
+
+.largest-rectangle-demo .hist-candidate-rectangle.is-new-best {
+  fill: var(--algo-green-soft);
+  stroke: var(--algo-green);
+}
+
+.largest-rectangle-demo .hist-role-line {
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.largest-rectangle-demo .hist-role-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.largest-rectangle-demo .hist-role-line.left {
+  stroke: var(--algo-green);
+}
+
+.largest-rectangle-demo .hist-role-label.left {
+  fill: var(--algo-green);
+}
+
+.largest-rectangle-demo .hist-role-line.middle {
+  stroke: var(--algo-red);
+}
+
+.largest-rectangle-demo .hist-role-label.middle {
+  fill: var(--algo-red);
+}
+
+.largest-rectangle-demo .hist-role-line.right {
+  stroke: var(--algo-orange);
+}
+
+.largest-rectangle-demo .hist-role-label.right {
+  fill: var(--algo-orange);
+}
+
+.largest-rectangle-demo .hist-formula {
+  min-height: 2.6rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--algo-border);
+  border-bottom: 1px solid var(--algo-border);
+  color: var(--algo-text);
+  font-family: Consolas, Monaco, monospace;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.largest-rectangle-demo .hist-code-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0.8rem 0;
+}
+
+.largest-rectangle-demo .hist-code-flow code {
+  display: flex;
+  align-items: center;
+  min-height: 2.6rem;
+  padding: 0.45rem 0.55rem;
+  border-left: 3px solid transparent;
+  background: var(--algo-green-soft);
+  color: var(--algo-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  opacity: 0.55;
+  white-space: normal;
+  transition: border-color 180ms ease, color 180ms ease, opacity 180ms ease;
+}
+
+.largest-rectangle-demo .hist-code-flow code.active {
+  border-left-color: var(--algo-green);
+  color: var(--algo-text);
+  opacity: 1;
+}
+
+.largest-rectangle-demo .hist-stack-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  margin-top: 0.75rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.largest-rectangle-demo .hist-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 3rem;
+}
+
+.largest-rectangle-demo .hist-stack > i {
+  color: var(--algo-muted);
+  font-style: normal;
+}
+
+.largest-rectangle-demo .hist-stack-item {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.05rem 0.35rem;
+  min-width: 66px;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--algo-border);
+  background: transparent;
+  color: var(--algo-text);
+}
+
+.largest-rectangle-demo .hist-stack-item small {
+  grid-column: 1 / -1;
+  color: var(--algo-muted);
+  font-size: 0.68rem;
+}
+
+.largest-rectangle-demo .hist-stack-item strong,
+.largest-rectangle-demo .hist-stack-item span {
+  font-size: 0.8rem;
+}
+
+.largest-rectangle-demo .hist-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--algo-muted);
+  font-size: 0.88rem;
+}
+
+.largest-rectangle-demo .hist-speed select {
+  min-height: 2.1rem;
+  padding: 0.3rem 1.7rem 0.3rem 0.55rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 6px;
+  background: var(--algo-bg);
+  color: var(--algo-text);
+}
+
+.largest-rectangle-demo button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.largest-rectangle-demo button:focus-visible,
+.largest-rectangle-demo select:focus-visible {
+  outline: 3px solid var(--algo-green-soft);
+  outline-offset: 2px;
+}
+
+@keyframes hist-rectangle-rise {
+  from {
+    opacity: 0.2;
+    transform: scaleY(0.05);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .largest-rectangle-demo .hist-bar,
+  .largest-rectangle-demo .hist-candidate-rectangle,
+  .largest-rectangle-demo .hist-code-flow code {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .algo-demo.largest-rectangle-demo {
+    padding: 0.75rem;
+  }
+
+  .largest-rectangle-demo .algo-demo-title code {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .largest-rectangle-demo .hist-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .largest-rectangle-demo .hist-code-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .largest-rectangle-demo .hist-code-flow code {
+    min-height: 0;
+  }
+
+  .largest-rectangle-demo .hist-stack-row {
+    grid-template-columns: 1fr;
+  }
+
+  .largest-rectangle-demo .algo-controls button {
+    flex: 1 1 70px;
+  }
+
+  .largest-rectangle-demo .hist-speed,
+  .largest-rectangle-demo .algo-step {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
 }
