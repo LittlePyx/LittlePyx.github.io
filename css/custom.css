@@ -7607,6 +7607,326 @@ html {
   }
 }
 
+/* Trapping Rain Water II: top-down teaching view */
+.rainwater-ii-demo .rw2-mode-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  margin-bottom: 0.58rem;
+}
+
+.rainwater-ii-demo .rw2-mode-switch button {
+  padding: 0.34rem 0.62rem;
+  border: 1px solid var(--algo-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--algo-muted);
+  cursor: pointer;
+  font-size: 0.74rem;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.rainwater-ii-demo .rw2-mode-switch button[aria-pressed="true"] {
+  border-color: var(--rw2-frontier);
+  background: var(--rw2-frontier-soft);
+  color: var(--algo-text);
+}
+
+.rainwater-ii-demo .rw2-heap-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem 0.7rem;
+  align-items: baseline;
+  padding: 0.4rem 0.12rem;
+  border-top: 1px solid var(--algo-border);
+  border-bottom: 1px solid var(--algo-border);
+  color: var(--algo-text);
+  font-size: 0.74rem;
+}
+
+.rainwater-ii-demo .rw2-heap-line > strong {
+  color: var(--rw2-frontier);
+}
+
+.rainwater-ii-demo .rw2-heap-line > span {
+  min-width: 0;
+  color: var(--algo-muted);
+}
+
+.rainwater-ii-demo .rw2-heap-line > b {
+  margin-left: auto;
+  color: var(--algo-text);
+  white-space: nowrap;
+}
+
+.rainwater-ii-demo .rw2-heap-line code {
+  color: var(--algo-text);
+}
+
+.rainwater-ii-demo .rw2-grid {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.rainwater-ii-demo .rw2-grid-cell {
+  transition: opacity 180ms ease;
+}
+
+.rainwater-ii-demo .rw2-cell-base {
+  fill: var(--algo-bg);
+  stroke: var(--algo-border);
+  stroke-width: 2;
+  transition: fill 200ms ease, stroke 200ms ease, stroke-width 200ms ease;
+}
+
+.rainwater-ii-demo .rw2-grid-cell.is-boundary .rw2-cell-base {
+  stroke: var(--rw2-terrain-edge);
+  stroke-dasharray: 5 4;
+}
+
+.rainwater-ii-demo .rw2-grid-cell.is-popped:not(.is-current):not(.is-neighbor) {
+  opacity: 0.52;
+}
+
+.rainwater-ii-demo .rw2-grid-cell.is-current .rw2-cell-base {
+  fill: var(--rw2-current-soft);
+  stroke: var(--rw2-current);
+  stroke-dasharray: none;
+  stroke-width: 4;
+}
+
+.rainwater-ii-demo .rw2-grid-cell.is-neighbor .rw2-cell-base {
+  fill: var(--rw2-neighbor-soft);
+  stroke: var(--rw2-neighbor);
+  stroke-dasharray: none;
+  stroke-width: 4;
+}
+
+.rainwater-ii-demo .rw2-cell-water {
+  fill: var(--rw2-water);
+  fill-opacity: 0.3;
+  stroke: var(--rw2-water);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: rw2-water-rise 420ms ease-out;
+}
+
+.rainwater-ii-demo .rw2-frontier-dot {
+  fill: var(--rw2-frontier);
+  stroke: var(--rw2-label-halo);
+  stroke-width: 2;
+}
+
+.rainwater-ii-demo .rw2-cell-height,
+.rainwater-ii-demo .rw2-cell-role,
+.rainwater-ii-demo .rw2-cell-water-label {
+  paint-order: stroke;
+  stroke: var(--rw2-label-halo);
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.rainwater-ii-demo .rw2-cell-height {
+  fill: var(--algo-text);
+  stroke-width: 4px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.rainwater-ii-demo .rw2-cell-role {
+  fill: var(--algo-text);
+  stroke-width: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rainwater-ii-demo .rw2-cell-role.is-current {
+  fill: var(--rw2-current);
+}
+
+.rainwater-ii-demo .rw2-cell-role.is-neighbor {
+  fill: var(--rw2-neighbor);
+}
+
+.rainwater-ii-demo .rw2-cell-water-label {
+  fill: var(--algo-text);
+  stroke-width: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rainwater-ii-demo .rw2-grid-arrow {
+  stroke: var(--rw2-neighbor);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.rainwater-ii-demo .rw2-grid-arrow + * {
+  isolation: isolate;
+}
+
+.rainwater-ii-demo #rw2-grid-arrow-head path {
+  fill: var(--rw2-neighbor);
+}
+
+.rainwater-ii-demo .rw2-legend {
+  gap: 0.3rem 0.9rem;
+  margin-top: 0.18rem;
+  font-size: 0.71rem;
+}
+
+.rainwater-ii-demo .rw2-decision {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.38rem;
+  margin-top: 0.62rem;
+}
+
+.rainwater-ii-demo .rw2-decision > div {
+  min-width: 0;
+  padding: 0.38rem 0.42rem;
+  border-top: 3px solid var(--algo-border);
+  background: transparent;
+  opacity: 0.5;
+  transition: border-color 180ms ease, background-color 180ms ease, opacity 180ms ease;
+}
+
+.rainwater-ii-demo .rw2-decision > div.is-done {
+  opacity: 0.78;
+}
+
+.rainwater-ii-demo .rw2-decision > div.active {
+  opacity: 1;
+}
+
+.rainwater-ii-demo .rw2-decision > div[data-decision="pop"].active {
+  border-top-color: var(--rw2-current);
+  background: var(--rw2-current-soft);
+}
+
+.rainwater-ii-demo .rw2-decision > div[data-decision="inspect"].active,
+.rainwater-ii-demo .rw2-decision > div[data-decision="push"].active {
+  border-top-color: var(--rw2-neighbor);
+  background: var(--rw2-neighbor-soft);
+}
+
+.rainwater-ii-demo .rw2-decision > div[data-decision="water"].active {
+  border-top-color: var(--rw2-water);
+  background: var(--rw2-water-soft);
+}
+
+.rainwater-ii-demo .rw2-decision span,
+.rainwater-ii-demo .rw2-decision strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rainwater-ii-demo .rw2-decision span {
+  color: var(--algo-muted);
+  font-size: 0.66rem;
+}
+
+.rainwater-ii-demo .rw2-decision strong {
+  margin-top: 0.08rem;
+  color: var(--algo-text);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.76rem;
+}
+
+.rainwater-ii-demo .rw2-message {
+  min-height: 2.1rem;
+  margin-top: 0.48rem;
+  padding: 0.42rem 0.58rem;
+  border-left: 3px solid var(--algo-border);
+  background: rgba(96, 112, 134, 0.08);
+  color: var(--algo-text);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.rainwater-ii-demo[data-phase="pop"] .rw2-message {
+  border-left-color: var(--rw2-current);
+  background: var(--rw2-current-soft);
+}
+
+.rainwater-ii-demo[data-phase="inspect"] .rw2-message,
+.rainwater-ii-demo[data-phase="push"] .rw2-message {
+  border-left-color: var(--rw2-neighbor);
+  background: var(--rw2-neighbor-soft);
+}
+
+.rainwater-ii-demo[data-phase="water"] .rw2-message,
+.rainwater-ii-demo[data-phase="finish"] .rw2-message {
+  border-left-color: var(--rw2-water);
+  background: var(--rw2-water-soft);
+}
+
+.rainwater-ii-demo .rw2-final-result[hidden] {
+  display: none;
+}
+
+.rainwater-ii-demo .rw2-final-result {
+  margin-top: 0.72rem;
+  padding-top: 0.62rem;
+  border-top: 1px solid var(--algo-border);
+}
+
+.rainwater-ii-demo .rw2-final-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.18rem 0.65rem;
+  align-items: baseline;
+  justify-content: center;
+  color: var(--algo-text);
+}
+
+.rainwater-ii-demo .rw2-final-title span {
+  color: var(--algo-muted);
+  font-size: 0.7rem;
+}
+
+.rainwater-ii-demo .rw2-final-result .rw2-scene {
+  max-width: 520px;
+}
+
+[data-theme="dark"] .rainwater-ii-demo .rw2-message {
+  background-color: rgba(20, 27, 38, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rainwater-ii-demo .rw2-grid-cell,
+  .rainwater-ii-demo .rw2-cell-base,
+  .rainwater-ii-demo .rw2-cell-water,
+  .rainwater-ii-demo .rw2-decision > div,
+  .rainwater-ii-demo .rw2-mode-switch button {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .rainwater-ii-demo .rw2-mode-switch button {
+    flex: 1 1 150px;
+  }
+
+  .rainwater-ii-demo .rw2-heap-line > b {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  .rainwater-ii-demo .rw2-decision {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* A*: grid search, open set and heuristic comparison */
 .algo-demo.astar-demo {
   margin: 1rem 0 1.35rem;
