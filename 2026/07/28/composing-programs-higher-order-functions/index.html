@@ -1,0 +1,422 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>高阶函数：从参数化数据到参数化行为 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Composing Programs 1.6 学习笔记：从整体上理解一等函数、高阶函数、闭包、函数组合、柯里化与装饰器，以及它们在实际程序设计中的用途。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高阶函数：从参数化数据到参数化行为">
+<meta property="og:url" content="https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="Composing Programs 1.6 学习笔记：从整体上理解一等函数、高阶函数、闭包、函数组合、柯里化与装饰器，以及它们在实际程序设计中的用途。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-07-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-28T14:24:10.184Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Composing Programs">
+<meta property="article:tag" content="Functional Programming">
+<meta property="article:tag" content="Higher-Order Functions">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "高阶函数：从参数化数据到参数化行为",
+  "url": "https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/",
+  "image": "https://littlepyx.github.io/img/kamuyi.jpg",
+  "datePublished": "2026-07-27T16:00:00.000Z",
+  "dateModified": "2026-07-28T14:24:10.184Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "LittlePyx",
+      "url": "https://littlepyx.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '高阶函数：从参数化数据到参数化行为',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/algorithm-header-code.webp);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">高阶函数：从参数化数据到参数化行为</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">高阶函数：从参数化数据到参数化行为</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-27T16:00:00.000Z" title="发表于 2026-07-28 00:00:00">2026-07-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-28T14:24:10.184Z" title="更新于 2026-07-28 22:24:10">2026-07-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-这一节真正扩展的是什么">1. 这一节真正扩展的是什么</h2>
+<p>普通函数已经提供了一层抽象：把一组操作命名，并把具体数据留到调用时传入。比如，一个函数可以描述“如何求平方”，而不必绑定到某个特定数字。</p>
+<p>高阶函数把抽象再向前推进一步：<strong>不仅数据可以参数化，行为本身也可以参数化。</strong></p>
+<p>可以用两个模型概括这种变化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">普通函数：数据 ──&gt; 函数 ──&gt; 数据</span><br><span class="line"></span><br><span class="line">高阶函数：行为 ──&gt; 函数 ──&gt; 结果或新的行为</span><br></pre></td></tr></table></figure>
+<p>这里的“行为”就是函数。一个函数只要满足下面任意一项，就是高阶函数：</p>
+<ul>
+<li>接收函数作为参数；</li>
+<li>返回函数作为结果。</li>
+</ul>
+<p>语法并不是本节最重要的部分。真正重要的是，高阶函数让程序能够显式表示和组合计算方法，从而把<strong>稳定的控制结构</strong>与<strong>可变的计算策略</strong>分开。</p>
+<h2 id="2-整体框架">2. 整体框架</h2>
+<p>这一节出现的一等函数、闭包、函数组合、柯里化、<code>lambda</code> 和装饰器并不是几个平行的语法点，它们处在同一条逻辑链上：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">函数是一等值</span><br><span class="line">    │</span><br><span class="line">    ├── 函数可以作为参数</span><br><span class="line">    │       └── 注入策略、回调、参数化算法</span><br><span class="line">    │</span><br><span class="line">    ├── 函数可以作为返回值</span><br><span class="line">    │       └── 函数工厂、专用函数</span><br><span class="line">    │</span><br><span class="line">    └── 函数可以被接收后再返回</span><br><span class="line">            └── 包装器、装饰器、中间件</span><br><span class="line"></span><br><span class="line">词法作用域</span><br><span class="line">    └── 闭包</span><br><span class="line">          └── 返回的函数能够继续访问定义环境</span><br><span class="line"></span><br><span class="line">函数组合</span><br><span class="line">    └── 用小的计算单元构造更大的计算过程</span><br><span class="line"></span><br><span class="line">柯里化与部分应用</span><br><span class="line">    └── 调整函数接口以及参数的提供时机</span><br><span class="line"></span><br><span class="line">lambda</span><br><span class="line">    └── 在表达式中创建简单函数值的语法</span><br></pre></td></tr></table></figure>
+<p>其中，<strong>一等函数是语言能力，高阶函数是抽象手段，闭包是运行机制</strong>。函数组合、柯里化和装饰器则是在这些基础上形成的具体模式。</p>
+
+<div class="hof-explorer" data-hof-explorer>
+  <div class="hof-explorer__header">
+    <span class="hof-explorer__eyebrow">INTERACTIVE MODEL</span>
+    <h3>三种形态，三种控制关系</h3>
+    <p>切换高阶函数的输入输出形态，观察行为如何进入程序、离开程序，或者被重新包装。</p>
+  </div>
+
+  <div class="hof-explorer__switch" role="group" aria-label="选择高阶函数形态">
+    <button type="button" data-hof-mode="argument" aria-pressed="true">传入函数</button>
+    <button type="button" data-hof-mode="factory" aria-pressed="false">返回函数</button>
+    <button type="button" data-hof-mode="wrapper" aria-pressed="false">包装函数</button>
+  </div>
+
+  <div class="hof-explorer__stage" aria-live="polite">
+    <div class="hof-explorer__flow" data-hof-flow aria-label="策略函数进入通用机制并产生计算结果">
+      <span class="hof-explorer__node" data-hof-left>策略函数</span>
+      <span class="hof-explorer__arrow" aria-hidden="true">→</span>
+      <span class="hof-explorer__node hof-explorer__node--core" data-hof-center>通用机制</span>
+      <span class="hof-explorer__arrow" aria-hidden="true">→</span>
+      <span class="hof-explorer__node" data-hof-right>计算结果</span>
+    </div>
+
+    <div class="hof-explorer__details">
+      <div>
+        <span>抽象目的</span>
+        <strong data-hof-purpose>注入行为</strong>
+        <p data-hof-summary>框架保留稳定流程，调用者只提供可替换策略。</p>
+      </div>
+      <div>
+        <span>控制关系</span>
+        <strong data-hof-control>框架决定何时调用传入函数</strong>
+        <p data-hof-uses>排序 key · 目标函数 · 回调 · 测试替身</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/css/hof-explorer.css">
+<script src="/js/hof-explorer.js"></script>
+
+<h2 id="3-从抽象数据到抽象行为">3. 从抽象数据到抽象行为</h2>
+<p>普通函数主要消除表达式层面的重复。高阶函数则能够消除计算结构层面的重复。</p>
+<p>假设多个函数都采用相同流程：初始化状态、反复处理、更新状态，最后返回结果。它们唯一的区别可能是“每一步算什么”。如果只把数值设为参数，这个重复无法消除；只有把那部分计算本身设为函数参数，才能提取出真正通用的结构。</p>
+<p>教材中的 <code>summation</code> 表达的就是这种分解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">求和机制：遍历、累加、终止</span><br><span class="line">求和策略：第 k 项如何计算</span><br></pre></td></tr></table></figure>
+<p><code>summation</code> 保留求和机制，把每一项的计算交给 <code>term</code>。因此它抽象的不是某一个求和公式，而是“对一系列由函数生成的项进行累加”这一计算模式。</p>
+<p><code>improve</code> 又向前走了一步：它只保留“持续改进，直到满足条件”这一迭代骨架，而把更新规则 <code>update</code> 和终止判断 <code>close</code> 都交给调用者。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">稳定机制：while not close(guess)</span><br><span class="line">变化策略：update 与 close</span><br></pre></td></tr></table></figure>
+<p>这是一种很通用的设计方式：</p>
+<blockquote>
+<p>找出程序中稳定的控制结构，把可能变化的决策提取成函数，并通过参数注入。</p>
+</blockquote>
+<p>对于有算法基础的人，这种结构并不陌生。二分、回溯、图遍历、迭代优化等算法都包含相对稳定的控制骨架，以及依问题而变化的判定、转移或访问逻辑。高阶函数让这些变化点不再隐含于复制后的代码中，而是成为明确的接口。</p>
+<h2 id="4-传入函数：策略注入与控制反转">4. 传入函数：策略注入与控制反转</h2>
+<p>接收函数作为参数，本质上是在接收一个决策或动作。调用者不再告诉通用模块每一步怎样执行，而是提供一个可以在需要时调用的行为。</p>
+<p>Python 中很典型的例子是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sorted</span>(records, key=get_score)</span><br></pre></td></tr></table></figure>
+<p><code>sorted</code> 掌握排序流程，<code>get_score</code> 只定义如何从元素中提取排序依据。二者的职责边界非常清楚。</p>
+<p>这种模式在实际程序中主要有以下用途：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>稳定机制</th>
+<th>作为参数传入的行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>排序</td>
+<td>排序算法</td>
+<td>key 或比较策略</td>
+</tr>
+<tr>
+<td>图与树遍历</td>
+<td>遍历顺序、状态维护</td>
+<td>节点访问、剪枝或目标判断</td>
+</tr>
+<tr>
+<td>数值计算</td>
+<td>迭代、收敛控制</td>
+<td>目标函数、导数、更新规则</td>
+</tr>
+<tr>
+<td>事件系统</td>
+<td>监听与调度</td>
+<td>回调函数</td>
+</tr>
+<tr>
+<td>重试框架</td>
+<td>次数、间隔、异常处理</td>
+<td>需要执行的操作</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>测试流程</td>
+<td>替代真实依赖的函数</td>
+</tr>
+</tbody>
+</table>
+<p>这里还隐含着一种<strong>控制反转</strong>：调用者提供行为，但行为何时被调用由框架决定。回调、事件监听、Web 框架和异步任务都大量使用这种结构。</p>
+<p>普通的直接调用是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">业务代码 ──调用──&gt; 工具函数</span><br></pre></td></tr></table></figure>
+<p>传入回调后则变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">业务代码 ──提供行为──&gt; 框架 ──在合适时机回调──&gt; 业务行为</span><br></pre></td></tr></table></figure>
+<p>因此，高阶函数不仅复用了代码，也重新划分了程序的控制权和模块边界。</p>
+<h2 id="5-返回函数：构造新的行为">5. 返回函数：构造新的行为</h2>
+<p>返回函数可以理解为根据已有信息生成一个专用操作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">配置或上下文 ──&gt; 函数工厂 ──&gt; 专用函数</span><br></pre></td></tr></table></figure>
+<p>例如，先固定阈值生成验证器，先固定重试策略生成执行器，或者先固定某个数据源生成查询函数。调用者得到的不是一个立即计算出的普通结果，而是一个可以在之后反复使用的新行为。</p>
+<p>这种结构把参数分成了不同生命周期：</p>
+<ul>
+<li>创建函数时提供相对稳定的配置；</li>
+<li>调用生成函数时提供每次变化的数据。</li>
+</ul>
+<p>返回函数之所以能够脱离外层调用继续工作，依赖于词法作用域和闭包。</p>
+<h2 id="6-词法作用域与闭包">6. 词法作用域与闭包</h2>
+<p>词法作用域决定了自由变量去哪里查找：<strong>依据函数定义的位置，而不是函数调用的位置。</strong></p>
+<p>当局部函数引用外层作用域中的名字时，这个函数会与其定义环境关联。即使外层函数已经返回，局部函数仍然可以沿着环境链解析这些名字。</p>
+<p>可以把闭包概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">闭包 = 函数代码 + 与函数定义相关联的环境</span><br></pre></td></tr></table></figure>
+<p>因此，一个闭包不只是“稍后执行的一段代码”，还携带了理解这段代码所需的上下文。教材中 <code>sqrt</code> 内部的更新函数能够使用外层参数 <code>a</code>，函数组合生成的函数能够继续使用 <code>f</code> 和 <code>g</code>，装饰器返回的包装函数能够继续调用原函数，本质上都是同一套机制。</p>
+<p>环境模型可以简化成一条查找链：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">当前函数的局部 frame</span><br><span class="line">        ↓</span><br><span class="line">定义该函数时的外层 frame</span><br><span class="line">        ↓</span><br><span class="line">更外层环境</span><br><span class="line">        ↓</span><br><span class="line">全局 frame</span><br></pre></td></tr></table></figure>
+<p>闭包常见的实际用途包括：</p>
+<ul>
+<li>保存创建阶段的配置；</li>
+<li>创建带上下文的回调；</li>
+<li>生成验证器、转换器和查询函数；</li>
+<li>在不暴露全局名字的情况下封装辅助逻辑；</li>
+<li>构造装饰器和中间件。</li>
+</ul>
+<p>需要注意，Python 闭包关联的是名字绑定，而不是自动冻结一份值的快照。涉及循环创建闭包、延迟执行或修改外层状态时，需要额外留意后期绑定和 <code>nonlocal</code> 带来的语义。这属于闭包的进一步问题，但不影响本节的核心模型。</p>
+<h2 id="7-函数组合：从复用代码到复用计算结构">7. 函数组合：从复用代码到复用计算结构</h2>
+<p>函数组合把一个函数的输出交给另一个函数：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>h</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">h(x)=f(g(x))
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">h</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span></p>
+<p>组合的价值并不在于少写一次嵌套调用，而是让若干小而清晰的变换能够形成新的计算过程。每个函数只负责局部语义，完整功能通过组合产生。</p>
+<p>现实中的数据处理流水线、编译器阶段、Web 中间件、消息处理链和机器学习预处理都具有类似结构：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">输入 → 清洗 → 解析 → 验证 → 转换 → 输出</span><br></pre></td></tr></table></figure>
+<p>组合要求各阶段的接口能够衔接。这使函数的输入输出契约变得重要：如果函数依赖大量隐藏状态、随意修改外部对象或混合多种职责，它就很难安全组合。高阶函数因此常与纯函数、小函数和明确的数据流一起出现，但高阶函数本身并不要求程序必须是纯函数式的。</p>
+<h2 id="8-Newton-方法展示的不是数学，而是抽象分层">8. Newton 方法展示的不是数学，而是抽象分层</h2>
+<p>教材用 Newton 方法把前面的概念组合在一起。对于这一节而言，重点不是重新学习求根公式，而是观察一个具体问题如何被拆成多个抽象层次：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">improve(update, close)</span><br><span class="line">    通用迭代改进机制</span><br><span class="line"></span><br><span class="line">newton_update(f, df)</span><br><span class="line">    根据目标函数及其导数生成更新策略</span><br><span class="line"></span><br><span class="line">find_zero(f, df)</span><br><span class="line">    把 Newton 更新策略交给通用改进机制</span><br><span class="line"></span><br><span class="line">nth_root_of_a(n, a)</span><br><span class="line">    把具体求根问题表示成寻找函数零点</span><br></pre></td></tr></table></figure>
+<p>最底层的 <code>improve</code> 不知道 Newton 方法，<code>find_zero</code> 不知道平方根还是六次方根，最上层只需要描述当前问题对应的函数与导数。每一层都通过函数参数或函数返回值连接。</p>
+<p>这体现了高阶函数更深层的价值：<strong>函数不只是封装实现，也可以成为描述领域概念的词汇。</strong> 程序最终不再围绕赋值和循环组织，而是围绕“改进”“更新”“接近”“求零点”等问题本身的概念组织。</p>
+<h2 id="9-柯里化与部分应用：调整接口和参数时机">9. 柯里化与部分应用：调整接口和参数时机</h2>
+<p>柯里化把一个多参数函数转换为一系列单参数函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f(x, y)  &lt;=&gt;  g(x)(y)</span><br></pre></td></tr></table></figure>
+<p>它改变的不是计算结果，而是参数的组织方式。转换后，可以先提供 <code>x</code> 得到一个专用函数，再在之后提供 <code>y</code>。这适合参数来自不同阶段，或者某个框架只接受单参数函数的情况。</p>
+<p>柯里化和部分应用相关，但并不等同：</p>
+<ul>
+<li><strong>柯里化</strong>改变函数的参数结构，把多参数调用变成连续的单参数调用；</li>
+<li><strong>部分应用</strong>预先固定一部分参数，得到参数更少的新函数。</li>
+</ul>
+<p>Python 允许多参数函数，因此纯粹的柯里化不像 Haskell 等语言中那样基础。实际工程里更常见的是使用闭包或 <code>functools.partial</code> 做部分应用，以适配回调、任务调度器或其他既定接口。</p>
+<h2 id="10-lambda：函数值的表达式写法">10. lambda：函数值的表达式写法</h2>
+<p><code>lambda</code> 没有增加新的抽象能力，它只是允许在表达式位置创建匿名函数。它适合表示很短、只使用一次、含义无需命名的行为，例如简单的 key、映射或过滤规则。</p>
+<p>当逻辑需要注释、测试、复用，或者表达式已经不能一眼读懂时，具名 <code>def</code> 通常更合适。高阶函数并不意味着应该把程序写成多层 <code>lambda</code>；能否创建和传递函数才是本质，匿名只是次要的表示方式。</p>
+<h2 id="11-装饰器：对行为进行统一包装">11. 装饰器：对行为进行统一包装</h2>
+<p>装饰器是“接收函数并返回函数”这一模式的语法支持：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@trace</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">triple</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">3</span> * x</span><br></pre></td></tr></table></figure>
+<p>其核心等价关系是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">triple = trace(triple)</span><br></pre></td></tr></table></figure>
+<p>装饰器取得原函数，构造一个包装后的函数，再把原名字重新绑定到包装结果。包装函数通常通过闭包保留原函数，并在调用前后加入统一逻辑。</p>
+<p>因此，装饰器非常适合实现不属于核心业务、但需要覆盖许多函数的横切逻辑：</p>
+<ul>
+<li>日志与调用追踪；</li>
+<li>性能计时与监控；</li>
+<li>缓存；</li>
+<li>权限检查；</li>
+<li>参数验证；</li>
+<li>重试与异常转换；</li>
+<li>Web 路由或命令注册。</li>
+</ul>
+<p>装饰器、洋葱式中间件和函数包装器只是外观不同，底层结构都可以概括成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">原行为 ──&gt; 增强器 ──&gt; 新行为</span><br></pre></td></tr></table></figure>
+<h2 id="12-高阶函数在实际程序中的位置">12. 高阶函数在实际程序中的位置</h2>
+<p>高阶函数的工程用途可以归纳成五类。</p>
+<h3 id="12-1-参数化算法">12.1 参数化算法</h3>
+<p>算法框架稳定，但比较、选择、更新、访问或终止规则需要替换。排序的 <code>key</code>、图遍历的访问函数、数值优化的目标函数都属于这一类。</p>
+<h3 id="12-2-回调与事件驱动">12.2 回调与事件驱动</h3>
+<p>调用者注册行为，框架决定执行时机。GUI 事件、网络响应、异步任务完成通知和消息消费都依赖这种控制反转。</p>
+<h3 id="12-3-函数工厂与配置固化">12.3 函数工厂与配置固化</h3>
+<p>根据配置创建专用行为，把创建期参数和调用期参数分开。验证器、序列化器、请求处理器和带环境的查询函数都可以这样构造。</p>
+<h3 id="12-4-包装器与中间件">12.4 包装器与中间件</h3>
+<p>在不侵入核心实现的情况下叠加日志、缓存、权限、事务和监控。装饰器是 Python 对这一模式的直接支持。</p>
+<h3 id="12-5-依赖注入与可测试性">12.5 依赖注入与可测试性</h3>
+<p>把时钟、随机数生成器、存储操作或外部请求作为函数传入，可以在测试时替换为确定、轻量的实现。相比在函数内部直接访问全局依赖，这种接口通常更容易隔离和验证。</p>
+<p>这些用途表面上差异很大，底层都在做同一件事：<strong>把行为从实现内部提取出来，使它能够被选择、延迟、替换、组合或增强。</strong></p>
+<h2 id="13-什么时候不必使用高阶函数">13. 什么时候不必使用高阶函数</h2>
+<p>高阶函数提高的是合适场景下的表达力，不代表抽象层数越多越好。下面几种情况通常应优先保留直接代码：</p>
+<ul>
+<li>控制流程只出现一次，也没有真实的变化点；</li>
+<li>提取后的函数参数无法表达清晰语义，只是为了减少几行代码；</li>
+<li>多层返回函数和匿名函数让调用关系难以追踪；</li>
+<li>核心逻辑高度依赖可变共享状态，组合后反而更难推理；</li>
+<li>团队需要频繁跨越抽象层才能理解一次普通调用。</li>
+</ul>
+<p>判断一个高阶抽象是否值得保留，可以问三个问题：</p>
+<ol>
+<li>是否存在稳定机制与可变策略？</li>
+<li>把策略变成函数后，接口是否更接近问题本身的语言？</li>
+<li>调用者是否可以在不理解内部控制流程的情况下正确使用它？</li>
+</ol>
+<p>如果答案都是否定的，高阶函数很可能只是增加了间接层。</p>
+<h2 id="14-总结">14. 总结</h2>
+<p>这一节可以收束成下面几句话：</p>
+<ul>
+<li>普通函数主要参数化数据，高阶函数进一步参数化行为。</li>
+<li>接收函数意味着注入策略，返回函数意味着构造新行为，接收并返回函数意味着包装行为。</li>
+<li>一等函数使函数能够被传递和返回；词法作用域与闭包使返回的函数能够保留定义环境。</li>
+<li>函数组合负责连接行为，柯里化和部分应用负责调整接口，<code>lambda</code> 只是创建简单函数值的简写。</li>
+<li>装饰器是高阶函数在 Python 中最典型的工程化表达之一。</li>
+<li>高阶函数最终解决的是程序组织问题：分离机制与策略，重新分配控制权，并让计算方法本身成为可复用、可组合的抽象。</li>
+</ul>
+<p>理解这一点之后，<code>summation</code>、<code>improve</code>、Newton 方法、柯里化与装饰器就不再是互不相关的案例，而是同一种思想在不同层次上的展开。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/16-higher-order-functions.html">Composing Programs 1.6：Higher-Order Functions</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/">https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Functional-Programming/">Functional Programming</a><a class="post-meta__tags" href="/tags/Higher-Order-Functions/">Higher-Order Functions</a></div><div class="post-share"><div class="social-share" data-image="/img/kamuyi.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程"><img class="cover" src="/img/cover-image-20260120.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Hexo + GitHub 博客搭建教程</div></div><div class="info-2"><div class="info-item-1">创建项目 本博客基于 Hexo + GitHub Pages 构建，Hexo 是一个快速、简洁且高效的静态博客框架，适合用于技术笔记、科研记录与个人博客。 在开始之前，请确保本地已安装：  Node.js（建议 LTS 版本） npm Git  在任意工作目录下创建 Hexo 项目： 1234npm install -g hexo-clihexo init blogcd blognpm install 启动本地预览，确认环境正常： 1hexo s 浏览器访问 http://localhost:4000，若能看到默认页面，说明项目创建成功。  克隆 Hexo 主题（以 Butterfly 为例） 本文选用 Butterfly 主题，原因是：  配置灵活，文档完善 原生支持 MathJax / KaTeX 社区活跃，长期维护  在博客根目录执行： 1git clone https://github.com/jerryc127/hexo-theme-butterfly.git themes/Butterfly 然后在博客根目录的 _config.yml 中修改主题配置： 1theme:...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+AI Agent 开发、计算成像、深度学习、光学<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%BF%99%E4%B8%80%E8%8A%82%E7%9C%9F%E6%AD%A3%E6%89%A9%E5%B1%95%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">1. 这一节真正扩展的是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6"><span class="toc-text">2. 整体框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text">三种形态，三种控制关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BB%8E%E6%8A%BD%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%88%B0%E6%8A%BD%E8%B1%A1%E8%A1%8C%E4%B8%BA"><span class="toc-text">3. 从抽象数据到抽象行为</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%BC%A0%E5%85%A5%E5%87%BD%E6%95%B0%EF%BC%9A%E7%AD%96%E7%95%A5%E6%B3%A8%E5%85%A5%E4%B8%8E%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC"><span class="toc-text">4. 传入函数：策略注入与控制反转</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%BF%94%E5%9B%9E%E5%87%BD%E6%95%B0%EF%BC%9A%E6%9E%84%E9%80%A0%E6%96%B0%E7%9A%84%E8%A1%8C%E4%B8%BA"><span class="toc-text">5. 返回函数：构造新的行为</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%AF%8D%E6%B3%95%E4%BD%9C%E7%94%A8%E5%9F%9F%E4%B8%8E%E9%97%AD%E5%8C%85"><span class="toc-text">6. 词法作用域与闭包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%87%BD%E6%95%B0%E7%BB%84%E5%90%88%EF%BC%9A%E4%BB%8E%E5%A4%8D%E7%94%A8%E4%BB%A3%E7%A0%81%E5%88%B0%E5%A4%8D%E7%94%A8%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%84"><span class="toc-text">7. 函数组合：从复用代码到复用计算结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Newton-%E6%96%B9%E6%B3%95%E5%B1%95%E7%A4%BA%E7%9A%84%E4%B8%8D%E6%98%AF%E6%95%B0%E5%AD%A6%EF%BC%8C%E8%80%8C%E6%98%AF%E6%8A%BD%E8%B1%A1%E5%88%86%E5%B1%82"><span class="toc-text">8. Newton 方法展示的不是数学，而是抽象分层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%9F%AF%E9%87%8C%E5%8C%96%E4%B8%8E%E9%83%A8%E5%88%86%E5%BA%94%E7%94%A8%EF%BC%9A%E8%B0%83%E6%95%B4%E6%8E%A5%E5%8F%A3%E5%92%8C%E5%8F%82%E6%95%B0%E6%97%B6%E6%9C%BA"><span class="toc-text">9. 柯里化与部分应用：调整接口和参数时机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-lambda%EF%BC%9A%E5%87%BD%E6%95%B0%E5%80%BC%E7%9A%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%86%99%E6%B3%95"><span class="toc-text">10. lambda：函数值的表达式写法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E8%A3%85%E9%A5%B0%E5%99%A8%EF%BC%9A%E5%AF%B9%E8%A1%8C%E4%B8%BA%E8%BF%9B%E8%A1%8C%E7%BB%9F%E4%B8%80%E5%8C%85%E8%A3%85"><span class="toc-text">11. 装饰器：对行为进行统一包装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%E5%9C%A8%E5%AE%9E%E9%99%85%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="toc-text">12. 高阶函数在实际程序中的位置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E5%8F%82%E6%95%B0%E5%8C%96%E7%AE%97%E6%B3%95"><span class="toc-text">12.1 参数化算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-%E5%9B%9E%E8%B0%83%E4%B8%8E%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8"><span class="toc-text">12.2 回调与事件驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-%E5%87%BD%E6%95%B0%E5%B7%A5%E5%8E%82%E4%B8%8E%E9%85%8D%E7%BD%AE%E5%9B%BA%E5%8C%96"><span class="toc-text">12.3 函数工厂与配置固化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-4-%E5%8C%85%E8%A3%85%E5%99%A8%E4%B8%8E%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="toc-text">12.4 包装器与中间件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-5-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B8%8E%E5%8F%AF%E6%B5%8B%E8%AF%95%E6%80%A7"><span class="toc-text">12.5 依赖注入与可测试性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%B8%8D%E5%BF%85%E4%BD%BF%E7%94%A8%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="toc-text">13. 什么时候不必使用高阶函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%80%BB%E7%BB%93"><span class="toc-text">14. 总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为">高阶函数：从参数化数据到参数化行为</a><time datetime="2026-07-27T16:00:00.000Z" title="发表于 2026-07-28 00:00:00">2026-07-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程"><img src="/img/cover-image-20260120.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo + GitHub 博客搭建教程"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/20/Hexo-GitHub-Pages/" title="Hexo + GitHub 博客搭建教程">Hexo + GitHub 博客搭建教程</a><time datetime="2026-01-20T09:32:53.000Z" title="发表于 2026-01-20 17:32:53">2026-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合"><img src="/img/cover-image-202601192.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="信息融合"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/note-%E4%BF%A1%E6%81%AF%E8%9E%8D%E5%90%88/" title="信息融合">信息融合</a><time datetime="2026-01-19T14:33:52.000Z" title="发表于 2026-01-19 22:33:52">2026-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/19/optical-generation/" title="光学生成模型"><img src="/img/cover-image-20260119.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="光学生成模型"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/19/optical-generation/" title="光学生成模型">光学生成模型</a><time datetime="2026-01-19T11:49:17.000Z" title="发表于 2026-01-19 19:49:17">2026-01-19</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
