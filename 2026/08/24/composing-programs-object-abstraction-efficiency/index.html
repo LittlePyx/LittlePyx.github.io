@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg">
 <meta property="article:published_time" content="2026-08-24T05:00:00.000Z">
-<meta property="article:modified_time" content="2026-08-28T07:10:38.601Z">
+<meta property="article:modified_time" content="2026-09-01T03:13:55.155Z">
 <meta property="article:author" content="LittlePyx">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Composing Programs">
@@ -21,7 +21,7 @@
   "url": "https://littlepyx.github.io/2026/08/24/composing-programs-object-abstraction-efficiency/",
   "image": "https://littlepyx.github.io/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg",
   "datePublished": "2026-08-24T05:00:00.000Z",
-  "dateModified": "2026-08-28T07:10:38.601Z",
+  "dateModified": "2026-09-01T03:13:55.155Z",
   "author": [
     {
       "@type": "Person",
@@ -162,7 +162,7 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">泛型操作：统一协议、表示选择与效率</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">泛型操作：统一协议、表示选择与效率</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T05:00:00.000Z" title="发表于 2026-08-24 13:00:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-28T07:10:38.601Z" title="更新于 2026-08-28 15:10:38">2026-08-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>类系统解决了单个对象怎样保存状态、查找属性和复用行为，下一步是让不同类型参与同一种操作。如果调用者只依赖共同协议，同一段程序就能处理内部表示完全不同的对象；但抽象接口相同并不意味着表示差异消失，因为表示仍然决定每种操作实际需要多少资源。</p>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">泛型操作：统一协议、表示选择与效率</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">泛型操作：统一协议、表示选择与效率</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T05:00:00.000Z" title="发表于 2026-08-24 13:00:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-01T03:13:55.155Z" title="更新于 2026-09-01 11:13:55">2026-09-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>类系统解决了单个对象怎样保存状态、查找属性和复用行为，下一步是让不同类型参与同一种操作。如果调用者只依赖共同协议，同一段程序就能处理内部表示完全不同的对象；但抽象接口相同并不意味着表示差异消失，因为表示仍然决定每种操作实际需要多少资源。</p>
 <p>本篇对应教材：</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/27-object-abstraction.html">2.7 Object Abstraction</a></li>
@@ -240,7 +240,13 @@
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ComplexRI 保存 real、imag</span><br><span class="line">          按需计算 magnitude、angle</span><br><span class="line"></span><br><span class="line">ComplexMA 保存 magnitude、angle</span><br><span class="line">          按需计算 real、imag</span><br></pre></td></tr></table></figure>
 <p>只要二者都提供一致的 <code>real</code>、<code>imag</code>、<code>magnitude</code>、<code>angle</code> 行为，高层加法和乘法就能忽略参数当前采用哪一种表示。</p>
 <p>这比“把实现 A 全部换成实现 B”更进一步：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">数据抽象：多种实现可以互相替换</span><br><span class="line">对象接口：多种实现可以在同一程序中共存</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    DATA[&quot;数据抽象&quot;] --&gt; REPLACE[&quot;多种实现满足同一契约&lt;br&#x2F;&gt;可以互相替换&quot;]
+    OBJECT[&quot;对象接口&quot;] --&gt; COEXIST[&quot;多种实现同时存在&lt;br&#x2F;&gt;通过同一操作协作&quot;]
+    REPLACE --&gt; GENERIC[&quot;Generic operation&quot;]
+    COEXIST --&gt; GENERIC
+  </pre></div>
 <h3 id="3-1-Generic-Function-依赖能力而不是单一类型">3.1 Generic Function 依赖能力而不是单一类型</h3>
 <p><strong>Generic function（泛型函数）</strong> 能够接受多种类型的参数，并根据共同接口或类型关系完成正确操作。</p>
 <p>这里的“泛型”不是单指类型注解中的 <code>Generic[T]</code>，而是一种运行时操作设计：调用者发出同一种操作请求，不同对象以合适方式参与。</p>
@@ -269,7 +275,14 @@
 <p>如果类型之间存在自然嵌入，可以把一个值视为另一类型的值。比如有理数可以视为虚部为 0 的复数：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">rational_to_complex</span>(<span class="params">r</span>):</span><br><span class="line">    <span class="keyword">return</span> ComplexRI(r.numer / r.denom, <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
 <p>于是 Rational 与 Complex 的加法不必分别实现两种参数顺序；先把 Rational <strong>coerce（强制转换）</strong> 为 Complex，再调用已有的复数加法即可。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rational ──coercion──&gt; Complex</span><br><span class="line">                           ↓</span><br><span class="line">                 复用 Complex.add</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    R[&quot;Rational(1&#x2F;2)&quot;] --&gt;|coercion| C1[&quot;Complex(0.5, 0)&quot;]
+    C2[&quot;Complex(1, 2)&quot;] --&gt; ADD[&quot;Complex.add&quot;]
+    C1 --&gt; ADD
+    ADD --&gt; RESULT[&quot;Complex result&quot;]
+    WARN[&quot;检查精度 · 可逆性 · 路径歧义&quot;] -.约束转换方向.-&gt; C1
+  </pre></div>
 <p>Coercion 利用了类型之间的结构关系，减少跨类型操作的显式实现数量，但转换方向不能随意决定：</p>
 <ul>
 <li>任意复数通常不能无损转换为有理数；</li>
@@ -316,6 +329,16 @@
 </tbody>
 </table>
 <p>这些机制不是互斥的。一个系统可以用 shared interface 处理同类协议，用 type dispatch 处理少数特殊跨类型组合，再对存在自然包含关系的类型使用 coercion。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TD
+    START[&quot;一次操作面对多种类型&quot;] --&gt; SAME{&quot;它们是否天然共享同一语义接口？&quot;}
+    SAME --&gt;|是| INTERFACE[&quot;Shared interface&quot;]
+    SAME --&gt;|否| PAIR{&quot;是否只有少数特殊类型组合？&quot;}
+    PAIR --&gt;|是| DISPATCH[&quot;Type dispatch&quot;]
+    PAIR --&gt;|否| NATURAL{&quot;是否存在自然且可接受的转换方向？&quot;}
+    NATURAL --&gt;|是| COERCE[&quot;Coercion 后复用已有实现&quot;]
+    NATURAL --&gt;|否| REDESIGN[&quot;重新设计操作或显式拒绝组合&quot;]
+  </pre></div>
 <p>设计时应先确定语义关系，再选择分派机制，而不是为了少写代码强行转换类型。</p>
 <p>这一组机制先回答“正确实现由谁选择”。现代 Python 并不总把它们写成教材中的类或分派表，但背后的责任划分仍然相同。</p>
 <h2 id="4-泛型机制在-Python-中的常见落点">4. 泛型机制在 Python 中的常见落点</h2>
@@ -397,7 +420,17 @@
 <p>工程代码经常缓存的却是会变化的数据：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> lru_cache</span><br><span class="line"></span><br><span class="line"><span class="meta">@lru_cache(<span class="params">maxsize=<span class="number">256</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_user_name</span>(<span class="params">user_id</span>):</span><br><span class="line">    <span class="keyword">return</span> database.query_user_name(user_id)</span><br></pre></td></tr></table></figure>
 <p>第一次调用会查询数据库并保存结果，之后相同的 <code>user_id</code> 会直接命中缓存：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">第一次调用：cache miss ──&gt; 查询数据库 ──&gt; 保存 Alice</span><br><span class="line">之后调用：  cache hit  ──&gt; 直接返回 Alice</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    REQUEST[&quot;get_user_name(42)&quot;] --&gt; CACHE{&quot;缓存中存在？&quot;}
+    CACHE --&gt;|hit| RETURN[&quot;直接返回 Alice&quot;]
+    CACHE --&gt;|miss| DB[&quot;查询数据库&quot;]
+    DB --&gt; SAVE[&quot;保存 Alice + 失效信息&quot;]
+    SAVE --&gt; RETURN
+    UPDATE[&quot;数据源改为 Bob&quot;] --&gt; STALE{&quot;缓存是否已失效？&quot;}
+    STALE --&gt;|否| WRONG[&quot;继续返回陈旧的 Alice&quot;]
+    STALE --&gt;|是| EVICT[&quot;删除或刷新缓存&quot;]
+  </pre></div>
 <p>如果数据库已经把名字改成 Bob，缓存仍可能继续返回 Alice。这个结果在保存时是正确的，后来却因为数据源变化而过时，这就是 <strong>stale data（陈旧数据）</strong>。因此，工程缓存不能只考虑“怎样存”，还必须规定“缓存何时不再可信，以及怎样删掉或替换它”，这就是 <strong>cache invalidation（缓存失效）</strong>。</p>
 <p>一套缓存设计至少要处理下面五件事。</p>
 <p><strong>1. Cache key 必须包含所有影响结果的条件。</strong></p>
@@ -425,10 +458,41 @@
 <p>实际判断时要同时观察命中率、接口或计算耗时、P95 延迟、内存占用和陈旧数据风险。只有节省的时间与外部请求明显多于缓存的存储和维护成本，缓存才真正有价值。</p>
 <p><strong>5. 线程安全不等于同一个结果只计算一次。</strong></p>
 <p>标准库缓存能保证多个线程同时读写时，内部字典等缓存结构不会被破坏。但当两个线程几乎同时请求一个尚未缓存的 key 时，它们仍可能都开始计算：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线程 A：检查 key=42 → miss → 开始查询数据库</span><br><span class="line">线程 B：检查 key=42 → miss → 也开始查询数据库</span><br><span class="line">线程 A：查询完成 → 写入缓存</span><br><span class="line">线程 B：查询完成 → 再写入同一结果</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    sequenceDiagram
+    participant A as 请求 A
+    participant C as 普通线程安全缓存
+    participant B as 请求 B
+    participant D as 数据库
+    A-&gt;&gt;C: get(42)
+    C--&gt;&gt;A: miss
+    B-&gt;&gt;C: get(42)
+    C--&gt;&gt;B: miss
+    A-&gt;&gt;D: 查询 key&#x3D;42
+    B-&gt;&gt;D: 重复查询 key&#x3D;42
+    D--&gt;&gt;A: result
+    D--&gt;&gt;B: result
+    A-&gt;&gt;C: 写入结果
+    B-&gt;&gt;C: 再次写入同一结果
+  </pre></div>
 <p>结果通常仍然正确，缓存结构也没有损坏，但数据库承受了两次重复查询。如果一个热点 key 失效后，大量请求同时绕过缓存访问数据源，就可能形成 <strong>cache stampede（缓存踩踏）</strong>，也常被描述为缓存击穿。</p>
 <p><strong>Single-flight</strong> 进一步规定：同一个 key 在同一时间只由一个执行者计算，其他执行者等待并共享它的结果。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">线程 A：key=42 尚未缓存 → 获得计算权 → 查询数据库</span><br><span class="line">线程 B：key=42 正在计算   → 等待</span><br><span class="line">线程 C：key=42 正在计算   → 等待</span><br><span class="line"></span><br><span class="line">线程 A：完成并写入结果 → B、C 直接复用该结果</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    sequenceDiagram
+    participant A as 请求 A
+    participant F as Single-flight(42)
+    participant B as 请求 B
+    participant C as 请求 C
+    participant D as 数据库
+    A-&gt;&gt;F: key&#x3D;42 miss，获得计算权
+    A-&gt;&gt;D: 只发起一次查询
+    B-&gt;&gt;F: key&#x3D;42 正在计算，等待
+    C-&gt;&gt;F: key&#x3D;42 正在计算，等待
+    D--&gt;&gt;A: result
+    A-&gt;&gt;F: 保存并发布 result
+    F--&gt;&gt;B: 复用 result
+    F--&gt;&gt;C: 复用 result
+  </pre></div>
 <p>这个限制只针对相同 key；<code>key=43</code> 仍然可以同时计算。Single-flight 解决的是昂贵操作的并发重复执行，线程安全解决的是缓存内部数据不被并发读写破坏，两者不是一回事。</p>
 <p>普通同步缓存也不适合直接装饰 <code>async def</code>。调用异步函数先得到 coroutine 对象，而最终结果要等 <code>await</code> 后才产生；缓存 coroutine 不等于缓存最终结果，并且重复等待同一个 coroutine 还可能出错。异步代码通常需要能够等待计算完成、合并并发请求并正确清理异常结果的专用缓存。</p>
 <p>可以把工程缓存记成一句话：<strong>先定义哪些请求可以共享结果，再定义结果何时过期、保存在哪里，以及并发 miss 时由谁负责计算。</strong></p>
@@ -494,18 +558,54 @@
 <h3 id="7-4-Python-set-与-dict-的哈希契约">7.4 Python <code>set</code> 与 <code>dict</code> 的哈希契约</h3>
 <p>实际 Python 的 <code>set</code> 与 <code>dict</code> 采用哈希表思路，成员测试和键查找通常具有平均 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">Θ</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 成本，但这依赖哈希分布和扩容策略，不代表任何情况下都严格常数时间。</p>
 <p>自定义对象参与哈希容器时必须遵守：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a == b  ⇒  hash(a) == hash(b)</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    EQ[&quot;a &#x3D;&#x3D; b&quot;] --&gt; MUST[&quot;必须满足&quot;]
+    MUST --&gt; HASH[&quot;hash(a) &#x3D;&#x3D; hash(b)&quot;]
+    HASH --&gt; COLLISION[&quot;反方向不成立&lt;br&#x2F;&gt;相同 hash 仍可能碰撞&quot;]
+    MUTABLE[&quot;参与 equality&#x2F;hash 的字段发生变化&quot;] --&gt; LOST[&quot;对象可能落在错误桶中&lt;br&#x2F;&gt;之后无法正常找到&quot;]
+  </pre></div>
 <p>反方向不成立：哈希相同的对象仍可能不相等，容器会继续用 equality 区分碰撞。若对象作为 key 后，其参与 equality 和 hash 的字段还能变化，容器可能再也无法在原桶位置正确找到它。因此，值可变的列表、字典和集合默认不可哈希；自定义 key 也应让哈希相关状态保持稳定。</p>
 <p>这把本章的三条线连接起来：identity 决定是不是同一对象，equality 决定逻辑值是否相同，hash 决定哈希容器怎样定位候选位置。</p>
 <h3 id="7-5-数据抽象没有消除效率问题">7.5 数据抽象没有消除效率问题</h3>
 <p>抽象屏障要求高层代码不要直接依赖底层表示，但它不要求设计者对表示一无所知。</p>
 <p>应当分开两个判断：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">接口正确性：实现是否满足抽象行为契约？</span><br><span class="line">表示适用性：在目标操作分布下，资源成本是否合适？</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    CHOICE[&quot;选择一种表示&quot;] --&gt; CONTRACT{&quot;满足抽象行为契约？&quot;}
+    CONTRACT --&gt;|否| REJECT[&quot;实现不正确&quot;]
+    CONTRACT --&gt;|是| COST{&quot;目标工作负载下&lt;br&#x2F;&gt;时间与空间成本合适？&quot;}
+    COST --&gt;|否| OPTIMIZE[&quot;替换底层表示&quot;]
+    COST --&gt;|是| ACCEPT[&quot;接口正确且表示适用&quot;]
+    OPTIMIZE --&gt; CONTRACT
+  </pre></div>
 <p>链表和数组都可以实现序列接口，但随机索引成本不同；无序链表与搜索树都可以实现集合接口，但成员测试成本不同。高层算法保持抽象，底层设计仍必须根据数据规模、更新频率、查询模式和空间限制选择表示。</p>
 <p>抽象的价值不是让效率差异消失，而是把变化隔离：只要新表示继续满足接口，高层程序不必因性能优化被整体改写。</p>
 <h2 id="8-把整篇串起来">8. 把整篇串起来</h2>
 <p>整篇可以压缩成一条连续的主线：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">对象协议</span><br><span class="line">  让自定义类型进入 len、[]、+ 等已有语法</span><br><span class="line">        ↓</span><br><span class="line">Shared Interface</span><br><span class="line">  让多种表示通过同一组行为参与操作</span><br><span class="line">        ↓</span><br><span class="line">Type Dispatch / Coercion</span><br><span class="line">  处理接口不足以决定的跨类型组合</span><br><span class="line">        ↓</span><br><span class="line">Representation</span><br><span class="line">  接口可以相同，内部结构和操作成本仍可不同</span><br><span class="line">        ↓</span><br><span class="line">Efficiency</span><br><span class="line">  根据实际工作负载选择表示，必要时用空间换时间</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    mindmap
+  root((泛型操作与效率))
+    对象协议
+      特殊方法
+      进入 Python 既有语法
+    实现选择
+      Shared interface
+      Type dispatch
+      Coercion
+    Python 约束方式
+      Duck typing
+      Protocol
+      ABC
+    表示与成本
+      Sequence
+      Set
+      Hash contract
+    空间换时间
+      Memoization
+      Cache invalidation
+      Single-flight
+  </pre></div>
 <p>这里最重要的不是背住三种机制的英文名称，而是分清三层责任：</p>
 <table>
 <thead>
@@ -547,7 +647,7 @@
 <li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/abc.html">Python 文档：Abstract Base Classes</a></li>
 <li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/functools.html">Python 文档：<code>functools.cache</code> 与 <code>lru_cache</code></a></li>
 </ul>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/08/24/composing-programs-object-abstraction-efficiency/">https://littlepyx.github.io/2026/08/24/composing-programs-object-abstraction-efficiency/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Generic-Operations/">Generic Operations</a><a class="post-meta__tags" href="/tags/Data-Structures/">Data Structures</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img class="cover" src="/img/composing-programs-object-system-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">对象系统：属性查找、方法绑定与类的实现</div></div><div class="info-2"><div class="info-item-1">闭包与 dispatch dictionary 已经能够把状态和行为封装在一起，但每创建一个值都要重新组织消息字典。类系统增加了更系统的共享机制：实例保存各自状态，类保存多个实例共同使用的行为，点表达式负责查找属性，并在需要时把函数绑定到当前实例。 本篇对应教材：  2.5 Object-Oriented Programming 2.6 Implementing Classes and Objects  重点不是复习 class 语法，而是完整解释一次 obj.method(arg) 在概念上怎样运行，以及这些机制如何由更基础的函数和字典实现。 1. 从对象到类：实例保存状态，类共享行为 1.1 对象、实例与类分别是什么 对象可以从三个方面描述： 1234Object├── State：当前保存的信息├── Identity：跨越状态变化仍可追踪的同一实体└── Behavior：它能够响应的操作 Instance（实例） 是某个具体对象。Class（类） 描述一类实例共享的创建方式和行为，并为属性查找提供后备空间。 123Instance A ──┐Instance B ──┼...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img class="cover" src="/img/composing-programs-source-to-ast-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">程序如何成为数据：从源码到 Token、AST 与 IR</div></div><div class="info-2"><div class="info-item-1">前两章研究的是怎样用函数和对象组织计算；第三章把程序本身也纳入研究对象。一段源码首先只是一串字符，只有经过解析并按照语言规则解释，它才会产生计算结果。 本篇受教材以下内容启发，但不按教材顺序复述：  3.1 Introduction 3.2 Functional Programming 3.4 Interpreters for Languages with Combination  我们会设计一个很小的表达式语言 MiniExpr，并让它在三篇笔记中逐步成长。第一步只解决一件事：怎样把源码转换成结构明确、可以被程序处理的数据。 1. 源码、程序结构和执行结果不是同一层东西 先看一段 MiniExpr 源码： 1(add 1 (mul 2 3)) 它表达的是“先计算 2 × 3，再把结果与 1 相加”。但对于我们正在编写的 Python 程序，这段输入最初只是一个字符串： 1source = &quot;(add 1 (mul 2 3))&quot; 字符串不会自己执行。解释器至少要经历下面几个阶段： 1234567891011Source Code&quot;(add 1 (mu...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解： 12345678910111213具体表示   ↓构造器、选择器与行为契约   ↓序列接口与递归数据   ↓可变状态、身份与消息传递   ↓类、实例、属性查找与方法绑定   ↓对象协议、泛型操作与多种表示   ↓表示选择对算法效率的影响 本篇先完成前两步。对应教材：  2.1 Introduction 2.2 Data Abstraction 2.3 Sequences  1. 为什么需要数据抽象：隔离表示变化 复合数据同时面对两个问题：数据怎样存储，以及使用者怎样操作数据。如果高层代码直接读取内部结构，这两个问题就会耦合在一起。 假设暂时用二元组表示有理数，第 0 项是分子，第 1 项是分母。没有抽象接口时，加法可能直接写成： 12345def add_rational(x, y):    return (        x[0] * y[1] + y[0] * x[1...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-mutable-state/" title="可变状态：对象身份与消息传递从何而来"><img class="cover" src="/img/composing-programs-mutable-state-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">可变状态：对象身份与消息传递从何而来</div></div><div class="info-2"><div class="info-item-1">数据抽象隐藏一个值怎样表示；可变数据进一步提出了时间问题：如果这个值会变化，怎样确认变化的是哪一个对象，谁能观察到变化，又由谁管理它的历史？ 这正是对象思想出现的位置。对象不只是把若干字段放在一起，而是让一个具有身份的实体保存自己的状态，并通过一组操作管理状态。 本篇对应教材：  2.4 Mutable Data  其中列表、字典的基础 API 从略，约束传播只在结尾说明设计意义。 1. 状态是一个随历史演化的值 不可变抽象通常可以由组成部分完全刻画：有理数由分子、分母的比例决定，一棵不可变树由标签和所有分支决定。只要组成部分相同，就可以在推理时把它们视为相同的值。 可变对象则代表一个随时间演化的实体： 1对象在 t0 的状态 ──操作 A──&gt; 对象在 t1 的状态 ──操作 B──&gt; 对象在 t2 的状态 操作的结果可能依赖此前发生过什么。两次参数完全相同的取款，可能因为余额已经改变而产生不同结果。State（状态） 不是某次孤立的值，而是一个对象在当前执行时刻所保存的信息。 这带来面向对象的第一块基础： 1对象 = 能跨越多个操作保持身份、同时让内部状态演化的实...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码转换成了 AST，但 AST 仍然只是程序的结构化描述。本篇继续实现 MiniExpr：解释器将递归访问 AST，根据每种节点的规则计算值，并通过操作注册表调用受控的 Python 函数。 本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  整篇解决两个相互关联的问题：谁定义每种语法结构的含义，以及某个阶段失败后，错误怎样保留上下文并返回系统边界。 1. AST 的结构不等于 AST 的含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── Number(2)            └── Number(3) 树只告诉我们 mul 位于 add ...</div></div></div></a><a class="pagination-related" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为"><img class="cover" src="/img/composing-programs-higher-order-functions-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-28</div><div class="info-item-2">高阶函数：从参数化数据到参数化行为</div></div><div class="info-2"><div class="info-item-1">1. 最小前置：函数值、调用与环境 高阶函数并不依赖复杂语法，但依赖三个容易被日常编码习惯掩盖的事实：函数是值，调用会创建局部环境，函数还关联着自己的定义环境。 1.1 函数名与函数调用不是一回事 执行 def 时，Python 创建一个函数对象，再把名字绑定到这个对象： 12345def square(x):    return x * xoperation = squareresult = operation(5)  # 25 square 表示函数对象，square(5) 才表示调用后的结果。operation = square 没有执行函数，只是让两个名字引用同一个函数对象。 这个区别决定了高阶函数传递的是什么：  传入 square，交付的是一条“之后可以执行”的计算规则； 传入 square(5)，交付的只是这次调用得到的数值 25。  函数能够像数字、字符串一样被绑定、传递和返回，就是函数具有一等地位的含义。 1.2 函数参数也只是局部名字 1234567def apply_twice(f, x):    return f(f(x))def increment(x)...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/08/24/composing-programs-object-abstraction-efficiency/">https://littlepyx.github.io/2026/08/24/composing-programs-object-abstraction-efficiency/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Generic-Operations/">Generic Operations</a><a class="post-meta__tags" href="/tags/Data-Structures/">Data Structures</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img class="cover" src="/img/composing-programs-object-system-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">对象系统：属性查找、方法绑定与类的实现</div></div><div class="info-2"><div class="info-item-1">闭包与 dispatch dictionary 已经能够把状态和行为封装在一起，但每创建一个值都要重新组织消息字典。类系统增加了更系统的共享机制：实例保存各自状态，类保存多个实例共同使用的行为，点表达式负责查找属性，并在需要时把函数绑定到当前实例。 本篇对应教材：  2.5 Object-Oriented Programming 2.6 Implementing Classes and Objects  重点不是复习 class 语法，而是完整解释一次 obj.method(arg) 在概念上怎样运行，以及这些机制如何由更基础的函数和字典实现。 1. 从对象到类：实例保存状态，类共享行为 1.1 对象、实例与类分别是什么 对象可以从三个方面描述：      mindmap   root((Object))     State       当前保存的信息     Identity       状态改变后仍是同一实体     Behavior       能够响应的操作    Instance（实例） 是某个具体对象。Class（类） 描述一类实例共享的创建方式和行为，并为属性查找提...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img class="cover" src="/img/composing-programs-source-to-ast-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">程序如何成为数据：从源码到 Token、AST 与 IR</div></div><div class="info-2"><div class="info-item-1">前两章研究的是怎样用函数和对象组织计算；第三章把程序本身也纳入研究对象。一段源码首先只是一串字符，只有经过解析并按照语言规则解释，它才会产生计算结果。 本篇受教材以下内容启发，但不按教材顺序复述：  3.1 Introduction 3.2 Functional Programming 3.4 Interpreters for Languages with Combination  我们会设计一个很小的表达式语言 MiniExpr，并让它在三篇笔记中逐步成长。第一步只解决一件事：怎样把源码转换成结构明确、可以被程序处理的数据。 1. 源码、程序结构与执行结果属于不同层次 先看一段 MiniExpr 源码： 1(add 1 (mul 2 3)) 它表达的是“先计算 2 × 3，再把结果与 1 相加”。但对于我们正在编写的 Python 程序，这段输入最初只是一个字符串： 1source = &quot;(add 1 (mul 2 3))&quot; 字符串不会自己执行。解释器至少要经历下面几个阶段：      flowchart TB     A[&quot;Source&lt;b...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解：      flowchart TB     R[&quot;具体表示&quot;] --&gt; A[&quot;构造器 · 选择器&lt;br&#x2F;&gt;行为契约&quot;]     A --&gt; S[&quot;序列接口&lt;br&#x2F;&gt;递归数据&quot;]     S --&gt; M[&quot;可变状态&lt;br&#x2F;&gt;身份 · 消息&quot;]     M --&gt; O[&quot;类 · 实例&lt;br&#x2F;&gt;属性查找 · 方法绑定&quot;]     O --&gt; G[&quot;对象协议&lt;br&#x2F;&gt;泛型操作&quot;]     G --&gt; E[&quot;表示选择&lt;br&#x2F;&gt;算法效率&quot;]    本篇先完成前两步。对应教材：  2...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a><a class="pagination-related" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为"><img class="cover" src="/img/composing-programs-higher-order-functions-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-28</div><div class="info-item-2">高阶函数：从参数化数据到参数化行为</div></div><div class="info-2"><div class="info-item-1">1. 最小前置：函数值、调用与环境 高阶函数并不依赖复杂语法，但依赖三个容易被日常编码习惯掩盖的事实：函数是值，调用会创建局部环境，函数还关联着自己的定义环境。 1.1 函数名与函数调用不是一回事 执行 def 时，Python 创建一个函数对象，再把名字绑定到这个对象： 12345def square(x):    return x * xoperation = squareresult = operation(5)  # 25 square 表示函数对象，square(5) 才表示调用后的结果。operation = square 没有执行函数，只是让两个名字引用同一个函数对象。 这个区别决定了高阶函数传递的是什么：  传入 square，交付的是一条“之后可以执行”的计算规则； 传入 square(5)，交付的只是这次调用得到的数值 25。  函数能够像数字、字符串一样被绑定、传递和返回，就是函数具有一等地位的含义。 1.2 函数参数也只是局部名字 1234567def apply_twice(f, x):    return f(f(x))def increment(x)...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img class="cover" src="/img/composing-programs-object-system-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">对象系统：属性查找、方法绑定与类的实现</div></div><div class="info-2"><div class="info-item-1">闭包与 dispatch dictionary 已经能够把状态和行为封装在一起，但每创建一个值都要重新组织消息字典。类系统增加了更系统的共享机制：实例保存各自状态，类保存多个实例共同使用的行为，点表达式负责查找属性，并在需要时把函数绑定到当前实例。 本篇对应教材：  2.5 Object-Oriented Programming 2.6 Implementing Classes and Objects  重点不是复习 class 语法，而是完整解释一次 obj.method(arg) 在概念上怎样运行，以及这些机制如何由更基础的函数和字典实现。 1. 从对象到类：实例保存状态，类共享行为 1.1 对象、实例与类分别是什么 对象可以从三个方面描述：      mindmap   root((Object))     State       当前保存的信息     Identity       状态改变后仍是同一实体     Behavior       能够响应的操作    Instance（实例） 是某个具体对象。Class（类） 描述一类实例共享的创建方式和行为，并为属性查找提...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
 本科：杭州电子科技大学<br>
 研究生：电子科技大学<br><br>
 <strong>研究方向</strong><br>
@@ -567,4 +667,53 @@ AI Agent 开发、计算成像、深度学习、光学<br><br>
   }
 
   showKatex()
-})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
+})()</script><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="/js/mermaid-polish.js" defer></script><script src="/js/article-experience.js" defer></script><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
