@@ -253,10 +253,21 @@ math:
      # 启用复制 KaTeX 公式
     copy_tex: true
 
+# 技术笔记中的流程图、关系图与时序图
+mermaid:
+  enable: true
+  code_write: false
+  theme:
+    light: neutral
+    dark: dark
+
 
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+  bottom:
+    - <script src="/js/mermaid-polish.js" defer></script>
+    - <script src="/js/article-experience.js" defer></script>
 
 # Markdown-it 渲染配置
 # Markdown-it 渲染配置

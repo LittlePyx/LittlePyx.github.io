@@ -20,16 +20,25 @@ toc_number: false
 katex: false
 ---
 
-上一篇把源码转换成了 AST，但 AST 仍然只是程序的结构化描述。本篇继续实现 MiniExpr：解释器将递归访问 AST，根据每种节点的规则计算值，并通过操作注册表调用受控的 Python 函数。
+上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果：
+
+```text
+(add 1 (mul 2 3))  →  7
+```
+
+我们沿着一条主线展开：
+
+1. AST 节点怎样得到运行时含义；
+2. 普通调用怎样通过 Eval 与 Apply 得到结果；
+3. `if` 为什么不能套用普通调用规则；
+4. 求值失败后，错误怎样沿同一条调用链返回系统边界。
 
 本篇受教材以下内容启发：
 
 - [3.3 Exceptions](https://www.composingprograms.com/pages/33-exceptions.html)
 - [3.4 Interpreters for Languages with Combination](https://www.composingprograms.com/pages/34-interpreters-for-languages-with-combination.html)
 
-整篇解决两个相互关联的问题：**谁定义每种语法结构的含义，以及某个阶段失败后，错误怎样保留上下文并返回系统边界。**
-
-## 1. AST 的结构不等于 AST 的含义
+## 1. AST 描述结构，Evaluator 赋予含义
 
 上一篇得到的 AST 可以简化为：
 
@@ -45,82 +54,27 @@ Call
             └── Number(3)
 ```
 
-树只告诉我们 `mul` 位于 `add` 的参数中，并没有自动规定：
+这棵树只表达层级关系：`mul` 调用位于 `add` 的第二个参数中。它并没有自动规定：
 
-- Number 的值是不是它自己；
-- Name 应该到哪里查找；
-- 参数是否按从左到右求值；
-- `add` 能接收几个参数；
-- 操作失败时应该抛出什么错误。
+- `Number` 应该得到什么值；
+- `Name` 应该到哪里查找；
+- 调用前是否要先求值所有参数；
+- `add` 最终对应哪个 Python 函数；
+- 任何一步失败时应该产生什么错误。
 
-这些规则共同构成语言的 **evaluation semantics（求值语义）**。Evaluator 不是“执行 AST 自带的方法”，而是语言实现者对每种表达式形式给出明确处理规则。
+这些规则共同构成语言的 **evaluation semantics（求值语义）**。Evaluator 的职责，就是根据 AST 节点的形式选择相应规则，将语法表示逐步转换成运行时值。
 
-## 2. Eval 负责表达式，Apply 负责过程和值
+| AST 节点 | 它描述什么 | 求值后可能得到什么 |
+|---|---|---|
+| `Number(1)` | 源码中的数字字面量 | Python 数值 `1` |
+| `Name("add")` | 源码中的名字 | 名字绑定的 `Primitive` |
+| `Call(...)` | 一次调用的结构 | 调用产生的结果 `7` |
 
-解释器通常把求值拆成两个职责：
+因此 `Number(1)` 和整数 `1` 不是同一个层次：前者是带有语法身份的 AST 节点，后者是后续计算使用的运行时值。
 
-```text
-Eval(expression, environment)
-    回答：这个表达式在当前环境中得到什么值？
+## 2. 名字表和 Primitive 准备运行时能力
 
-Apply(procedure, arguments)
-    回答：这个过程应用于这些实参时得到什么值？
-```
-
-对调用表达式：
-
-```text
-(add 1 (mul 2 3))
-```
-
-执行链路是：
-
-```text
-Eval 整个 Call
-    ↓
-Eval operator：Name("add") → Primitive(add)
-    ↓
-Eval 第一个参数：Number(1) → 1
-    ↓
-Eval 第二个参数：Call(mul, ...) → 6
-    ↓
-Apply Primitive(add) to [1, 6]
-    ↓
-7
-```
-
-Eval 不必知道 Python 的加法函数怎样实现；Apply 也不必知道参数来自哪些 AST 节点。这个分工会在下一篇加入用户定义函数时继续成立。
-
-## 3. 运行时值和 AST 节点必须区分
-
-MiniExpr 的 AST 节点是解释器内部的 Python 对象：
-
-```python
-Number(1)
-Name("add")
-Call(...)
-```
-
-它们求值后得到运行时值：
-
-```python
-1
-Primitive("add", ...)
-7
-```
-
-因此：
-
-```text
-Number(1) 是语法表示
-1         是运行时数值
-```
-
-两者碰巧都与数字 1 有关，但承担不同角色。若以后给 `Number` 增加源码位置、原始文本或类型标记，运行时整数仍然不需要知道这些解析信息。
-
-## 4. Primitive 把语言操作连接到 Python 实现
-
-解释器需要一组最基本的过程作为递归终点。可以用 `Primitive` 明确包装允许调用的 Python 函数：
+在实现 Evaluator 之前，先准备 `Name` 能够查到的运行时对象。MiniExpr 用 `Primitive` 包装允许调用的 Python 函数：
 
 ```python
 from collections.abc import Callable
@@ -134,7 +88,7 @@ class Primitive:
     max_arity: int | None
 ```
 
-注册表只暴露语言允许使用的操作：
+注册表保存语言开放的基础操作：
 
 ```python
 import math
@@ -146,34 +100,7 @@ PRIMITIVES = {
     "sub": Primitive("sub", operator.sub, 2, 2),
     "div": Primitive("div", operator.truediv, 2, 2),
 }
-```
 
-这里的字典不是为了少写几个 `if`，而是建立一层显式能力边界：
-
-```text
-Python 进程能够调用的所有对象
-                ↓ allowlist
-MiniExpr 程序被允许调用的 Primitive
-```
-
-新增操作主要修改注册表；Evaluator 继续按照“先求值 operator 和 arguments，再 Apply”的统一规则运行。
-
-### 4.1 元数据比捕获 `TypeError` 更可靠
-
-一种草率写法是直接调用函数，再把所有 `TypeError` 当成参数数量错误。但 `TypeError` 也可能来自函数内部：
-
-```python
-def operation(value):
-    return value + "suffix"  # value 类型不合适时也会产生 TypeError
-```
-
-因此 Primitive 明确保存 arity，由 Apply 在调用前验证参数数量。这样“调用协议不满足”和“操作内部实现失败”不会被混成同一种错误。
-
-## 5. Evaluator 按表达式形式分派
-
-先使用一个普通字典作为全局名字表：
-
-```python
 GLOBAL_NAMES = {
     **PRIMITIVES,
     "true": True,
@@ -181,7 +108,41 @@ GLOBAL_NAMES = {
 }
 ```
 
-Evaluator 的核心结构如下：
+这里的 `GLOBAL_NAMES` 字典就是最小版本的 Environment：它暂时只有全局名字；下一篇再把它扩展成支持局部作用域和父环境的结构。
+
+现在，名字求值的路径就明确了：
+
+```text
+Name("add")
+    ↓ 在 GLOBAL_NAMES 中查找
+Primitive(name="add", implementation=..., ...)
+```
+
+`Name("add")` 并不直接保存 Python 加法函数。它只保存名字，运行时再通过名字表取得绑定对象。这种间接关系既为下一篇的局部作用域留下空间，也形成了一层能力边界：MiniExpr 只能调用注册表明确开放的操作，而不能通过字符串任意访问 Python 对象。
+
+## 3. 普通调用沿着 Eval → Apply 得到结果
+
+解释器把普通调用拆成两个连续阶段：
+
+- **Eval** 处理 AST：表达式在当前名字表中得到什么值？
+- **Apply** 处理运行时对象：过程应用于这些实参值后得到什么结果？
+
+{% mermaid %}
+flowchart TB
+    CALL["Call AST"] --> OP["Eval operator"]
+    CALL --> ARGS["Eval arguments"]
+    OP --> PROC["procedure"]
+    ARGS --> VALUES["argument values"]
+    PROC --> APPLY["Apply"]
+    VALUES --> APPLY
+    APPLY --> RESULT["Runtime value"]
+{% endmermaid %}
+
+<p class="cp-figure-caption">Eval 负责把语法节点变成值；Apply 只接收已经得到的过程和值。</p>
+
+### 3.1 Eval 按 AST 形式选择语义规则
+
+`evaluate(expr, names)` 接收一个 AST 节点和当前名字表，返回对应的运行时值：
 
 ```python
 def evaluate(expr, names):
@@ -204,14 +165,48 @@ def evaluate(expr, names):
         ]
         return apply_procedure(procedure, arguments)
 
-    raise EvaluationError(
-        f"未知 AST 节点：{type(expr).__name__}"
+    raise TypeError(
+        f"Evaluator 不支持 AST 节点：{type(expr).__name__}"
     )
 ```
 
-这个分派的依据是**语法形式**：Number、Name 和 Call 分别具有不同求值规则。它与第二章的类型分派结构相似，但这里选择的不是数值运算实现，而是语言语义。
+`NameResolutionError` 等语言级错误会在第 5 节统一整理；这里先关注 `Eval` 如何分派，以及递归如何把子表达式逐层算成值。最后的 `TypeError` 则表示解释器遗漏了某种 AST 节点，应作为实现错误暴露出来。
 
-### 5.1 Apply 验证过程和值
+三个分支分别是一条语义规则：
+
+- `Number` 直接返回字面量，是递归终点；
+- `Name` 从名字表取得绑定，把语法名字连接到运行时对象；
+- `Call` 递归求值 operator 和 arguments，再把结果交给 Apply。
+
+这里判断的是 `Number`、`Name`、`Call` 等**表达式形式**，不是 `add`、`mul` 等具体操作名。具体能调用哪些操作由注册表决定，Evaluator 不需要为每个 Primitive 写一条分支。
+
+### 3.2 递归怎样完成一次嵌套调用
+
+对这棵 AST：
+
+```text
+Call(Name("add"), [Number(1), Call(Name("mul"), [Number(2), Number(3)])])
+```
+
+求值会展开成：
+
+```text
+evaluate(Call add)
+├── evaluate(Name("add")) ──> Primitive(add)
+├── evaluate(Number(1)) ─────> 1
+├── evaluate(Call mul)
+│   ├── evaluate(Name("mul")) ──> Primitive(mul)
+│   ├── evaluate(Number(2)) ─────> 2
+│   ├── evaluate(Number(3)) ─────> 3
+│   └── apply Primitive(mul), [2, 3] ──> 6
+└── apply Primitive(add), [1, 6] ──────> 7
+```
+
+同一个 `evaluate` 不断处理更小的子表达式。内层 `mul` 先得到结果 `6`，这个结果再成为外层 `add` 的第二个实参。
+
+### 3.3 Apply 检查调用协议并执行过程
+
+进入 Apply 时，AST 已经不再参与：输入只是一个运行时过程和一组实参值。
 
 ```python
 def apply_procedure(procedure, arguments):
@@ -236,50 +231,67 @@ def apply_procedure(procedure, arguments):
         ) from exc
 ```
 
-这里只转换我们预期的操作错误，并使用 `raise ... from exc` 保留底层原因。没有预期的编程错误应继续传播，由系统边界记录完整 traceback，而不是被包装成含糊的“表达式错误”。
+参数数量由 `Primitive` 的元数据提前检查，不能简单地把所有 `TypeError` 都解释成参数数量错误，因为 `TypeError` 也可能来自 Python 实现内部。Apply 只转换预期中的操作错误；解释器自身的未知 bug 应保留完整 traceback。
 
-## 6. Special Form 不能套用普通调用规则
+保留 Eval 与 Apply 的边界，是因为二者的扩展方向不同：
 
-给语言增加条件表达式：
+| 新能力 | 主要修改哪里 | 原因 |
+|---|---|---|
+| 新增 `sqrt` Primitive | 注册表 | 仍然遵守普通调用规则 |
+| 新增用户函数 | Apply | 需要创建调用环境并执行函数体 |
+| 新增 `if` 语法 | AST 与 Eval | 需要控制哪些分支参与求值 |
+
+下一篇加入用户函数后，Apply 会在 `Primitive` 与 `UserProcedure` 之间分派，而 Eval 的 Call 规则仍然只负责准备 procedure 和 arguments。
+
+## 4. Special Form 是普通调用规则的边界
+
+当前 Call 分支会先求值所有实参，再进入 Apply。这称为 **eager evaluation（急切求值）**，是普通调用的统一规则。
+
+现在给语言增加条件表达式：
 
 ```text
 (if false (div 1 0) 42)
 ```
 
-预期结果是 `42`，而不是除零错误。因为 `if` 只应求值被选中的分支。
+预期结果是 `42`。未被选中的 `(div 1 0)` 不应该求值；否则程序会在进入 Apply 之前产生除零错误。
 
-若把 `if` 当成普通 Primitive，Call 的统一规则会先求值所有参数：
+{% mermaid %}
+flowchart LR
+    subgraph IF_SPECIAL["正确：Special Form 按需求值"]
+      direction TB
+      R1["条件得到 False"] --> R2["只求值 alternative：42"]
+      R2 --> R3["结果：42"]
+    end
+    subgraph IF_EAGER["错误：普通调用提前求值"]
+      direction TB
+      W1["先求值所有实参"] --> W2["执行 div(1, 0)"]
+      W2 --> W3["ZeroDivisionError<br/>无法进入 Apply"]
+    end
+    R1 ~~~ W1
+    class R1,R2,R3 cp-path-good
+    class W1,W2,W3 cp-path-bad
+{% endmermaid %}
 
-```text
-Eval false        → False
-Eval (div 1 0)    → ZeroDivisionError
-Eval 42           → 根本无法到达
-Apply if          → 根本无法到达
-```
+<p class="cp-figure-caption">两条路径的差别发生在 Apply 之前：Special Form 可以决定哪些分支需要求值，普通调用不能。</p>
 
-问题不在 `if` 的 Python 实现，而在普通调用规则本身：**eager evaluation（急切求值）会在 Apply 之前计算所有实参。**
-
-### 6.1 用独立 AST 节点表达特殊规则
-
-Parser 可以把 `if` 识别为独立节点：
+因此 Parser 应该把 `if` 识别为独立的 AST 节点，而不是普通 `Call`：
 
 ```python
+from __future__ import annotations
+
+from typing import TypeAlias
+
+
 @dataclass(frozen=True, slots=True)
 class If:
     condition: Expr
     consequent: Expr
     alternative: Expr
-```
-
-在实际模块中，还要把 `If` 加入 `Expr` 的联合类型：
-
-```python
-from typing import TypeAlias
 
 Expr: TypeAlias = Number | Name | Call | If
 ```
 
-Evaluator 为它定义专用规则：
+Evaluator 再为它定义专用规则：
 
 ```python
 if isinstance(expr, If):
@@ -291,55 +303,13 @@ if isinstance(expr, If):
     return evaluate(selected, names)
 ```
 
-这里明确选择 Scheme 风格的真值规则：只有 `false` 对应的 `False` 是假值，数字 0 仍被视为真。真值规则也必须由语言定义，不能无意间继承宿主 Python 的全部行为。
+这段代码先求值 condition，再选择一个分支，最后只求值被选中的分支。这里采用 Scheme 风格的真值规则：只有 `false` 对应的 `False` 是假值，数字 `0` 仍然为真。
 
-现在执行过程是：
+**Special Form（特殊形式）** 的特殊之处不是名字特殊，而是它拥有不同于普通调用的求值规则。后续的 `define` 和 `lambda` 也需要控制某些组成部分是否、何时求值。
 
-```text
-Eval condition
-    ↓ False
-只选择 alternative
-    ↓
-Eval Number(42)
-    ↓
-42
-```
+## 5. 失败沿着执行链向外传播
 
-**Special form（特殊形式）**的特殊之处不是拼写，而是它拥有不同于普通调用的求值规则。后续的 `define` 和 `lambda` 也不能先把所有组成部分当作普通表达式求值。
-
-## 7. Eval 与 Apply 的边界为何值得保留
-
-当前 Apply 只支持 Primitive，看起来似乎可以直接写在 Call 分支中。但下一篇加入用户函数后，Apply 会出现第二条路径：
-
-```text
-Primitive
-    → 调用注册的 Python implementation
-
-UserProcedure
-    → 创建调用环境
-    → 参数绑定实参
-    → Eval 函数体
-```
-
-因此结构会形成：
-
-```text
-Eval 遇到 Call
-    ↓
-Apply UserProcedure
-    ↓
-Eval procedure body
-    ↓
-body 中又可能出现 Call
-    ↓
-Apply ...
-```
-
-Eval 和 Apply 的互相调用不是人为绕远，而是函数式语言求值过程的自然结构。
-
-## 8. 错误应该对应失败阶段
-
-解释器至少包含这些失败类别：
+成功时，值从内层 Eval 和 Apply 一层层返回；失败时，异常沿同一条调用链反方向向外传播。为了保留失败阶段，可以先定义一组小而明确的语言级错误：
 
 ```python
 class MiniExprError(Exception):
@@ -364,9 +334,9 @@ class EvaluationError(MiniExprError):
     pass
 ```
 
-分类的价值不是建立庞大的继承树，而是保留错误发生在哪个阶段：
+这些类型不是为了建立庞大的异常继承树，而是回答“程序在哪个阶段失败”：
 
-| 阶段 | 示例 | 应表达的信息 |
+| 阶段 | 示例 | 应保留的信息 |
 |---|---|---|
 | Tokenize | 出现不允许的字符 | 字符位置与允许的词法形式 |
 | Parse | 缺少右括号 | 期望的 Token 和实际位置 |
@@ -375,26 +345,29 @@ class EvaluationError(MiniExprError):
 | Primitive | 除数为零 | 操作名和底层原因 |
 | Internal | Evaluator 漏处理节点 | 完整 traceback，不能伪装成用户错误 |
 
-### 8.1 异常传播是在寻找负责处理的边界
+以 `(div 1 0)` 为例，异常传播路径是：
 
-异常抛出后，当前执行路径停止，Python 沿调用栈向外寻找能够处理该异常的 `except`：
+{% mermaid %}
+sequenceDiagram
+    participant B as REPL / API 边界
+    participant O as 外层 Eval
+    participant I as 内层 Eval
+    participant A as Apply
+    participant P as Python 除法
+    B->>O: 求值
+    O->>I: 求值嵌套表达式
+    I->>A: 应用 div
+    A->>P: 1 / 0
+    P--xA: ZeroDivisionError
+    A--xI: PrimitiveError
+    I--xO: 继续上抛
+    O--xB: 继续上抛
+    B->>B: 转换为边界响应
+{% endmermaid %}
 
-```text
-operator.truediv
-    ↓ raises ZeroDivisionError
-apply_procedure
-    ↓ raises PrimitiveError from original
-evaluate inner Call
-    ↓ propagate
-evaluate outer Call
-    ↓ propagate
-run / REPL boundary
-    ↓ convert to user-facing error
-```
+<p class="cp-figure-caption">中间层只补充自己知道的语义，最终展示策略留给最了解交互方式的边界层。</p>
 
-中间层如果无法恢复，就不应该捕获后继续返回一个伪造结果。错误传播允许底层专注于发现问题，由更了解交互方式的外层决定怎样呈现。
-
-### 8.2 `raise ... from ...` 保留因果关系
+Apply 可以把底层算术异常转换成语言级错误，同时保留原始原因：
 
 ```python
 try:
@@ -405,19 +378,21 @@ except ArithmeticError as exc:
     ) from exc
 ```
 
-外层看到的是语言级 `PrimitiveError`，调试时仍能通过 `__cause__` 和 traceback 找到原始 `ZeroDivisionError`。这比重新抛出一个没有原因的新异常更容易定位问题。
+外层看到的是 `PrimitiveError`，调试时仍可通过 `__cause__` 和 traceback 找到原始 `ZeroDivisionError`。如果中间层无法恢复，就不应该捕获异常后伪造一个结果；它应补充必要上下文，然后继续向外抛出。
 
-## 9. REPL 是解释器的交互边界
+还要区分用户程序错误和解释器自身 bug。REPL 可以安全展示 `MiniExprError`，但不应该用 `except Exception` 吞掉所有异常，否则空指针、遗漏分支等实现错误也会被伪装成普通输入错误。
 
-**REPL（Read-Eval-Print Loop）**把几个独立阶段组合成循环：
+## 6. REPL 是错误展示的系统边界
 
-```text
-Read     读取一段源码
-Parse    转换成 AST
-Eval     计算运行时值
-Print    展示结果
-Loop     继续读取下一段输入
-```
+**REPL（Read-Eval-Print Loop）** 把读取、解析、求值和展示组合成循环：
+
+{% mermaid %}
+flowchart LR
+    R["Read<br/>读取源码"] --> P["Parse<br/>生成 AST"]
+    P --> E["Eval<br/>计算运行时值"]
+    E --> O["Print<br/>展示结果或错误"]
+    O --> R
+{% endmermaid %}
 
 ```python
 def repl(global_names):
@@ -433,54 +408,49 @@ def repl(global_names):
             print(f"Error: {exc}")
 ```
 
-REPL 捕获可归因于用户输入的 `MiniExprError`，打印后继续下一轮。它没有吞掉所有 `Exception`，否则解释器自身的 bug 也会被伪装成普通输入错误。
+一次用户输入失败后，REPL 打印错误并继续下一轮；Evaluator 本身不需要知道结果最终显示在终端、HTTP 响应还是测试断言中。
 
-同一个核心解释器可以接到不同边界：
+{% mermaid %}
+flowchart TB
+    CORE["同一个 Evaluator 核心"] --> REPL["REPL<br/>简短错误 · 继续循环"]
+    CORE --> HTTP["HTTP API<br/>error code · request id"]
+    CORE --> BATCH["Batch<br/>记录失败项 · 决定是否继续"]
+    CORE --> TEST["Test<br/>直接暴露异常并断言"]
+{% endmermaid %}
 
-```text
-REPL     → 打印简短错误并继续循环
-HTTP API → 返回稳定 error code 和 request id
-Batch    → 记录失败项，按照策略决定是否继续
-Test     → 让异常直接暴露，断言其类型与位置
-```
+错误在哪里产生，属于语言核心；错误怎样展示和是否继续处理，属于系统边界。
 
-错误如何展示属于边界层，求值规则本身不应依赖终端、HTTP 或日志系统。
+## 7. 核心跑通后，再补工程约束
 
-## 10. 工程中的注册表不只是函数字典
+前面的 `Primitive` 只保存名称、Python 实现和参数数量。若操作会访问 HTTP 服务、文件或数据库，注册项通常还需要更多元数据：
 
-当 Primitive 会调用外部资源时，注册项通常还需要更多元数据：
+| 元数据 | 解决的问题 |
+|---|---|
+| `input_schema` | 参数结构和类型是否合法 |
+| `permission` | 当前调用者是否拥有所需能力 |
+| `timeout` | 外部操作最长可以执行多久 |
+| `side_effect` | 操作是否会改变外部状态 |
+| `retry_policy` | 失败后是否允许重试 |
 
-```text
-name           稳定的操作名
-input schema   参数结构与类型
-implementation 实际执行函数
-permission     所需能力
-timeout        最大执行时间
-side_effect    是否产生外部副作用
-retry policy   是否允许重试
-```
-
-执行前的流程也会变成：
+执行流程也会从“查表后直接调用”扩展为：
 
 ```text
-解析出 Invoke
-    ↓
 查找注册项
     ↓
 校验参数结构
     ↓
-检查权限和预算
+检查权限、预算与超时
     ↓
 执行 implementation
     ↓
 规范化结果或错误
 ```
 
-这与直接通过名字反射任意 Python 对象有本质区别。注册表是一份显式 allowlist；只有经过注册、验证并授权的能力才能被语言程序触发。
+这与根据用户提供的字符串反射任意 Python 对象有本质区别。注册表是一份显式 allowlist：只有经过注册、验证并授权的能力才能被语言程序触发。
 
-### 10.1 纯求值与副作用操作应分开观察
+### 7.1 纯操作与副作用操作需要不同策略
 
-`add` 和 `mul` 对相同输入总是得到相同结果，容易测试和重放。写文件、发送请求或修改数据库则会改变外部状态。
+`add` 和 `mul` 对相同输入总是得到相同结果，容易缓存、测试和重放；写文件、发送请求或修改数据库会改变外部状态。
 
 ```text
 Pure primitive
@@ -490,53 +460,54 @@ Effectful primitive
     输入 + 外部状态 → 结果 + 副作用
 ```
 
-解释器可以提供统一调用形式，但日志、重试、超时和幂等性策略不能因此被忽略。尤其不要在未知执行结果时盲目重试会产生副作用的操作。
+二者可以拥有统一调用接口，但不能共用完全相同的重试和观测策略。尤其在执行结果未知时，不能盲目重试会产生副作用的操作；否则一次逻辑调用可能多次写入数据或发送请求。
 
-## 11. 分层测试比端到端猜错更可靠
+### 7.2 分层测试让失败位置可判断
 
-MiniExpr 的各层可以分别验证：
+MiniExpr 的每一层都可以独立验证：
 
 ```text
 Tokenizer test
-    输入源码 → 精确 Token 序列和位置
+    源码 → Token 序列与位置
 
 Parser test
-    Token 序列 → 预期 AST
+    Token 序列 → AST
 
 Evaluator test
-    手工 AST + names → 预期值
+    手工 AST + names → 运行时值
 
 Apply test
-    Primitive + arguments → arity 和执行结果
+    Primitive + arguments → 参数检查与执行结果
 
 REPL test
-    一次错误后仍能继续处理下一次输入
+    一次错误后仍能处理下一次输入
 ```
 
-若只测试 `run("(add 1 2)") == 3`，失败时很难判断是词法、语法、名字解析还是执行出了问题。分层不只是代码结构，也为故障定位提供边界。
+如果只测试 `run("(add 1 2)") == 3`，失败时很难判断问题来自词法、语法、名字解析还是 Primitive 执行。分层不仅组织代码，也为故障定位提供边界。
 
-## 12. 把本篇串起来
+## 8. 把成功路径和失败路径串起来
 
-```text
-AST 描述程序结构
-    ↓ Eval 根据节点形式解释
-Runtime values
-    ↓ Apply 根据 procedure 类型执行
-Primitive implementation
-    ↓ 成功返回或抛出阶段化错误
-Boundary 负责展示、记录或转换错误
-```
+{% mermaid %}
+flowchart TB
+    AST["AST"] --> EVAL["Eval<br/>按表达式形式解释"]
+    ENV["Environment<br/>名字绑定"] --> EVAL
+    EVAL --> APPLY["Apply<br/>执行过程与实参"]
+    REG["Primitive Registry<br/>允许的基础操作"] --> APPLY
+    APPLY --> VALUE["Runtime Value"]
+    EVAL -.失败.-> ERROR["Language Error"]
+    APPLY -.失败.-> ERROR
+    ERROR --> BOUNDARY["REPL / API / Batch / Test"]
+{% endmermaid %}
 
-需要保留的几个判断：
+整篇可以收束为五个判断：
 
-1. Eval 解释表达式，Apply 执行已经求值得到的过程和值；
-2. 普通调用会先求值所有参数，Special form 可以控制求值顺序；
-3. 操作注册表既是分派表，也是允许执行能力的边界；
-4. 线程或调用栈没有“自动恢复”异常，只有某一层明确决定处理方式；
-5. 可预期的用户程序错误和解释器自身 bug 不应使用同一个兜底结果掩盖；
-6. Parser、Evaluator 与交互边界分开后，同一个语言核心才能复用于 REPL、API 和测试。
+1. AST 只描述程序结构，Evaluator 才定义每种结构怎样得到值；
+2. Eval 处理表达式，Apply 处理已经求值得到的过程和实参；
+3. 普通调用会先求值所有参数，Special Form 可以控制求值顺序；
+4. 错误类型标记失败阶段，异常因果链保留底层原因，边界层决定展示方式；
+5. Primitive 注册表既是调用分派表，也是解释器允许执行能力的边界。
 
-目前的 MiniExpr 已经能够组合已有操作，却仍然不能定义名字和函数。下一篇将引入 Environment、用户过程和闭包，让语言获得抽象能力。
+目前的 MiniExpr 已经能够组合已有操作，却仍然不能定义名字和函数。下一篇将引入 Environment、用户过程和闭包，让语言获得真正的抽象能力。
 
 ## 参考
 

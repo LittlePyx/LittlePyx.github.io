@@ -171,10 +171,13 @@ ComplexMA 保存 magnitude、angle
 
 这比“把实现 A 全部换成实现 B”更进一步：
 
-```text
-数据抽象：多种实现可以互相替换
-对象接口：多种实现可以在同一程序中共存
-```
+{% mermaid %}
+flowchart TB
+    DATA["数据抽象"] --> REPLACE["多种实现满足同一契约<br/>可以互相替换"]
+    OBJECT["对象接口"] --> COEXIST["多种实现同时存在<br/>通过同一操作协作"]
+    REPLACE --> GENERIC["Generic operation"]
+    COEXIST --> GENERIC
+{% endmermaid %}
 
 ### 3.1 Generic Function 依赖能力而不是单一类型
 
@@ -245,11 +248,14 @@ def rational_to_complex(r):
 
 于是 Rational 与 Complex 的加法不必分别实现两种参数顺序；先把 Rational **coerce（强制转换）** 为 Complex，再调用已有的复数加法即可。
 
-```text
-Rational ──coercion──> Complex
-                           ↓
-                 复用 Complex.add
-```
+{% mermaid %}
+flowchart LR
+    R["Rational(1/2)"] -->|coercion| C1["Complex(0.5, 0)"]
+    C2["Complex(1, 2)"] --> ADD["Complex.add"]
+    C1 --> ADD
+    ADD --> RESULT["Complex result"]
+    WARN["检查精度 · 可逆性 · 路径歧义"] -.约束转换方向.-> C1
+{% endmermaid %}
 
 Coercion 利用了类型之间的结构关系，减少跨类型操作的显式实现数量，但转换方向不能随意决定：
 
@@ -272,6 +278,17 @@ Coercion 利用了类型之间的结构关系，减少跨类型操作的显式�
 | Coercion | 转到共同类型再运算 | 复用已有同类型实现，减少类型对代码 | 可能丢失信息、产生方向和路径歧义 | 添加合理转换边，检查精度与语义 |
 
 这些机制不是互斥的。一个系统可以用 shared interface 处理同类协议，用 type dispatch 处理少数特殊跨类型组合，再对存在自然包含关系的类型使用 coercion。
+
+{% mermaid %}
+flowchart TD
+    START["一次操作面对多种类型"] --> SAME{"它们是否天然共享同一语义接口？"}
+    SAME -->|是| INTERFACE["Shared interface"]
+    SAME -->|否| PAIR{"是否只有少数特殊类型组合？"}
+    PAIR -->|是| DISPATCH["Type dispatch"]
+    PAIR -->|否| NATURAL{"是否存在自然且可接受的转换方向？"}
+    NATURAL -->|是| COERCE["Coercion 后复用已有实现"]
+    NATURAL -->|否| REDESIGN["重新设计操作或显式拒绝组合"]
+{% endmermaid %}
 
 设计时应先确定语义关系，再选择分派机制，而不是为了少写代码强行转换类型。
 
@@ -456,10 +473,17 @@ def get_user_name(user_id):
 
 第一次调用会查询数据库并保存结果，之后相同的 `user_id` 会直接命中缓存：
 
-```text
-第一次调用：cache miss ──> 查询数据库 ──> 保存 Alice
-之后调用：  cache hit  ──> 直接返回 Alice
-```
+{% mermaid %}
+flowchart LR
+    REQUEST["get_user_name(42)"] --> CACHE{"缓存中存在？"}
+    CACHE -->|hit| RETURN["直接返回 Alice"]
+    CACHE -->|miss| DB["查询数据库"]
+    DB --> SAVE["保存 Alice + 失效信息"]
+    SAVE --> RETURN
+    UPDATE["数据源改为 Bob"] --> STALE{"缓存是否已失效？"}
+    STALE -->|否| WRONG["继续返回陈旧的 Alice"]
+    STALE -->|是| EVICT["删除或刷新缓存"]
+{% endmermaid %}
 
 如果数据库已经把名字改成 Bob，缓存仍可能继续返回 Alice。这个结果在保存时是正确的，后来却因为数据源变化而过时，这就是 **stale data（陈旧数据）**。因此，工程缓存不能只考虑“怎样存”，还必须规定“缓存何时不再可信，以及怎样删掉或替换它”，这就是 **cache invalidation（缓存失效）**。
 
@@ -517,24 +541,44 @@ hit_rate = info.hits / (info.hits + info.misses)
 
 标准库缓存能保证多个线程同时读写时，内部字典等缓存结构不会被破坏。但当两个线程几乎同时请求一个尚未缓存的 key 时，它们仍可能都开始计算：
 
-```text
-线程 A：检查 key=42 → miss → 开始查询数据库
-线程 B：检查 key=42 → miss → 也开始查询数据库
-线程 A：查询完成 → 写入缓存
-线程 B：查询完成 → 再写入同一结果
-```
+{% mermaid %}
+sequenceDiagram
+    participant A as 请求 A
+    participant C as 普通线程安全缓存
+    participant B as 请求 B
+    participant D as 数据库
+    A->>C: get(42)
+    C-->>A: miss
+    B->>C: get(42)
+    C-->>B: miss
+    A->>D: 查询 key=42
+    B->>D: 重复查询 key=42
+    D-->>A: result
+    D-->>B: result
+    A->>C: 写入结果
+    B->>C: 再次写入同一结果
+{% endmermaid %}
 
 结果通常仍然正确，缓存结构也没有损坏，但数据库承受了两次重复查询。如果一个热点 key 失效后，大量请求同时绕过缓存访问数据源，就可能形成 **cache stampede（缓存踩踏）**，也常被描述为缓存击穿。
 
 **Single-flight** 进一步规定：同一个 key 在同一时间只由一个执行者计算，其他执行者等待并共享它的结果。
 
-```text
-线程 A：key=42 尚未缓存 → 获得计算权 → 查询数据库
-线程 B：key=42 正在计算   → 等待
-线程 C：key=42 正在计算   → 等待
-
-线程 A：完成并写入结果 → B、C 直接复用该结果
-```
+{% mermaid %}
+sequenceDiagram
+    participant A as 请求 A
+    participant F as Single-flight(42)
+    participant B as 请求 B
+    participant C as 请求 C
+    participant D as 数据库
+    A->>F: key=42 miss，获得计算权
+    A->>D: 只发起一次查询
+    B->>F: key=42 正在计算，等待
+    C->>F: key=42 正在计算，等待
+    D-->>A: result
+    A->>F: 保存并发布 result
+    F-->>B: 复用 result
+    F-->>C: 复用 result
+{% endmermaid %}
 
 这个限制只针对相同 key；`key=43` 仍然可以同时计算。Single-flight 解决的是昂贵操作的并发重复执行，线程安全解决的是缓存内部数据不被并发读写破坏，两者不是一回事。
 
@@ -590,9 +634,13 @@ Memoization 展示的是“计算过程的表示”怎样改变资源消耗。�
 
 自定义对象参与哈希容器时必须遵守：
 
-```text
-a == b  ⇒  hash(a) == hash(b)
-```
+{% mermaid %}
+flowchart LR
+    EQ["a == b"] --> MUST["必须满足"]
+    MUST --> HASH["hash(a) == hash(b)"]
+    HASH --> COLLISION["反方向不成立<br/>相同 hash 仍可能碰撞"]
+    MUTABLE["参与 equality/hash 的字段发生变化"] --> LOST["对象可能落在错误桶中<br/>之后无法正常找到"]
+{% endmermaid %}
 
 反方向不成立：哈希相同的对象仍可能不相等，容器会继续用 equality 区分碰撞。若对象作为 key 后，其参与 equality 和 hash 的字段还能变化，容器可能再也无法在原桶位置正确找到它。因此，值可变的列表、字典和集合默认不可哈希；自定义 key 也应让哈希相关状态保持稳定。
 
@@ -604,10 +652,15 @@ a == b  ⇒  hash(a) == hash(b)
 
 应当分开两个判断：
 
-```text
-接口正确性：实现是否满足抽象行为契约？
-表示适用性：在目标操作分布下，资源成本是否合适？
-```
+{% mermaid %}
+flowchart LR
+    CHOICE["选择一种表示"] --> CONTRACT{"满足抽象行为契约？"}
+    CONTRACT -->|否| REJECT["实现不正确"]
+    CONTRACT -->|是| COST{"目标工作负载下<br/>时间与空间成本合适？"}
+    COST -->|否| OPTIMIZE["替换底层表示"]
+    COST -->|是| ACCEPT["接口正确且表示适用"]
+    OPTIMIZE --> CONTRACT
+{% endmermaid %}
 
 链表和数组都可以实现序列接口，但随机索引成本不同；无序链表与搜索树都可以实现集合接口，但成员测试成本不同。高层算法保持抽象，底层设计仍必须根据数据规模、更新频率、查询模式和空间限制选择表示。
 
@@ -617,22 +670,29 @@ a == b  ⇒  hash(a) == hash(b)
 
 整篇可以压缩成一条连续的主线：
 
-```text
-对象协议
-  让自定义类型进入 len、[]、+ 等已有语法
-        ↓
-Shared Interface
-  让多种表示通过同一组行为参与操作
-        ↓
-Type Dispatch / Coercion
-  处理接口不足以决定的跨类型组合
-        ↓
-Representation
-  接口可以相同，内部结构和操作成本仍可不同
-        ↓
-Efficiency
-  根据实际工作负载选择表示，必要时用空间换时间
-```
+{% mermaid %}
+mindmap
+  root((泛型操作与效率))
+    对象协议
+      特殊方法
+      进入 Python 既有语法
+    实现选择
+      Shared interface
+      Type dispatch
+      Coercion
+    Python 约束方式
+      Duck typing
+      Protocol
+      ABC
+    表示与成本
+      Sequence
+      Set
+      Hash contract
+    空间换时间
+      Memoization
+      Cache invalidation
+      Single-flight
+{% endmermaid %}
 
 这里最重要的不是背住三种机制的英文名称，而是分清三层责任：
 

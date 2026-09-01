@@ -219,9 +219,13 @@ is_excellent({'score': 75})  # False
 
 可以把闭包概括为：
 
-```text
-闭包 = 函数代码 + 与函数定义相关联的环境
-```
+{% mermaid %}
+flowchart LR
+    C["函数代码<br/>qualified(record)"] --> CLOSURE["Closure"]
+    E["定义环境<br/>min_score = 60"] --> CLOSURE
+    CLOSURE --> CALL["调用 is_pass(record)"]
+    CALL --> LOOKUP["沿环境链查找 min_score"]
+{% endmermaid %}
 
 以前面的 `qualified` 为例，它的局部参数只有 `record`，函数体中的 `min_score` 是自由变量。执行 `is_pass(record)` 时，名称查找过程是：
 
@@ -345,9 +349,18 @@ normalize_name('  Alice  ')  # 'alice'
 
 现实中的数据处理流水线、编译器阶段、Web 中间件、消息处理链和机器学习预处理都具有类似结构：
 
-```text
-输入 → 清洗 → 解析 → 验证 → 转换 → 输出
-```
+{% mermaid %}
+flowchart LR
+    INPUT["输入"] --> CLEAN["清洗"]
+    CLEAN --> PARSE["解析"]
+    PARSE --> VALIDATE["验证"]
+    VALIDATE --> TRANSFORM["转换"]
+    TRANSFORM --> OUTPUT["输出"]
+    CONTRACT["共同的输入/输出契约"] -.约束每个阶段.-> CLEAN
+    CONTRACT -.-> PARSE
+    CONTRACT -.-> VALIDATE
+    CONTRACT -.-> TRANSFORM
+{% endmermaid %}
 
 组合要求各阶段的接口能够衔接。这使函数的输入输出契约变得重要：如果函数依赖大量隐藏状态、随意修改外部对象或混合多种职责，它就很难安全组合。高阶函数因此常与纯函数、小函数和明确的数据流一起出现，但高阶函数本身并不要求程序必须是纯函数式的。
 
@@ -358,6 +371,16 @@ Newton 方法通过反复更新猜测值来逼近函数零点。已知目标函�
 $$
 x_{next}=x-\frac{f(x)}{df(x)}
 $$
+
+{% mermaid %}
+flowchart TB
+    PROBLEM["具体问题<br/>f 与 df"] --> UPDATE["newton_update<br/>产生更新策略"]
+    UPDATE --> LOOP["improve<br/>通用迭代框架"]
+    CLOSE["close<br/>终止条件"] --> LOOP
+    LOOP --> RESULT["近似零点"]
+{% endmermaid %}
+
+<p class="cp-figure-caption">Newton 公式只负责更新规则；循环、终止条件和具体目标函数属于不同抽象层。</p>
 
 这个公式只定义“怎样从当前猜测得到下一个猜测”，循环与终止条件仍可以交给通用的 `improve`：
 
@@ -443,9 +466,12 @@ Newton 方法本身并不保证在任意函数和初始值下收敛，导数为�
 
 柯里化把一个多参数函数转换为一系列单参数函数：
 
-```text
-f(x, y)  <=>  g(x)(y)
-```
+{% mermaid %}
+flowchart TB
+    F["f(x, y)"] -->|curry2| G["g(x)"]
+    G -->|先提供 x| H["返回专用函数 h(y)"]
+    H -->|之后提供 y| RESULT["得到与 f(x, y) 相同的结果"]
+{% endmermaid %}
 
 它改变的不是计算结果，而是参数的组织方式。转换后，可以先提供 `x` 得到一个专用函数，再在之后提供 `y`。这适合参数来自不同阶段，或者某个框架只接受单参数函数的情况。
 
@@ -550,9 +576,17 @@ triple = trace(triple)
 
 装饰器、洋葱式中间件和函数包装器只是外观不同，底层结构都可以概括成：
 
-```text
-原行为 ──> 增强器 ──> 新行为
-```
+{% mermaid %}
+flowchart TB
+    INPUT["调用输入"] --> LOG["日志 / 追踪"]
+    LOG --> AUTH["权限 / 校验"]
+    AUTH --> CACHE["缓存 / 重试"]
+    CACHE --> CORE["核心函数"]
+    CORE --> CACHE
+    CACHE --> AUTH
+    AUTH --> LOG
+    LOG --> OUTPUT["调用结果"]
+{% endmermaid %}
 
 ## 12. 高阶函数在实际程序中的位置
 
@@ -579,6 +613,27 @@ triple = trace(triple)
 把时钟、随机数生成器、存储操作或外部请求作为函数传入，可以在测试时替换为确定、轻量的实现。例如，业务函数接收 `now()` 而不是直接调用系统时间，测试就能传入一个始终返回固定时间的函数。相比在函数内部直接访问全局依赖，这种接口更容易隔离和验证。
 
 这些用途表面上差异很大，底层都在做同一件事：**把行为从实现内部提取出来，使它能够被选择、延迟、替换、组合或增强。**
+
+{% mermaid %}
+mindmap
+  root((高阶函数的工程位置))
+    参数化算法
+      排序 key
+      更新与终止策略
+    事件驱动
+      回调
+      异步完成通知
+    函数工厂
+      固化配置
+      延迟提供运行数据
+    包装器
+      日志
+      缓存
+      权限与事务
+    依赖注入
+      替换外部服务
+      提升可测试性
+{% endmermaid %}
 
 ## 13. 什么时候不必使用高阶函数
 

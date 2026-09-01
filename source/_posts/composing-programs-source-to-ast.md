@@ -30,7 +30,7 @@ katex: false
 
 我们会设计一个很小的表达式语言 MiniExpr，并让它在三篇笔记中逐步成长。第一步只解决一件事：**怎样把源码转换成结构明确、可以被程序处理的数据。**
 
-## 1. 源码、程序结构和执行结果不是同一层东西
+## 1. 源码、程序结构与执行结果属于不同层次
 
 先看一段 MiniExpr 源码：
 
@@ -46,19 +46,15 @@ source = "(add 1 (mul 2 3))"
 
 字符串不会自己执行。解释器至少要经历下面几个阶段：
 
-```text
-Source Code
-"(add 1 (mul 2 3))"
-        ↓ tokenize
-Token Stream
-LPAREN NAME(add) NUMBER(1) LPAREN NAME(mul) NUMBER(2) NUMBER(3) RPAREN RPAREN
-        ↓ parse
-AST
-Call(Name("add"), [Number(1), Call(Name("mul"), ...)])
-        ↓ evaluate
-Runtime Value
-7
-```
+{% mermaid %}
+flowchart TB
+    A["Source<br/>(add 1 (mul 2 3))"] -->|Tokenizer| B["Token Stream<br/>LPAREN · NAME · NUMBER · …"]
+    B -->|Parser| C["AST<br/>Call / Name / Number"]
+    C -->|Validator · Normalizer| D["IR<br/>稳定的内部表示"]
+    D -->|Evaluator| E["Runtime Value<br/>7"]
+{% endmermaid %}
+
+<p class="cp-figure-caption">同一段程序在不同阶段拥有不同表示；每一层只解决一种问题。</p>
 
 这四层应始终分开理解：
 
@@ -103,7 +99,7 @@ add
 
 ### 2.1 Syntax 与 Semantics
 
-**Syntax（语法）**规定程序可以写成什么结构；**semantics（语义）**规定这些结构是什么意思。
+**Syntax（语法）** 规定程序可以写成什么结构；**semantics（语义）** 规定这些结构是什么意思。
 
 ```text
 (mystery 1 2)
@@ -120,7 +116,7 @@ Parser 的任务不是证明程序一定能运行，而是把文本转换成结�
 
 ## 3. Tokenizer 把字符整理成语法单位
 
-**Lexical analysis（词法分析）**负责把连续字符划分成 Token。Token 是 Parser 需要识别的最小单位。
+**Lexical analysis（词法分析）** 负责把连续字符划分成 Token。Token 是 Parser 需要识别的最小单位。
 
 ```text
 输入字符：  ( add 12 ( mul 2 3 ) )
@@ -183,7 +179,7 @@ MiniExpr 的 Tokenizer 很小；Python 自己的 Tokenizer 还要处理缩进、
 
 ## 4. AST 只保留求值所需的结构
 
-**AST（Abstract Syntax Tree，抽象语法树）**用对象表示程序的结构。MiniExpr 目前只需要三种节点：
+**AST（Abstract Syntax Tree，抽象语法树）** 用对象表示程序的结构。MiniExpr 目前只需要三种节点：
 
 ```python
 from __future__ import annotations
@@ -215,17 +211,19 @@ Expr: TypeAlias = Number | Name | Call
 
 对应的 AST：
 
-```text
-Call
-├── operator: Name("add")
-└── arguments
-    ├── Number(1)
-    └── Call
-        ├── operator: Name("mul")
-        └── arguments
-            ├── Number(2)
-            └── Number(3)
-```
+{% mermaid %}
+flowchart TB
+    ROOT["Call"] --> OP1["operator<br/>Name(add)"]
+    ROOT --> ARGS1["arguments"]
+    ARGS1 --> N1["Number(1)"]
+    ARGS1 --> INNER["Call"]
+    INNER --> OP2["operator<br/>Name(mul)"]
+    INNER --> ARGS2["arguments"]
+    ARGS2 --> N2["Number(2)"]
+    ARGS2 --> N3["Number(3)"]
+{% endmermaid %}
+
+<p class="cp-figure-caption">括号完成使命后退出表示，真正保留下来的是调用之间的父子关系。</p>
 
 AST 没有保存空格，也不需要保存每一对括号。括号在解析阶段决定层级，层级进入树结构后，括号本身就不再是求值必需的信息。
 
@@ -249,16 +247,21 @@ AST 没有保存空格，也不需要保存每一对括号。括号在解析阶�
 
 ## 5. Parser 把线性 Token 还原成递归结构
 
-**Parsing（语法分析）**消费 Token 序列，并按照语法规则创建 AST。
+**Parsing（语法分析）** 消费 Token 序列，并按照语法规则创建 AST。
 
 MiniExpr 的递归规则非常直接：
 
-```text
-看到 NUMBER  → 创建 Number
-看到 NAME    → 创建 Name
-看到 LPAREN  → 递归读取 operator 和 arguments，直到 RPAREN
-看到其他内容 → 语法错误
-```
+{% mermaid %}
+flowchart TD
+    START["parse_expression"] --> TOKEN{"查看当前 Token"}
+    TOKEN -->|NUMBER| NUMBER["创建 Number"]
+    TOKEN -->|NAME| NAME["创建 Name"]
+    TOKEN -->|LPAREN| CALL["递归解析 operator 与 arguments"]
+    CALL --> ENDING{"遇到 RPAREN？"}
+    ENDING -->|否| CALL
+    ENDING -->|是| NODE["创建 Call"]
+    TOKEN -->|其他| ERROR["抛出 ParseError"]
+{% endmermaid %}
 
 核心结构可以写成：
 
@@ -299,13 +302,17 @@ def parse_expression(tokens):
 
 它本身就是另一个完整表达式，应该使用同一套规则解析：
 
-```text
-parse 外层 add
-├── parse Number(1)
-└── parse 内层 mul
-    ├── parse Number(2)
-    └── parse Number(3)
-```
+{% mermaid %}
+flowchart TB
+    OUTER["解析外层 add"] --> ONE["解析 Number(1)"]
+    OUTER --> INNER["解析内层 mul"]
+    INNER --> TWO["解析 Number(2)"]
+    INNER --> THREE["解析 Number(3)"]
+    TWO --> BUILD["构造 Call(mul, …)"]
+    THREE --> BUILD
+    ONE --> RESULT["构造 Call(add, …)"]
+    BUILD --> RESULT
+{% endmermaid %}
 
 代码的递归结构对应语法的递归结构。这与处理 Tree 时的模式相同：每个节点只负责识别当前构造，再递归处理子结构。
 
@@ -341,13 +348,16 @@ def parse(tokens):
 
 AST 已经省略无关语法细节，但仍可能接近用户写法。IR 通常进一步消除等价写法带来的差异。例如：
 
-```text
-用户写法：(+ 1 2)
-AST：     Call(Name("+"), [Number(1), Number(2)])
-IR：      Invoke("add", [Const(1), Const(2)])
-```
+{% mermaid %}
+flowchart TB
+    U["用户写法<br/>(+ 1 2)"] -->|parse| A["AST<br/>Call(Name(+), …)"]
+    A -->|validate| V["校验：运算符必须已注册<br/>允许：+、-、*、/"]
+    V -->|normalize| I["IR<br/>Invoke(add, …)"]
+{% endmermaid %}
 
-IR 中的 `add` 已经是系统内部认可的操作编号或规范名称。后续执行器只处理受控表示，不需要反复理解用户输入的各种拼写方式。
+“已注册”是指解释器提前明确开放了哪些能力。例如，它可以把 `+`、`-`、`*`、`/` 登记到操作表中。校验阶段检查 AST 中的运算符是否在表内；读取文件、执行系统命令等未开放的操作会在这里被拒绝。随后，规范化阶段再把用户写的 `+` 转换为内部统一名称 `add`。
+
+因此，IR 中的 `add` 已经是系统认可的操作编号或规范名称。后续执行器只处理这种受控表示，不需要直接执行用户输入，也不需要反复理解各种外部写法。
 
 这条边界在工程中很实用：
 
@@ -413,19 +423,19 @@ print(ast.dump(tree, indent=2))
 
 解析器不只是“把字符串拆开”。它承担了外部输入进入核心系统前的第一层边界：
 
-```text
-不可信或不稳定的外部输入
-        ↓ Tokenize
-字符是否能组成合法 Token
-        ↓ Parse
-Token 是否满足语法结构
-        ↓ Validate
-节点、字段、深度和操作是否允许
-        ↓ Normalize
-转换为稳定的内部表示
-        ↓ Execute
-核心系统只处理已经验证的 IR
-```
+{% mermaid %}
+flowchart TB
+    INPUT["外部输入<br/>不可信 · 不稳定"] --> TOKENIZE["Tokenize<br/>字符是否合法"]
+    TOKENIZE --> PARSE["Parse<br/>结构是否合法"]
+    PARSE --> VALIDATE["Validate<br/>节点 · 字段 · 深度 · 权限"]
+    VALIDATE --> NORMALIZE["Normalize<br/>统一内部表示"]
+    NORMALIZE --> CORE["Core<br/>只处理已验证 IR"]
+    TOKENIZE -.失败.-> REJECT["结构化错误"]
+    PARSE -.失败.-> REJECT
+    VALIDATE -.失败.-> REJECT
+{% endmermaid %}
+
+<p class="cp-figure-caption">解析边界的价值，是让核心逻辑不必反复防御原始输入。</p>
 
 工程实现还应考虑：
 
@@ -440,15 +450,23 @@ Token 是否满足语法结构
 
 ## 10. 把本篇串起来
 
-```text
-Source 是字符
-    ↓ Tokenizer 识别词法单位
-Token Stream 是线性语法材料
-    ↓ Parser 恢复递归层级
-AST 是程序的结构化表示
-    ↓ Validator / Normalizer 建立内部约束
-IR 是执行器可以稳定依赖的输入
-```
+{% mermaid %}
+mindmap
+  root((程序成为数据))
+    Source
+      原始字符
+      保留用户写法
+    Token Stream
+      线性语法单位
+      带类型与位置
+    AST
+      恢复递归层级
+      描述程序结构
+    IR
+      已验证
+      已规范化
+      供执行器依赖
+{% endmermaid %}
 
 需要保留的几个判断：
 

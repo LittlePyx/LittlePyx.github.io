@@ -35,9 +35,11 @@ katex: true
 
 可变对象则代表一个随时间演化的实体：
 
-```text
-对象在 t0 的状态 ──操作 A──> 对象在 t1 的状态 ──操作 B──> 对象在 t2 的状态
-```
+{% mermaid %}
+flowchart TB
+    T0["同一个对象<br/>t0 · balance = 100"] -->|withdraw 30| T1["同一个对象<br/>t1 · balance = 70"]
+    T1 -->|deposit 20| T2["同一个对象<br/>t2 · balance = 90"]
+{% endmermaid %}
 
 操作的结果可能依赖此前发生过什么。两次参数完全相同的取款，可能因为余额已经改变而产生不同结果。**State（状态）** 不是某次孤立的值，而是一个对象在当前执行时刻所保存的信息。
 
@@ -62,11 +64,23 @@ y = x
 
 第二条语句没有复制列表，也没有修改列表，只是在当前环境中建立了另一个绑定：
 
-```text
-x ──┐
-    ├──> list [1, 2]
-y ──┘
-```
+{% mermaid %}
+flowchart LR
+    subgraph BINDING["1 · Binding：共享对象"]
+      X1["x"] --> L1["list A<br/>[1, 2]"]
+      Y1["y"] --> L1
+    end
+    subgraph REBINDING["2 · Rebinding：x 改指新对象"]
+      X2["x"] --> L2["list B<br/>[1, 2, 3]"]
+      Y2["y"] --> L3["list A<br/>[1, 2]"]
+    end
+    subgraph MUTATION["3 · Mutation：改变已有对象"]
+      X3["x"] --> L4["list B<br/>[1, 2, 3]"]
+      Y3["y"] --> L5["list A<br/>[1, 2, 3]"]
+    end
+{% endmermaid %}
+
+<p class="cp-figure-caption">Rebinding 改变箭头；mutation 改变箭头所指的对象。</p>
 
 变量不是装对象的盒子，更接近环境中指向对象的名字。执行 `y = x` 时，先求出表达式 `x` 所引用的对象，再把名字 `y` 绑定到同一对象。
 
@@ -78,11 +92,6 @@ x = x + [3]
 
 列表加法创建一个新列表，然后把 `x` 重新绑定到它：
 
-```text
-x ─────> list [1, 2, 3]
-y ─────> list [1, 2]
-```
-
 旧列表没有变化，所以 `y` 仍看到 `[1, 2]`。变化发生在环境的名字—对象关系中，而不在原列表内部。
 
 ### 2.3 Mutation：改变对象本身
@@ -92,11 +101,6 @@ y.append(3)
 ```
 
 `append` 改变 `y` 指向的列表对象，没有让 `y` 改指新对象：
-
-```text
-x ─────> list [1, 2, 3]
-y ─────> list [1, 2, 3]  # 原对象被改变
-```
 
 在本例中两个列表碰巧内容相同，但仍是两个不同对象。判断 mutation 的关键问题是：执行前后被操作对象的身份是否保持不变，而其可观察内容是否发生变化。
 
@@ -245,18 +249,22 @@ withdraw(25)  # 50
 4. 每次调用 `withdraw` 都会创建一个临时调用 frame，其 parent 都是同一个 `E1`；
 5. `nonlocal balance` 修改的是 `E1` 中的 `balance`，所以状态能够延续到下一次调用。
 
-```text
-创建闭包：
-withdraw 函数 ──记住定义环境──> E1 { balance = 100 }
-
-第一次调用 withdraw(25)：
-临时 frame W1 { amount = 25 } ──parent──> E1 { balance: 100 → 75 }
-调用结束后 W1 消失，E1 继续存在
-
-第二次调用 withdraw(25)：
-临时 frame W2 { amount = 25 } ──parent──> E1 { balance: 75 → 50 }
-调用结束后 W2 消失，E1 继续存在
-```
+{% mermaid %}
+sequenceDiagram
+    participant C as 调用者
+    participant W as withdraw 函数
+    participant E as 定义环境 E1
+    Note over W,E: 创建闭包：W 保存对 E1 的引用，balance = 100
+    C->>W: withdraw(25)
+    W->>E: 读取并重绑定 balance
+    E-->>W: 100 → 75
+    W-->>C: 75
+    Note over W,E: 临时调用 Frame 消失，E1 继续存在
+    C->>W: withdraw(25)
+    W->>E: 再次读取同一个绑定
+    E-->>W: 75 → 50
+    W-->>C: 50
+{% endmermaid %}
 
 两次调用不是同时共享一个调用 frame，而是先后创建 `W1`、`W2`，并共同访问闭包保留下来的 `E1`。闭包保存的也不是 `balance` 的数值快照，而是它所在的定义环境，因此第二次调用能够读到第一次调用留下的 `75`。
 
@@ -393,13 +401,18 @@ async def withdraw(account, amount):
 
 假设余额最初为 `100`，两个取款任务交错执行：
 
-| 执行顺序 | 任务 A：取 30 | 任务 B：取 50 | 账户余额 |
-|---|---|---|---:|
-| 1 | 读取 `old_balance = 100` |  | 100 |
-| 2 | 在 `await` 处暂停 |  | 100 |
-| 3 |  | 读取 `old_balance = 100` | 100 |
-| 4 | 恢复并写入 `100 - 30` |  | 70 |
-| 5 |  | 恢复并写入 `100 - 50` | 50 |
+{% mermaid %}
+sequenceDiagram
+    participant A as 任务 A：取 30
+    participant S as 共享账户
+    participant B as 任务 B：取 50
+    A->>S: 读取 balance = 100
+    A-->>A: await，任务暂停
+    B->>S: 读取 balance = 100
+    A->>S: 写入 100 - 30 = 70
+    B->>S: 写入 100 - 50 = 50
+    Note over A,B: 正确结果应为 20；B 用旧值覆盖了 A 的更新
+{% endmermaid %}
 
 两次取款合计为 `80`，正确余额应该是 `20`，结果却是 `50`。任务 B 使用了暂停前读取的旧余额，覆盖了任务 A 的结果，这叫作 **lost update（丢失更新）**。
 
@@ -424,11 +437,13 @@ async def withdraw(account, amount):
 
 **方式二：让单一所有者顺序处理消息。** 规定只有账户管理任务可以修改余额，其他任务只能发送请求：
 
-```text
-任务 A ── withdraw(30) ──┐
-                         ├──> 账户管理任务：按顺序修改 balance
-任务 B ── withdraw(50) ──┘
-```
+{% mermaid %}
+flowchart LR
+    A["任务 A<br/>withdraw(30)"] --> Q["请求队列"]
+    B["任务 B<br/>withdraw(50)"] --> Q
+    Q --> OWNER["账户管理任务<br/>唯一状态所有者"]
+    OWNER --> STATE["balance<br/>按消息顺序更新"]
+{% endmermaid %}
 
 这样不需要多个任务直接争用同一个对象。队列消费者、Actor 和事件循环中的状态机都使用了类似思想。
 
@@ -446,9 +461,13 @@ WHERE id = 1 AND balance >= 30;
 
 **GIL 为什么不能代替这些机制？** GIL（Global Interpreter Lock，全局解释器锁）是启用 GIL 的 CPython 用来保护解释器内部状态的一把锁。它通常只允许一个线程在某一时刻执行 Python 字节码，但它不理解“取款”这样的业务操作：
 
-```text
-读取余额 → await → 检查条件 → 写回余额
-```
+{% mermaid %}
+flowchart TB
+    READ["读取余额"] --> WAIT["await<br/>允许其他任务运行"]
+    WAIT --> CHECK["检查条件"]
+    CHECK --> WRITE["写回余额"]
+    SWITCH["其他任务"] -.可在这里修改同一状态.-> WAIT
+{% endmermaid %}
 
 这仍然是多个步骤。异步任务可以在 `await` 处切换，线程也可能在步骤之间切换，所以 GIL 不会把整段逻辑自动变成 **atomic operation（原子操作）**。原子操作对其他执行者表现为一个不可分割的整体，只能看到操作前或操作后的状态，不能插入其中。
 
@@ -478,11 +497,18 @@ async def handle_request(req):
 
 账户余额的需求正好相反。任务 A 取款后，任务 B 必须看到更新后的同一份余额：
 
-```text
-任务 A ──┐
-         ├──> 同一个账户 balance
-任务 B ──┘
-```
+{% mermaid %}
+flowchart TB
+    subgraph LOCAL["Context-local：需要相互隔离"]
+      A1["任务 A"] --> IDA["request_id = A-001"]
+      B1["任务 B"] --> IDB["request_id = B-002"]
+    end
+    subgraph SHARED["业务状态：需要共同观察一致更新"]
+      A2["任务 A"] --> BALANCE["同一个 account.balance"]
+      B2["任务 B"] --> BALANCE
+      BALANCE --> GUARD["Lock / 单一所有者 / 数据库事务"]
+    end
+{% endmermaid %}
 
 如果用 `ContextVar` 给每个任务保存一份余额，任务之间会看到各自的值，反而无法维护统一的账户状态。余额、订单状态、库存和共享缓存需要的是锁、消息顺序、数据库事务等协调机制。
 
@@ -532,9 +558,14 @@ account('balance')       # 80
 
 **Message passing（消息传递）** 的纪律是：使用者不直接操作内部状态，而是发送抽象允许的消息，由数据自己决定如何响应。
 
-```text
-调用者 ──'withdraw', 30──> account dispatch ──> 修改私有 balance
-```
+{% mermaid %}
+flowchart TB
+    CALLER["调用者"] -->|withdraw, 30| DISPATCH["account dispatch"]
+    DISPATCH --> LOOKUP{"识别消息"}
+    LOOKUP -->|withdraw| ACTION["执行取款逻辑"]
+    ACTION --> STATE["更新闭包中的私有 balance"]
+    STATE --> RESULT["返回新余额"]
+{% endmermaid %}
 
 这比单纯闭包多了一层统一操作入口，也把数据抽象与状态封装连接了起来。
 
@@ -595,16 +626,48 @@ account['balance']()     # 70
 
 它在本章中的意义不是某段 connector 代码，而是展示 mutation 与 message passing 能支持一种不同的计算组织方式：
 
-```text
-单向函数：输入 → 固定过程 → 输出
-约束网络：局部关系 + 状态变化 → 多方向信息传播
-```
+{% mermaid %}
+flowchart TB
+    subgraph FUNCTION["单向函数"]
+      I["输入"] --> F["固定过程"] --> O["输出"]
+    end
+    subgraph NETWORK["约束网络"]
+      C["Connector C"] <--> R1["局部约束"]
+      F2["Connector F"] <--> R1
+      C <--> R2["另一局部约束"]
+      K["Connector K"] <--> R2
+    end
+{% endmermaid %}
 
 Connector 保存当前值并响应设置、遗忘等消息；constraint 在收到通知后决定能否推导其他值。它们通过接口协作，而不直接越过边界修改彼此内部状态。
 
 ## 一句话总结
 
 Mutation 让对象身份和执行历史成为程序语义的一部分；闭包把可变状态限制在局部环境中，dispatch 则让这份状态通过消息响应行为，从而形成对象的雏形。
+
+{% mermaid %}
+mindmap
+  root((可变状态))
+    名字与对象
+      Binding
+      Rebinding
+      Mutation
+      Aliasing
+    身份与历史
+      is
+      equality
+      side effect
+    局部状态
+      Closure
+      nonlocal
+      Dispatch
+    并发边界
+      await
+      Lock
+      单一所有者
+      数据库事务
+      ContextVar
+{% endmermaid %}
 
 ## 容易混淆
 

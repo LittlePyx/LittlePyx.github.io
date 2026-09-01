@@ -66,13 +66,14 @@ names = {
 
 但函数调用需要局部作用域。每次调用都应得到自己的参数绑定，同时仍然能够访问外层名字。运行时因此使用一串相连的 **Frame（环境帧）**：
 
-```text
-current frame
-├── 本层 bindings
-└── parent ──> enclosing frame
-                    ├── bindings
-                    └── parent ──> ...
-```
+{% mermaid %}
+flowchart TB
+    CURRENT["Current frame<br/>x = 2"] -->|parent| OUTER["Enclosing frame<br/>rate = 0.8"]
+    OUTER -->|parent| GLOBAL["Global frame<br/>add = Primitive<br/>x = 10"]
+    GLOBAL -->|parent| NONE["None"]
+{% endmermaid %}
+
+<p class="cp-figure-caption">名字查找从当前 Frame 开始，只有本层不存在时才沿 parent 向外继续。</p>
 
 可以把它实现为：
 
@@ -219,11 +220,15 @@ if isinstance(expr, Lambda):
 
 此时没有求值 `body`。Evaluator 只是把当前环境保存到函数对象中，这个环境称为函数的 **defining environment（定义环境）**。
 
-```text
-Lambda AST + 当前 Environment
-              ↓ evaluate
-UserProcedure(parameters, body, closure)
-```
+{% mermaid %}
+flowchart LR
+    L["Lambda AST<br/>parameters + body"] --> BUILD["Eval Lambda"]
+    E["当前 Environment"] --> BUILD
+    BUILD --> P["UserProcedure"]
+    P --> PARAMS["parameters"]
+    P --> BODY["body AST"]
+    P --> CLOSURE["closure → defining Environment"]
+{% endmermaid %}
 
 这就是闭包机制的基础：代码离开定义位置后，仍然携带解释自由变量所需的环境。
 
@@ -312,41 +317,38 @@ call_environment = procedure.closure.child(bindings)
 
 ### 7.1 调用 `make-adder`
 
-```text
-global frame
-└── make-adder → UserProcedure(closure=global)
-
-调用 (make-adder 3)
-        ↓
-创建 frame f1
-├── x = 3
-└── parent → global
-```
+{% mermaid %}
+flowchart TB
+    GLOBAL["global frame<br/>make-adder → UserProcedure"]
+    MAKE["make-adder<br/>closure → global"] -.closure.-> GLOBAL
+    CALL["调用 make-adder(3)"] --> F1["frame f1<br/>x = 3"]
+    F1 -->|parent| GLOBAL
+    MAKE --> CALL
+{% endmermaid %}
 
 函数体是另一个 Lambda。求值它时创建新的 UserProcedure，并把当前环境 `f1` 保存为 closure：
 
-```text
-add3 → UserProcedure
-       ├── parameters: (y)
-       ├── body: (add x y)
-       └── closure → f1
-                      ├── x = 3
-                      └── parent → global
-```
+{% mermaid %}
+flowchart LR
+    ADD3["add3<br/>parameters: y<br/>body: add(x, y)"] -->|closure| F1["frame f1<br/>x = 3"]
+    F1 -->|parent| GLOBAL["global frame<br/>add = Primitive"]
+{% endmermaid %}
 
 `make-adder` 已经返回，但 `add3` 仍然引用 `f1`，因此 `f1` 不能被回收。闭包保存的不是一次计算后的 `x` 文本替换，而是能够执行名字查找的环境关系。
 
 ### 7.2 调用 `add3`
 
-```text
-调用 (add3 10)
-        ↓
-创建 frame f2
-├── y = 10
-└── parent → add3.closure → f1
-                                ├── x = 3
-                                └── parent → global
-```
+{% mermaid %}
+flowchart LR
+    CALL["调用 add3(10)"] --> F2["frame f2<br/>y = 10"]
+    F2 -->|parent = add3.closure| F1["frame f1<br/>x = 3"]
+    F1 -->|parent| GLOBAL["global frame<br/>add = Primitive"]
+    F2 -.lookup y.-> F2
+    F2 -.lookup x.-> F1
+    F2 -.lookup add.-> GLOBAL
+{% endmermaid %}
+
+<p class="cp-figure-caption">调用结束后，add3 仍引用 f1；这条引用就是外层变量 x 能继续存活的原因。</p>
 
 求值 `(add x y)`：
 
@@ -383,13 +385,16 @@ Closure = Function Code + Defining Environment
 
 词法作用域根据函数**定义在哪里**决定名字查找路径，所以 `read-x` 的 closure 指向 global，结果是 100。
 
-```text
-Lexical scope：parent = procedure.closure
-               看定义位置
-
-Dynamic scope：parent = caller environment
-               看调用位置
-```
+{% mermaid %}
+flowchart TB
+    subgraph LEXICAL["Lexical scope：看定义位置"]
+      LC["read-x 调用帧"] -->|parent = procedure.closure| LG["global frame<br/>x = 100"]
+    end
+    subgraph DYNAMIC["Dynamic scope：看调用位置"]
+      DC["read-x 调用帧"] -->|parent = caller environment| DL["调用者 frame<br/>x = 1"]
+    end
+    LG -.对比查找结果.-> DC
+{% endmermaid %}
 
 如果 Apply 错误地把当前调用者环境作为 parent，`read-x` 会看到调用者参数 `x=1`，语言就变成了另一种作用域规则。作用域不是“字典查找的实现细节”，而是语言语义的一部分。
 
@@ -397,15 +402,16 @@ Dynamic scope：parent = caller environment
 
 加入用户函数后，完整关系更加清楚：
 
-```text
-evaluate(Call)
-    ↓ evaluate operator and arguments
-apply(UserProcedure)
-    ↓ create child environment
-evaluate(procedure.body)
-    ↓ body may contain another Call
-apply(...)
-```
+{% mermaid %}
+flowchart TB
+    EC["Eval Call"] --> PARTS["Eval operator 与 arguments"]
+    PARTS --> APPLY["Apply UserProcedure"]
+    APPLY --> FRAME["创建 child Environment"]
+    FRAME --> BODY["Eval procedure.body"]
+    BODY -->|body 中再次出现 Call| EC
+    BODY -->|Number 等基础节点| VALUE["Runtime value"]
+    APPLY -->|Primitive| HOST["调用受控宿主实现"]
+{% endmermaid %}
 
 递归的终点有两类：
 
@@ -523,22 +529,15 @@ def evaluate(expr, environment, context):
 
 受控 AST 和 allowlist 是必要条件，但还不是完整沙箱。一个允许递归和外部操作的解释器至少应考虑：
 
-```text
-输入限制
-    最大字符数、Token 数、AST 深度和节点数
+{% mermaid %}
+flowchart TB
+    INPUT["输入限制<br/>字符 · Token · AST 深度"] --> SEMANTIC["语义限制<br/>节点 · 操作 · 参数 schema"]
+    SEMANTIC --> COMPUTE["计算限制<br/>步数 · 调用深度 · 超时 · 输出"]
+    COMPUTE --> CAPABILITY["能力限制<br/>文件 · 网络 · 数据库 · 进程"]
+    CAPABILITY --> ISOLATION["隔离限制<br/>独立进程 · 容器 · 受限账户"]
+{% endmermaid %}
 
-语义限制
-    允许的节点、操作、参数 schema 和数据类型
-
-计算限制
-    最大步数、调用深度、输出大小和 wall-clock timeout
-
-能力限制
-    文件、网络、数据库和进程权限
-
-隔离限制
-    独立进程、容器或受限运行账户
-```
+<p class="cp-figure-caption">安全执行不是某一个开关，而是从输入到操作系统的多层约束。</p>
 
 其中有几个容易混淆的点：
 
@@ -596,22 +595,17 @@ Interpreter defect
 
 三篇笔记最终得到的不是一个巨大的 `eval` 函数，而是一组可以独立演进的组件：
 
-```text
-Source Adapter
-    ↓ 接收文本或结构化输入
-Tokenizer / Parser
-    ↓ 生成 AST
-Validator / Normalizer
-    ↓ 生成受控 IR
-Evaluator
-    ├── Environment：名字与作用域
-    ├── Procedure：Primitive / UserProcedure
-    └── ExecutionContext：权限、预算、追踪
-        ↓
-Capability Registry
-    ↓ 只暴露允许的宿主操作
-External Systems
-```
+{% mermaid %}
+flowchart LR
+    SOURCE["Source Adapter"] --> PARSER["Tokenizer / Parser"]
+    PARSER --> VALIDATOR["Validator / Normalizer"]
+    VALIDATOR --> EVALUATOR["Evaluator"]
+    ENV["Environment<br/>名字与作用域"] --> EVALUATOR
+    PROC["Procedure<br/>Primitive / UserProcedure"] --> EVALUATOR
+    CONTEXT["ExecutionContext<br/>权限 · 预算 · 追踪"] --> EVALUATOR
+    EVALUATOR --> REGISTRY["Capability Registry"]
+    REGISTRY --> EXTERNAL["External Systems"]
+{% endmermaid %}
 
 这种分层允许分别替换：
 
@@ -623,23 +617,29 @@ External Systems
 
 ## 16. 把第三章串起来
 
-```text
-程序先是 Source Text
-    ↓ Tokenizer
-成为 Token Stream
-    ↓ Parser
-成为 AST
-    ↓ Validator / Normalizer
-成为受控 IR
-    ↓ Eval
-表达式变成 Runtime Value
-    ↓ Apply
-Primitive 或 UserProcedure 被执行
-    ↓ Environment
-名字、作用域和闭包获得含义
-    ↓ ExecutionContext
-权限、预算和可观测性约束整个过程
-```
+{% mermaid %}
+mindmap
+  root((MiniExpr 运行时))
+    程序表示
+      Source
+      Token Stream
+      AST
+      受控 IR
+    求值机制
+      Eval
+      Apply
+      Primitive
+      UserProcedure
+    抽象能力
+      Environment
+      Closure
+      Lexical scope
+    工程边界
+      ExecutionContext
+      Capability Registry
+      资源限制
+      可观测性
+{% endmermaid %}
 
 需要保留的几个判断：
 
