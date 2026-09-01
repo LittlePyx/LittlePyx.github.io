@@ -1,0 +1,530 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>可变状态：对象身份与消息传递从何而来 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Composing Programs 第二章笔记之二：区分绑定、变异与 nonlocal 赋值，并从闭包的局部状态推导对象身份、消息传递和 dispatch dictionary。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="可变状态：对象身份与消息传递从何而来">
+<meta property="og:url" content="https://littlepyx.github.io/2026/08/24/composing-programs-mutable-state/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="Composing Programs 第二章笔记之二：区分绑定、变异与 nonlocal 赋值，并从闭包的局部状态推导对象身份、消息传递和 dispatch dictionary。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-mutable-state-nature-cover.jpg">
+<meta property="article:published_time" content="2026-08-24T03:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-28T07:25:44.890Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Composing Programs">
+<meta property="article:tag" content="Mutable State">
+<meta property="article:tag" content="Object-Oriented Programming">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/composing-programs-mutable-state-nature-cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "可变状态：对象身份与消息传递从何而来",
+  "url": "https://littlepyx.github.io/2026/08/24/composing-programs-mutable-state/",
+  "image": "https://littlepyx.github.io/img/composing-programs-mutable-state-nature-cover.jpg",
+  "datePublished": "2026-08-24T03:00:00.000Z",
+  "dateModified": "2026-08-28T07:25:44.890Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "LittlePyx",
+      "url": "https://littlepyx.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/2026/08/24/composing-programs-mutable-state/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '可变状态：对象身份与消息传递从何而来',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-mutable-state-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">可变状态：对象身份与消息传递从何而来</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">可变状态：对象身份与消息传递从何而来</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-24T03:00:00.000Z" title="发表于 2026-08-24 11:00:00">2026-08-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-28T07:25:44.890Z" title="更新于 2026-08-28 15:25:44">2026-08-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>数据抽象隐藏一个值怎样表示；可变数据进一步提出了时间问题：如果这个值会变化，怎样确认变化的是哪一个对象，谁能观察到变化，又由谁管理它的历史？</p>
+<p>这正是对象思想出现的位置。对象不只是把若干字段放在一起，而是让一个具有身份的实体保存自己的状态，并通过一组操作管理状态。</p>
+<p>本篇对应教材：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/24-mutable-data.html">2.4 Mutable Data</a></li>
+</ul>
+<p>其中列表、字典的基础 API 从略，约束传播只在结尾说明设计意义。</p>
+<h2 id="1-状态是一个随历史演化的值">1. 状态是一个随历史演化的值</h2>
+<p>不可变抽象通常可以由组成部分完全刻画：有理数由分子、分母的比例决定，一棵不可变树由标签和所有分支决定。只要组成部分相同，就可以在推理时把它们视为相同的值。</p>
+<p>可变对象则代表一个随时间演化的实体：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">对象在 t0 的状态 ──操作 A──&gt; 对象在 t1 的状态 ──操作 B──&gt; 对象在 t2 的状态</span><br></pre></td></tr></table></figure>
+<p>操作的结果可能依赖此前发生过什么。两次参数完全相同的取款，可能因为余额已经改变而产生不同结果。<strong>State（状态）</strong> 不是某次孤立的值，而是一个对象在当前执行时刻所保存的信息。</p>
+<p>这带来面向对象的第一块基础：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">对象 = 能跨越多个操作保持身份、同时让内部状态演化的实体</span><br></pre></td></tr></table></figure>
+<p>行为会在后面加入；这里先把“变化发生在哪里”说清楚。</p>
+<h2 id="2-Binding、Rebinding-与-Mutation">2. Binding、Rebinding 与 Mutation</h2>
+<p>Python 中容易被统称为“赋值”的操作，实际上可能改变完全不同的东西。</p>
+<h3 id="2-1-Name-binding：让名字指向对象">2.1 Name binding：让名字指向对象</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">y = x</span><br></pre></td></tr></table></figure>
+<p>第二条语句没有复制列表，也没有修改列表，只是在当前环境中建立了另一个绑定：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x ──┐</span><br><span class="line">    ├──&gt; list [1, 2]</span><br><span class="line">y ──┘</span><br></pre></td></tr></table></figure>
+<p>变量不是装对象的盒子，更接近环境中指向对象的名字。执行 <code>y = x</code> 时，先求出表达式 <code>x</code> 所引用的对象，再把名字 <code>y</code> 绑定到同一对象。</p>
+<h3 id="2-2-Rebinding：让名字改指另一个对象">2.2 Rebinding：让名字改指另一个对象</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = x + [<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+<p>列表加法创建一个新列表，然后把 <code>x</code> 重新绑定到它：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x ─────&gt; list [1, 2, 3]</span><br><span class="line">y ─────&gt; list [1, 2]</span><br></pre></td></tr></table></figure>
+<p>旧列表没有变化，所以 <code>y</code> 仍看到 <code>[1, 2]</code>。变化发生在环境的名字—对象关系中，而不在原列表内部。</p>
+<h3 id="2-3-Mutation：改变对象本身">2.3 Mutation：改变对象本身</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y.append(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p><code>append</code> 改变 <code>y</code> 指向的列表对象，没有让 <code>y</code> 改指新对象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x ─────&gt; list [1, 2, 3]</span><br><span class="line">y ─────&gt; list [1, 2, 3]  # 原对象被改变</span><br></pre></td></tr></table></figure>
+<p>在本例中两个列表碰巧内容相同，但仍是两个不同对象。判断 mutation 的关键问题是：执行前后被操作对象的身份是否保持不变，而其可观察内容是否发生变化。</p>
+<h3 id="2-4-Nonlocal-rebinding：改变外层环境中的绑定">2.4 Nonlocal rebinding：改变外层环境中的绑定</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">outer</span>():</span><br><span class="line">    x = [<span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">replace</span>():</span><br><span class="line">        <span class="keyword">nonlocal</span> x</span><br><span class="line">        x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> replace</span><br></pre></td></tr></table></figure>
+<p><code>nonlocal x</code> 声明后，<code>x = ...</code> 不会在 <code>replace</code> 的局部 frame 中创建 <code>x</code>，而会重新绑定 <code>outer</code> frame 中已有的名字。它仍然是 <strong>rebinding</strong>，不是对旧列表的 mutation。</p>
+<p>四种情况可以放在一起比较：</p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th style="text-align:right">改变环境绑定</th>
+<th style="text-align:right">改变已有对象</th>
+<th style="text-align:right">其他别名能否看到对象内容变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x = y</code></td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">否</td>
+<td style="text-align:right">不适用，只是增加或替换引用</td>
+</tr>
+<tr>
+<td><code>x = x + [v]</code></td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">否</td>
+<td style="text-align:right">否</td>
+</tr>
+<tr>
+<td><code>x.append(v)</code></td>
+<td style="text-align:right">否</td>
+<td style="text-align:right">是</td>
+<td style="text-align:right">能</td>
+</tr>
+<tr>
+<td><code>nonlocal x; x = value</code></td>
+<td style="text-align:right">是，外层 frame</td>
+<td style="text-align:right">否</td>
+<td style="text-align:right">指向旧对象的别名不受影响</td>
+</tr>
+</tbody>
+</table>
+<p><code>+=</code> 需要单独判断：对列表通常执行原地扩展，对整数则产生新整数并重新绑定。不要仅凭运算符外观判断 mutation，应看该类型具体实现了什么行为。</p>
+<h2 id="3-Aliasing-让局部操作产生非局部影响">3. Aliasing 让局部操作产生非局部影响</h2>
+<p><strong>Aliasing（别名共享）</strong> 指多个名字或容器位置引用同一个对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">suits = [<span class="string">&#x27;heart&#x27;</span>, <span class="string">&#x27;diamond&#x27;</span>]</span><br><span class="line">alias = suits</span><br><span class="line">alias.append(<span class="string">&#x27;spade&#x27;</span>)</span><br><span class="line"></span><br><span class="line">suits  <span class="comment"># [&#x27;heart&#x27;, &#x27;diamond&#x27;, &#x27;spade&#x27;]</span></span><br></pre></td></tr></table></figure>
+<p><code>append</code> 语句中没有出现 <code>suits</code>，但通过共享对象，<code>suits</code> 的可观察值仍然发生了变化。这是 mutation 增加推理成本的主要原因：影响范围不再只由语句中出现的名字决定，还由运行时引用图决定。</p>
+<p>这里的“复制”需要按层理解。<strong>浅复制会创建新的外层容器，但容器中的元素仍然是对原对象的引用</strong>，不会继续复制内部对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">a = [[<span class="number">1</span>, <span class="number">2</span>]]</span><br><span class="line">b = a.copy()</span><br><span class="line"></span><br><span class="line">b <span class="keyword">is</span> a        <span class="comment"># False：a、b 是两个不同的外层列表</span></span><br><span class="line">b[<span class="number">0</span>] <span class="keyword">is</span> a[<span class="number">0</span>]  <span class="comment"># True：它们仍然引用同一个内层列表</span></span><br><span class="line"></span><br><span class="line">b.append([<span class="number">3</span>, <span class="number">4</span>])  <span class="comment"># 只改变 b 的外层结构</span></span><br><span class="line">b[<span class="number">0</span>].append(<span class="number">99</span>)   <span class="comment"># 修改两者共享的内层列表</span></span><br><span class="line"></span><br><span class="line">a  <span class="comment"># [[1, 2, 99]]</span></span><br><span class="line">b  <span class="comment"># [[1, 2, 99], [3, 4]]</span></span><br></pre></td></tr></table></figure>
+<p>因此，浅复制只让最外层彼此独立：对 <code>b</code> 执行 <code>append</code>、<code>pop</code> 或替换 <code>b[i]</code>，不会改变 <code>a</code>；但通过 <code>b[i]</code> 修改共享的可变对象时，变化也能从 <code>a</code> 中看到。只有需要把嵌套对象也递归复制时，才考虑 <code>copy.deepcopy</code>。</p>
+<h3 id="3-1-默认参数也可能形成隐蔽别名">3.1 默认参数也可能形成隐蔽别名</h3>
+<p>函数默认参数在 <code>def</code> 执行时求值一次，而不是每次调用时重新创建：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">collect</span>(<span class="params">item, bucket=[]</span>):</span><br><span class="line">    bucket.append(item)</span><br><span class="line">    <span class="keyword">return</span> bucket</span><br><span class="line"></span><br><span class="line">collect(<span class="string">&#x27;a&#x27;</span>)  <span class="comment"># [&#x27;a&#x27;]</span></span><br><span class="line">collect(<span class="string">&#x27;b&#x27;</span>)  <span class="comment"># [&#x27;a&#x27;, &#x27;b&#x27;]</span></span><br></pre></td></tr></table></figure>
+<p>两次调用省略 <code>bucket</code> 时，参数都绑定到同一个默认列表。问题不是“默认参数不能是列表”，而是这份可变对象的生命周期与函数对象相同，多个调用意外共享了它。</p>
+<p>通常应把“没有传入容器”和“传入一个已有容器”分开：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">collect</span>(<span class="params">item, bucket=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">if</span> bucket <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        bucket = []</span><br><span class="line">    bucket.append(item)</span><br><span class="line">    <span class="keyword">return</span> bucket</span><br></pre></td></tr></table></figure>
+<p>类字段也有类似问题。<code>dataclasses.field(default_factory=list)</code> 的意义，就是让每个实例通过工厂获得独立列表，而不是共享类定义阶段创建的同一个对象。</p>
+<h2 id="4-Equality-与-Identity-回答不同问题">4. Equality 与 Identity 回答不同问题</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a = [<span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">b = [<span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">c = a</span><br><span class="line"></span><br><span class="line">a == b  <span class="comment"># True</span></span><br><span class="line">a <span class="keyword">is</span> b  <span class="comment"># False</span></span><br><span class="line">a <span class="keyword">is</span> c  <span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>==</code> 检查 <strong>equality（相等性）</strong>：两个值在类型规定的比较规则下是否相等；</li>
+<li><code>is</code> 检查 <strong>identity（同一性）</strong>：两个表达式是否得到同一个对象。</li>
+</ul>
+<p>Identity 是比当前内容相等更强的关系。如果 <code>a is c</code>，通过任意一个引用修改对象，另一个引用都会观察到同一次变化；<code>a == b</code> 只说明当前比较结果相等，不说明它们共享未来历史。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">相等：现在看起来是否表示相同内容？</span><br><span class="line">同一：是否就是引用图中的同一个节点？</span><br></pre></td></tr></table></figure>
+<p>所有 Python 对象都有身份，但对不可变值，身份通常不构成有用的业务语义：既然对象不能被修改，两个相等整数是否为同一实例通常不可观察，也不应该依赖解释器的缓存细节。因此，除 <code>None</code> 等单例哨兵外，不应使用 <code>is</code> 比较数值或字符串内容。</p>
+<p>Mutation 没有创造身份，而是让身份变得难以忽略。两个余额同为 100 的账户可能是两个账户；一个账户取款后余额改变，仍是原来的账户。</p>
+<h2 id="5-Closure-如何保存-Local-State">5. Closure 如何保存 Local State</h2>
+<p>函数也可以拥有随调用演化的局部状态。教材用账户取款说明这一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_withdraw</span>(<span class="params">balance</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">withdraw</span>(<span class="params">amount</span>):</span><br><span class="line">        <span class="keyword">nonlocal</span> balance</span><br><span class="line">        <span class="keyword">if</span> amount &gt; balance:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;Insufficient funds&#x27;</span></span><br><span class="line">        balance -= amount</span><br><span class="line">        <span class="keyword">return</span> balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> withdraw</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">withdraw = make_withdraw(<span class="number">100</span>)</span><br><span class="line">withdraw(<span class="number">25</span>)  <span class="comment"># 75</span></span><br><span class="line">withdraw(<span class="number">25</span>)  <span class="comment"># 50</span></span><br></pre></td></tr></table></figure>
+<p>两次 <code>withdraw(25)</code> 的参数相同，结果却不同，因为第二次调用读取的是第一次调用修改后的 <code>balance</code>。</p>
+<h3 id="5-1-运行时发生了什么">5.1 运行时发生了什么</h3>
+<p>调用 <code>make_withdraw(100)</code> 时：</p>
+<ol>
+<li>创建外层环境 <code>E1</code>，其中 <code>balance = 100</code>；</li>
+<li>创建 <code>withdraw</code> 函数，并让它记住自己的定义环境 <code>E1</code>；</li>
+<li><code>make_withdraw</code> 返回后，<code>E1</code> 仍被 <code>withdraw</code> 引用，因此不会消失；</li>
+<li>每次调用 <code>withdraw</code> 都会创建一个临时调用 frame，其 parent 都是同一个 <code>E1</code>；</li>
+<li><code>nonlocal balance</code> 修改的是 <code>E1</code> 中的 <code>balance</code>，所以状态能够延续到下一次调用。</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">创建闭包：</span><br><span class="line">withdraw 函数 ──记住定义环境──&gt; E1 &#123; balance = 100 &#125;</span><br><span class="line"></span><br><span class="line">第一次调用 withdraw(25)：</span><br><span class="line">临时 frame W1 &#123; amount = 25 &#125; ──parent──&gt; E1 &#123; balance: 100 → 75 &#125;</span><br><span class="line">调用结束后 W1 消失，E1 继续存在</span><br><span class="line"></span><br><span class="line">第二次调用 withdraw(25)：</span><br><span class="line">临时 frame W2 &#123; amount = 25 &#125; ──parent──&gt; E1 &#123; balance: 75 → 50 &#125;</span><br><span class="line">调用结束后 W2 消失，E1 继续存在</span><br></pre></td></tr></table></figure>
+<p>两次调用不是同时共享一个调用 frame，而是先后创建 <code>W1</code>、<code>W2</code>，并共同访问闭包保留下来的 <code>E1</code>。闭包保存的也不是 <code>balance</code> 的数值快照，而是它所在的定义环境，因此第二次调用能够读到第一次调用留下的 <code>75</code>。</p>
+<h3 id="5-2-为什么不同闭包拥有独立状态">5.2 为什么不同闭包拥有独立状态</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">alice = make_withdraw(<span class="number">100</span>)</span><br><span class="line">bob = make_withdraw(<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line">alice(<span class="number">30</span>)  <span class="comment"># 70</span></span><br><span class="line">bob(<span class="number">30</span>)    <span class="comment"># 70</span></span><br><span class="line">alice(<span class="number">10</span>)  <span class="comment"># 60</span></span><br><span class="line">bob(<span class="number">10</span>)    <span class="comment"># 60</span></span><br></pre></td></tr></table></figure>
+<p>两次调用 <code>make_withdraw</code> 创建两个不同的外层 frame，也创建两个不同的 <code>balance</code> 绑定。<code>alice</code> 和 <code>bob</code> 共享函数代码的结构，却不共享状态所在的环境。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alice ──&gt; withdraw code + environment A(balance=60)</span><br><span class="line">bob   ──&gt; withdraw code + environment B(balance=60)</span><br></pre></td></tr></table></figure>
+<p>即使当前余额相同，它们仍拥有不同身份和独立历史。这已经非常接近类的多个实例：共享行为定义，每个实例保存自己的状态。</p>
+<h2 id="6-nonlocal-修改绑定，容器-mutation-修改对象">6. <code>nonlocal</code> 修改绑定，容器 mutation 修改对象</h2>
+<p>闭包状态并不总需要 <code>nonlocal</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_log</span>():</span><br><span class="line">    records = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">message</span>):</span><br><span class="line">        records.append(message)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(records)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> write</span><br></pre></td></tr></table></figure>
+<p><code>write</code> 只读取外层名字 <code>records</code>，再修改它所指向的列表；没有对 <code>records</code> 重新赋值，所以不需要 <code>nonlocal</code>。</p>
+<p>对比另一种实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_log</span>():</span><br><span class="line">    records = ()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">message</span>):</span><br><span class="line">        <span class="keyword">nonlocal</span> records</span><br><span class="line">        records = records + (message,)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(records)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> write</span><br></pre></td></tr></table></figure>
+<p>这里元组不可变，只能构造新元组并让外层名字改指它，因此必须声明 <code>nonlocal records</code>。</p>
+<p>两者都能保存历史，但状态转移机制不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">列表版本：外层绑定不变，所指对象发生 mutation</span><br><span class="line">元组版本：旧对象不变，外层绑定发生 rebinding</span><br></pre></td></tr></table></figure>
+<p>如果在函数体中对名字赋值却没有 <code>nonlocal</code>，Python 会在函数执行前把它判定为局部名字；赋值前读取它可能触发 <code>UnboundLocalError</code>。<code>nonlocal</code> 的作用不是让内层函数“看见”外层名字——读取本来就可以——而是明确赋值应该落在哪个外层 frame。</p>
+<h2 id="7-Side-Effect-改变了程序的推理方式">7. Side Effect 改变了程序的推理方式</h2>
+<p><strong>Side effect（副作用）</strong> 是求值在返回结果之外对程序状态造成的可观察改变，例如修改列表、重新绑定闭包状态、写文件或发送网络请求。</p>
+<p>纯函数的调用可以近似按代数表达式推理：相同输入产生相同输出，调用表达式可以用其值替换，而不改变程序其他部分的行为。这种性质称为 <strong>referential transparency（引用透明性）</strong>。</p>
+<p>有状态函数不满足这一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">withdraw(<span class="number">25</span>) + withdraw(<span class="number">25</span>)</span><br></pre></td></tr></table></figure>
+<p>不能把两次 <code>withdraw(25)</code> 当作同一个值，因为第一次调用会改变第二次调用的环境。调用顺序、调用次数以及共享状态的别名都会进入结果。</p>
+<p>Mutation 的收益同样明确：</p>
+<ul>
+<li>可以自然模拟账户、用户会话、游戏角色等随历史演化的实体；</li>
+<li>多个操作可以围绕同一份状态协作；</li>
+<li>更新大型结构时不必每次完整复制；</li>
+<li>缓存等机制可以用额外空间减少重复计算。</li>
+</ul>
+<p>代价是：</p>
+<ul>
+<li>结果不再只由显式参数决定；</li>
+<li>别名使影响范围扩大；</li>
+<li>操作顺序变成语义的一部分；</li>
+<li>测试必须准备和清理状态；</li>
+<li>并发访问共享状态时需要额外协调。</li>
+</ul>
+<p>可变状态不是应该彻底避免的错误，而是一种需要明确所有权和边界的能力。</p>
+<h2 id="8-延伸：状态的生命周期与并发边界">8. 延伸：状态的生命周期与并发边界</h2>
+<p>看到一个可变对象时，除了分析“谁能修改”，还应分析它能活多久：</p>
+<table>
+<thead>
+<tr>
+<th>状态位置</th>
+<th>典型生命周期</th>
+<th>常见风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>函数局部变量</td>
+<td>一次调用</td>
+<td>通常容易推理</td>
+</tr>
+<tr>
+<td>闭包环境</td>
+<td>与返回函数的可达时间一致</td>
+<td>测试之间复用闭包导致状态残留</td>
+</tr>
+<tr>
+<td>实例属性</td>
+<td>与实例一致</td>
+<td>多个调用者共享同一实例</td>
+</tr>
+<tr>
+<td>类属性</td>
+<td>与类对象一致</td>
+<td>被所有实例意外共享</td>
+</tr>
+<tr>
+<td>模块全局变量</td>
+<td>通常与进程一致</td>
+<td>隐式依赖、并发竞争、测试污染</td>
+</tr>
+</tbody>
+</table>
+<p>状态位置本身不是好坏判断；关键是生命周期是否符合业务语义，所有权是否清楚。</p>
+<h3 id="8-1-await-两侧的状态可能已经变化">8.1 <code>await</code> 两侧的状态可能已经变化</h3>
+<p>Python 使用异步程序处理网络请求、数据库访问等需要等待的操作。<code>async def</code> 定义异步函数；其中的 <code>await</code> 表示：<strong>暂停当前任务，等待异步操作完成，同时把执行机会交给其他任务。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">load_data</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;开始请求&#x27;</span>)</span><br><span class="line">    data = <span class="keyword">await</span> fetch_data()  <span class="comment"># 当前任务可能在这里暂停</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;收到结果&#x27;</span>)           <span class="comment"># 等待完成后从这里继续</span></span><br><span class="line">    <span class="keyword">return</span> data</span><br></pre></td></tr></table></figure>
+<p>暂停的是当前任务，而不是整个程序。当前任务等待时，事件循环可以运行其他任务；等 <code>fetch_data()</code> 完成后，再回来继续执行。因此，可以把 <code>await</code> 看作一个<strong>可能发生任务切换的边界</strong>。</p>
+<p>如果在 <code>await</code> 之前读取共享状态，恢复后再根据旧值写回，就可能覆盖等待期间发生的更新：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">withdraw</span>(<span class="params">account, amount</span>):</span><br><span class="line">    old_balance = account.balance</span><br><span class="line">    <span class="keyword">await</span> check_risk(amount)  <span class="comment"># 等待期间，其他任务可以操作同一账户</span></span><br><span class="line">    account.balance = old_balance - amount</span><br></pre></td></tr></table></figure>
+<p>假设余额最初为 <code>100</code>，两个取款任务交错执行：</p>
+<table>
+<thead>
+<tr>
+<th>执行顺序</th>
+<th>任务 A：取 30</th>
+<th>任务 B：取 50</th>
+<th style="text-align:right">账户余额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>读取 <code>old_balance = 100</code></td>
+<td></td>
+<td style="text-align:right">100</td>
+</tr>
+<tr>
+<td>2</td>
+<td>在 <code>await</code> 处暂停</td>
+<td></td>
+<td style="text-align:right">100</td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td>读取 <code>old_balance = 100</code></td>
+<td style="text-align:right">100</td>
+</tr>
+<tr>
+<td>4</td>
+<td>恢复并写入 <code>100 - 30</code></td>
+<td></td>
+<td style="text-align:right">70</td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td>恢复并写入 <code>100 - 50</code></td>
+<td style="text-align:right">50</td>
+</tr>
+</tbody>
+</table>
+<p>两次取款合计为 <code>80</code>，正确余额应该是 <code>20</code>，结果却是 <code>50</code>。任务 B 使用了暂停前读取的旧余额，覆盖了任务 A 的结果，这叫作 <strong>lost update（丢失更新）</strong>。</p>
+<p><code>await</code> 本身不会修改账户；风险来自等待期间其他任务可能修改同一个对象。因此，每次越过 <code>await</code> 后，都应重新判断此前读取的共享状态是否仍然有效。解决思路不是“禁止使用 <code>await</code>”，而是让共享状态的更新能够按顺序完成。</p>
+<p><strong>方式一：使用 <code>asyncio.Lock</code> 保护进程内状态。</strong> 锁让同一时刻只有一个异步任务进入临界区，其他任务需要等待：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">account_lock = asyncio.Lock()</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">withdraw</span>(<span class="params">account, amount</span>):</span><br><span class="line">    <span class="keyword">await</span> check_risk(amount)  <span class="comment"># 不访问余额的等待尽量放在锁外</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">with</span> account_lock:</span><br><span class="line">        <span class="keyword">if</span> account.balance &lt; amount:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&#x27;Insufficient funds&#x27;</span>)</span><br><span class="line">        account.balance -= amount</span><br><span class="line">        <span class="keyword">return</span> account.balance</span><br></pre></td></tr></table></figure>
+<p>这里的“检查余额—扣除余额”在锁内连续完成，任务 B 只能在任务 A 释放锁后读取余额。<code>asyncio.Lock</code> 只协调同一事件循环中的异步任务；它不能直接保护多个进程或多台服务器共同访问的数据。</p>
+<p><strong>方式二：让单一所有者顺序处理消息。</strong> 规定只有账户管理任务可以修改余额，其他任务只能发送请求：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">任务 A ── withdraw(30) ──┐</span><br><span class="line">                         ├──&gt; 账户管理任务：按顺序修改 balance</span><br><span class="line">任务 B ── withdraw(50) ──┘</span><br></pre></td></tr></table></figure>
+<p>这样不需要多个任务直接争用同一个对象。队列消费者、Actor 和事件循环中的状态机都使用了类似思想。</p>
+<p><strong>方式三：让数据库执行事务或原子更新。</strong> 如果余额存储在数据库中，进程内锁无法协调多个服务实例，更适合让数据库一次完成检查与更新：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> accounts</span><br><span class="line"><span class="keyword">SET</span> balance <span class="operator">=</span> balance <span class="operator">-</span> <span class="number">30</span></span><br><span class="line"><span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> balance <span class="operator">&gt;=</span> <span class="number">30</span>;</span><br></pre></td></tr></table></figure>
+<p>这里的更新由数据库作为一个整体处理，不需要 Python 先读取余额再写回。是否成功可以通过受影响的行数判断。对于账户、库存、订单等持久化状态，数据库事务或原子更新通常才是正确的一致性边界。</p>
+<p>更根本的设计原则是<strong>减少共享可变状态</strong>：让任务分别计算并返回结果，再由一个明确的所有者统一更新。共享写入点越少，需要推理的执行顺序也越少。</p>
+<p><strong>GIL 为什么不能代替这些机制？</strong> GIL（Global Interpreter Lock，全局解释器锁）是启用 GIL 的 CPython 用来保护解释器内部状态的一把锁。它通常只允许一个线程在某一时刻执行 Python 字节码，但它不理解“取款”这样的业务操作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">读取余额 → await → 检查条件 → 写回余额</span><br></pre></td></tr></table></figure>
+<p>这仍然是多个步骤。异步任务可以在 <code>await</code> 处切换，线程也可能在步骤之间切换，所以 GIL 不会把整段逻辑自动变成 <strong>atomic operation（原子操作）</strong>。原子操作对其他执行者表现为一个不可分割的整体，只能看到操作前或操作后的状态，不能插入其中。</p>
+<p>因此需要区分两层安全性：GIL 主要保护解释器内部结构；<code>asyncio.Lock</code>、消息顺序、数据库事务等机制保护应用自己的状态不变量。即使使用可以关闭 GIL 的 free-threaded CPython，这些业务层同步仍然需要单独设计。</p>
+<h3 id="8-2-ContextVar-保存任务上下文，不负责共享业务状态">8.2 <code>ContextVar</code> 保存任务上下文，不负责共享业务状态</h3>
+<p>服务器可能在同一个线程中交替处理多个异步请求。每个请求都有自己的请求 ID：任务 A 应该始终读到 <code>A-001</code>，任务 B 应该始终读到 <code>B-002</code>，两者不能串号。</p>
+<p><code>ContextVar</code> 用来保存这种<strong>跟随当前执行上下文传播，但在不同任务之间相互隔离</strong>的信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> contextvars <span class="keyword">import</span> ContextVar</span><br><span class="line"></span><br><span class="line">request_id = ContextVar(<span class="string">&#x27;request_id&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">handle_request</span>(<span class="params">req</span>):</span><br><span class="line">    token = request_id.<span class="built_in">set</span>(req.<span class="built_in">id</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">await</span> process_request()</span><br><span class="line">        <span class="built_in">print</span>(request_id.get())  <span class="comment"># 仍然取得当前请求自己的 ID</span></span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        request_id.reset(token)</span><br></pre></td></tr></table></figure>
+<p>即使 <code>handle_request</code> 在 <code>await</code> 处暂停，恢复时也会使用这个任务对应的上下文。常见用途包括请求 ID、链路追踪 ID、当前用户以及日志上下文。<code>threading.local()</code> 按线程隔离数据，<code>ContextVar</code> 按当前执行上下文隔离数据；多个异步任务可能共用一个线程，因此异步代码通常使用 <code>ContextVar</code> 传递这类上下文。</p>
+<p>账户余额的需求正好相反。任务 A 取款后，任务 B 必须看到更新后的同一份余额：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">任务 A ──┐</span><br><span class="line">         ├──&gt; 同一个账户 balance</span><br><span class="line">任务 B ──┘</span><br></pre></td></tr></table></figure>
+<p>如果用 <code>ContextVar</code> 给每个任务保存一份余额，任务之间会看到各自的值，反而无法维护统一的账户状态。余额、订单状态、库存和共享缓存需要的是锁、消息顺序、数据库事务等协调机制。</p>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th>不同任务之间的期望</th>
+<th>合适机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求 ID、当前用户</td>
+<td>各自隔离，不能串号</td>
+<td><code>ContextVar</code></td>
+</tr>
+<tr>
+<td>线程专属连接或缓存</td>
+<td>各线程隔离</td>
+<td><code>threading.local()</code></td>
+</tr>
+<tr>
+<td>账户余额、订单状态</td>
+<td>共同看到一致的最新状态</td>
+<td>锁、单一所有者或数据库事务</td>
+</tr>
+</tbody>
+</table>
+<p>可以把区别记成一句话：<strong><code>ContextVar</code> 解决“不要串号”，锁和事务解决“不要改乱”。</strong></p>
+<p>需要注意，<code>ContextVar</code> 隔离的是变量在不同上下文中的绑定。如果多个上下文都绑定到同一个可变对象，对该对象的原地修改仍然可能被共同观察到；它不会自动执行深复制。</p>
+<h2 id="9-Dispatch-Function：让数据响应消息">9. Dispatch Function：让数据响应消息</h2>
+<p>如果一个闭包只有 <code>withdraw</code> 一种行为，它可以直接返回这个函数。若同一个状态需要支持存款、取款和查询，可以返回一个 <strong>dispatch function（分派函数）</strong>，由消息决定执行哪种行为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_account</span>(<span class="params">initial_balance</span>):</span><br><span class="line">    balance = initial_balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dispatch</span>(<span class="params">message, amount=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="keyword">nonlocal</span> balance</span><br><span class="line">        <span class="keyword">if</span> message == <span class="string">&#x27;deposit&#x27;</span>:</span><br><span class="line">            balance += amount</span><br><span class="line">            <span class="keyword">return</span> balance</span><br><span class="line">        <span class="keyword">if</span> message == <span class="string">&#x27;withdraw&#x27;</span>:</span><br><span class="line">            <span class="keyword">if</span> amount &gt; balance:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&#x27;Insufficient funds&#x27;</span></span><br><span class="line">            balance -= amount</span><br><span class="line">            <span class="keyword">return</span> balance</span><br><span class="line">        <span class="keyword">if</span> message == <span class="string">&#x27;balance&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> balance</span><br><span class="line">        <span class="keyword">raise</span> KeyError(message)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> dispatch</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">account = make_account(<span class="number">100</span>)</span><br><span class="line">account(<span class="string">&#x27;withdraw&#x27;</span>, <span class="number">30</span>)  <span class="comment"># 70</span></span><br><span class="line">account(<span class="string">&#x27;deposit&#x27;</span>, <span class="number">10</span>)   <span class="comment"># 80</span></span><br><span class="line">account(<span class="string">&#x27;balance&#x27;</span>)       <span class="comment"># 80</span></span><br></pre></td></tr></table></figure>
+<p>这里，<code>account</code> 从存储形态看是函数，从接口行为看却是一个能够保存余额、响应多种操作的账户对象。</p>
+<p><strong>Message passing（消息传递）</strong> 的纪律是：使用者不直接操作内部状态，而是发送抽象允许的消息，由数据自己决定如何响应。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">调用者 ──&#x27;withdraw&#x27;, 30──&gt; account dispatch ──&gt; 修改私有 balance</span><br></pre></td></tr></table></figure>
+<p>这比单纯闭包多了一层统一操作入口，也把数据抽象与状态封装连接了起来。</p>
+<h2 id="10-Dispatch-Dictionary：把消息查找交给映射">10. Dispatch Dictionary：把消息查找交给映射</h2>
+<p>大量 <code>if/elif</code> 可以换成字典查找。字典的 key 是消息，value 是负责响应消息的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_account</span>(<span class="params">initial_balance</span>):</span><br><span class="line">    balance = initial_balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">deposit</span>(<span class="params">amount</span>):</span><br><span class="line">        <span class="keyword">nonlocal</span> balance</span><br><span class="line">        balance += amount</span><br><span class="line">        <span class="keyword">return</span> balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">withdraw</span>(<span class="params">amount</span>):</span><br><span class="line">        <span class="keyword">nonlocal</span> balance</span><br><span class="line">        <span class="keyword">if</span> amount &gt; balance:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;Insufficient funds&#x27;</span></span><br><span class="line">        balance -= amount</span><br><span class="line">        <span class="keyword">return</span> balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_balance</span>():</span><br><span class="line">        <span class="keyword">return</span> balance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&#x27;deposit&#x27;</span>: deposit,</span><br><span class="line">        <span class="string">&#x27;withdraw&#x27;</span>: withdraw,</span><br><span class="line">        <span class="string">&#x27;balance&#x27;</span>: get_balance,</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">account = make_account(<span class="number">100</span>)</span><br><span class="line">account[<span class="string">&#x27;withdraw&#x27;</span>](<span class="number">30</span>)  <span class="comment"># 70</span></span><br><span class="line">account[<span class="string">&#x27;balance&#x27;</span>]()     <span class="comment"># 70</span></span><br></pre></td></tr></table></figure>
+<p>三个操作函数闭包在同一个 <code>make_account</code> frame 上，所以共同管理一份 <code>balance</code>。字典只负责消息到行为的映射，闭包环境负责保存状态。</p>
+<p>这时，对象系统的基本成分已经出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">闭包中的局部绑定  ≈ 实例状态</span><br><span class="line">闭包保存的环境    ≈ 实例的私有存储</span><br><span class="line">字典中的操作函数  ≈ 方法</span><br><span class="line">字典 key          ≈ 方法名</span><br><span class="line">查找 key 并调用   ≈ 发送消息</span><br><span class="line">构造外层函数      ≈ 创建实例</span><br></pre></td></tr></table></figure>
+<p>仍然缺少的是：怎样让许多实例共享同一组方法，怎样按名字查找实例与共享属性，以及怎样复用另一组行为。这些问题会引出 Class、attribute lookup、method binding 和 inheritance。</p>
+<h2 id="11-约束传播展示了另一种组织方向">11. 约束传播展示了另一种组织方向</h2>
+<p>教材最后用 connector 和 constraint 构造约束网络。普通函数通常选择单一方向，例如由摄氏度计算华氏度；约束系统声明两者之间必须满足的关系，再根据当前已知信息沿网络传播。</p>
+<p>它在本章中的意义不是某段 connector 代码，而是展示 mutation 与 message passing 能支持一种不同的计算组织方式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">单向函数：输入 → 固定过程 → 输出</span><br><span class="line">约束网络：局部关系 + 状态变化 → 多方向信息传播</span><br></pre></td></tr></table></figure>
+<p>Connector 保存当前值并响应设置、遗忘等消息；constraint 在收到通知后决定能否推导其他值。它们通过接口协作，而不直接越过边界修改彼此内部状态。</p>
+<h2 id="一句话总结">一句话总结</h2>
+<p>Mutation 让对象身份和执行历史成为程序语义的一部分；闭包把可变状态限制在局部环境中，dispatch 则让这份状态通过消息响应行为，从而形成对象的雏形。</p>
+<h2 id="容易混淆">容易混淆</h2>
+<ul>
+<li><strong>Rebinding 与 mutation</strong>：前者改变名字指向，后者改变名字所指对象；别名只能观察到后者对共享对象的影响。</li>
+<li><strong>Equality 与 identity</strong>：<code>==</code> 比较类型定义的值，<code>is</code> 判断是否为同一个对象；内容相等不代表共享历史。</li>
+<li><strong>闭包读取与 <code>nonlocal</code></strong>：读取自由变量不需要声明；只有要重新绑定外层名字时才需要 <code>nonlocal</code>。</li>
+<li><strong>状态与全局变量</strong>：二者都可变化，但闭包状态由特定返回函数持有，每次构造可产生独立环境，影响范围更容易控制。</li>
+</ul>
+<h2 id="关键判断与解释">关键判断与解释</h2>
+<h3 id="1-Rebinding-不会通过旧别名传播，mutation-会">1. Rebinding 不会通过旧别名传播，mutation 会</h3>
+<p>从相同的初始状态 <code>x = y = []</code> 分别观察两种操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = x + [<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>列表加法创建新列表，再把 <code>x</code> 重新绑定到新对象。<code>y</code> 仍指向原空列表，所以 <code>x == [1]</code>，<code>y == []</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.append(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p><code>append</code> 修改 <code>x</code>、<code>y</code> 共同引用的列表，两个名字都会观察到 <code>[1]</code>。区别不在赋值符号是否出现，而在变化发生于环境绑定还是共享对象。</p>
+<h3 id="2-独立闭包环境形成独立对象身份">2. 独立闭包环境形成独立对象身份</h3>
+<p>每次调用 <code>make_withdraw(100)</code> 都会创建新的外层 frame、新的 <code>balance</code> 绑定和新的返回函数。两个账户即使余额相同，也分别关联不同环境；对其中一个取款不会改变另一个。</p>
+<p>当前状态相等只说明 equality 层面的内容一致，独立的环境与变化历史说明 identity 不同。对象身份不能由某一时刻的字段值完全决定。</p>
+<h3 id="3-从可变容器改为不可变值会改变赋值机制">3. 从可变容器改为不可变值会改变赋值机制</h3>
+<p>列表版本可以执行 <code>records.append(item)</code>：外层名字 <code>records</code> 的绑定没有变化，只是列表对象被修改，所以内层函数读取这个名字即可。</p>
+<p>元组不可原地修改，追加元素需要执行 <code>records = records + (item,)</code>，这会构造新元组并重新绑定外层名字。内层函数要把赋值落到外层 frame，因而需要 <code>nonlocal records</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">list.append：mutation，不需要重新绑定 records</span><br><span class="line">tuple + item：创建新值并 rebinding，需要 nonlocal</span><br></pre></td></tr></table></figure>
+<h3 id="4-Dispatch-dictionary-已具备对象雏形，但没有完整类机制">4. Dispatch dictionary 已具备对象雏形，但没有完整类机制</h3>
+<p>Dispatch dictionary 已经具有局部状态、可调用行为、消息名和独立构造产生的身份。调用者通过 key 查找操作，而不是直接接触闭包中的状态。</p>
+<p>它尚未提供多个实例共享一份方法定义的标准结构，也没有实例—类两级属性查找、自动方法绑定、继承链、特殊方法协议和统一的实例创建过程。类系统不是凭空创造对象，而是在这个雏形上补齐共享、查找和复用机制。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/24-mutable-data.html">Composing Programs 2.4：Mutable Data</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/asyncio-sync.html">Python 文档：asyncio Synchronization Primitives</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/contextvars.html">Python 文档：contextvars — Context Variables</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/c-api/threads.html">Python 文档：Thread States and the Global Interpreter Lock</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/howto/free-threading-python.html">Python 文档：Python support for free threading</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/08/24/composing-programs-mutable-state/">https://littlepyx.github.io/2026/08/24/composing-programs-mutable-state/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Mutable-State/">Mutable State</a><a class="post-meta__tags" href="/tags/Object-Oriented-Programming/">Object-Oriented Programming</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-mutable-state-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解： 12345678910111213具体表示   ↓构造器、选择器与行为契约   ↓序列接口与递归数据   ↓可变状态、身份与消息传递   ↓类、实例、属性查找与方法绑定   ↓对象协议、泛型操作与多种表示   ↓表示选择对算法效率的影响 本篇先完成前两步。对应教材：  2.1 Introduction 2.2 Data Abstraction 2.3 Sequences  1. 为什么需要数据抽象：隔离表示变化 复合数据同时面对两个问题：数据怎样存储，以及使用者怎样操作数据。如果高层代码直接读取内部结构，这两个问题就会耦合在一起。 假设暂时用二元组表示有理数，第 0 项是分子，第 1 项是分母。没有抽象接口时，加法可能直接写成： 12345def add_rational(x, y):    return (        x[0] * y[1] + y[0] * x[1...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img class="cover" src="/img/composing-programs-object-system-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">对象系统：属性查找、方法绑定与类的实现</div></div><div class="info-2"><div class="info-item-1">闭包与 dispatch dictionary 已经能够把状态和行为封装在一起，但每创建一个值都要重新组织消息字典。类系统增加了更系统的共享机制：实例保存各自状态，类保存多个实例共同使用的行为，点表达式负责查找属性，并在需要时把函数绑定到当前实例。 本篇对应教材：  2.5 Object-Oriented Programming 2.6 Implementing Classes and Objects  重点不是复习 class 语法，而是完整解释一次 obj.method(arg) 在概念上怎样运行，以及这些机制如何由更基础的函数和字典实现。 1. 从对象到类：实例保存状态，类共享行为 1.1 对象、实例与类分别是什么 对象可以从三个方面描述： 1234Object├── State：当前保存的信息├── Identity：跨越状态变化仍可追踪的同一实体└── Behavior：它能够响应的操作 Instance（实例） 是某个具体对象。Class（类） 描述一类实例共享的创建方式和行为，并为属性查找提供后备空间。 123Instance A ──┐Instance B ──┼...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img class="cover" src="/img/composing-programs-object-system-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">对象系统：属性查找、方法绑定与类的实现</div></div><div class="info-2"><div class="info-item-1">闭包与 dispatch dictionary 已经能够把状态和行为封装在一起，但每创建一个值都要重新组织消息字典。类系统增加了更系统的共享机制：实例保存各自状态，类保存多个实例共同使用的行为，点表达式负责查找属性，并在需要时把函数绑定到当前实例。 本篇对应教材：  2.5 Object-Oriented Programming 2.6 Implementing Classes and Objects  重点不是复习 class 语法，而是完整解释一次 obj.method(arg) 在概念上怎样运行，以及这些机制如何由更基础的函数和字典实现。 1. 从对象到类：实例保存状态，类共享行为 1.1 对象、实例与类分别是什么 对象可以从三个方面描述： 1234Object├── State：当前保存的信息├── Identity：跨越状态变化仍可追踪的同一实体└── Behavior：它能够响应的操作 Instance（实例） 是某个具体对象。Class（类） 描述一类实例共享的创建方式和行为，并为属性查找提供后备空间。 123Instance A ──┐Instance B ──┼...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解： 12345678910111213具体表示   ↓构造器、选择器与行为契约   ↓序列接口与递归数据   ↓可变状态、身份与消息传递   ↓类、实例、属性查找与方法绑定   ↓对象协议、泛型操作与多种表示   ↓表示选择对算法效率的影响 本篇先完成前两步。对应教材：  2.1 Introduction 2.2 Data Abstraction 2.3 Sequences  1. 为什么需要数据抽象：隔离表示变化 复合数据同时面对两个问题：数据怎样存储，以及使用者怎样操作数据。如果高层代码直接读取内部结构，这两个问题就会耦合在一起。 假设暂时用二元组表示有理数，第 0 项是分子，第 1 项是分母。没有抽象接口时，加法可能直接写成： 12345def add_rational(x, y):    return (        x[0] * y[1] + y[0] * x[1...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码转换成了 AST，但 AST 仍然只是程序的结构化描述。本篇继续实现 MiniExpr：解释器将递归访问 AST，根据每种节点的规则计算值，并通过操作注册表调用受控的 Python 函数。 本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  整篇解决两个相互关联的问题：谁定义每种语法结构的含义，以及某个阶段失败后，错误怎样保留上下文并返回系统边界。 1. AST 的结构不等于 AST 的含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── Number(2)            └── Number(3) 树只告诉我们 mul 位于 add ...</div></div></div></a><a class="pagination-related" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为"><img class="cover" src="/img/composing-programs-higher-order-functions-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-28</div><div class="info-item-2">高阶函数：从参数化数据到参数化行为</div></div><div class="info-2"><div class="info-item-1">1. 最小前置：函数值、调用与环境 高阶函数并不依赖复杂语法，但依赖三个容易被日常编码习惯掩盖的事实：函数是值，调用会创建局部环境，函数还关联着自己的定义环境。 1.1 函数名与函数调用不是一回事 执行 def 时，Python 创建一个函数对象，再把名字绑定到这个对象： 12345def square(x):    return x * xoperation = squareresult = operation(5)  # 25 square 表示函数对象，square(5) 才表示调用后的结果。operation = square 没有执行函数，只是让两个名字引用同一个函数对象。 这个区别决定了高阶函数传递的是什么：  传入 square，交付的是一条“之后可以执行”的计算规则； 传入 square(5)，交付的只是这次调用得到的数值 25。  函数能够像数字、字符串一样被绑定、传递和返回，就是函数具有一等地位的含义。 1.2 函数参数也只是局部名字 1234567def apply_twice(f, x):    return f(f(x))def increment(x)...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+AI Agent 开发、计算成像、深度学习、光学<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%8A%B6%E6%80%81%E6%98%AF%E4%B8%80%E4%B8%AA%E9%9A%8F%E5%8E%86%E5%8F%B2%E6%BC%94%E5%8C%96%E7%9A%84%E5%80%BC"><span class="toc-text">1. 状态是一个随历史演化的值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Binding%E3%80%81Rebinding-%E4%B8%8E-Mutation"><span class="toc-text">2. Binding、Rebinding 与 Mutation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Name-binding%EF%BC%9A%E8%AE%A9%E5%90%8D%E5%AD%97%E6%8C%87%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="toc-text">2.1 Name binding：让名字指向对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Rebinding%EF%BC%9A%E8%AE%A9%E5%90%8D%E5%AD%97%E6%94%B9%E6%8C%87%E5%8F%A6%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1"><span class="toc-text">2.2 Rebinding：让名字改指另一个对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-Mutation%EF%BC%9A%E6%94%B9%E5%8F%98%E5%AF%B9%E8%B1%A1%E6%9C%AC%E8%BA%AB"><span class="toc-text">2.3 Mutation：改变对象本身</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Nonlocal-rebinding%EF%BC%9A%E6%94%B9%E5%8F%98%E5%A4%96%E5%B1%82%E7%8E%AF%E5%A2%83%E4%B8%AD%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="toc-text">2.4 Nonlocal rebinding：改变外层环境中的绑定</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Aliasing-%E8%AE%A9%E5%B1%80%E9%83%A8%E6%93%8D%E4%BD%9C%E4%BA%A7%E7%94%9F%E9%9D%9E%E5%B1%80%E9%83%A8%E5%BD%B1%E5%93%8D"><span class="toc-text">3. Aliasing 让局部操作产生非局部影响</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0%E4%B9%9F%E5%8F%AF%E8%83%BD%E5%BD%A2%E6%88%90%E9%9A%90%E8%94%BD%E5%88%AB%E5%90%8D"><span class="toc-text">3.1 默认参数也可能形成隐蔽别名</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Equality-%E4%B8%8E-Identity-%E5%9B%9E%E7%AD%94%E4%B8%8D%E5%90%8C%E9%97%AE%E9%A2%98"><span class="toc-text">4. Equality 与 Identity 回答不同问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Closure-%E5%A6%82%E4%BD%95%E4%BF%9D%E5%AD%98-Local-State"><span class="toc-text">5. Closure 如何保存 Local State</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">5.1 运行时发生了什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%90%8C%E9%97%AD%E5%8C%85%E6%8B%A5%E6%9C%89%E7%8B%AC%E7%AB%8B%E7%8A%B6%E6%80%81"><span class="toc-text">5.2 为什么不同闭包拥有独立状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-nonlocal-%E4%BF%AE%E6%94%B9%E7%BB%91%E5%AE%9A%EF%BC%8C%E5%AE%B9%E5%99%A8-mutation-%E4%BF%AE%E6%94%B9%E5%AF%B9%E8%B1%A1"><span class="toc-text">6. nonlocal 修改绑定，容器 mutation 修改对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Side-Effect-%E6%94%B9%E5%8F%98%E4%BA%86%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%8E%A8%E7%90%86%E6%96%B9%E5%BC%8F"><span class="toc-text">7. Side Effect 改变了程序的推理方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%BB%B6%E4%BC%B8%EF%BC%9A%E7%8A%B6%E6%80%81%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%B8%8E%E5%B9%B6%E5%8F%91%E8%BE%B9%E7%95%8C"><span class="toc-text">8. 延伸：状态的生命周期与并发边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-await-%E4%B8%A4%E4%BE%A7%E7%9A%84%E7%8A%B6%E6%80%81%E5%8F%AF%E8%83%BD%E5%B7%B2%E7%BB%8F%E5%8F%98%E5%8C%96"><span class="toc-text">8.1 await 两侧的状态可能已经变化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-ContextVar-%E4%BF%9D%E5%AD%98%E4%BB%BB%E5%8A%A1%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%8C%E4%B8%8D%E8%B4%9F%E8%B4%A3%E5%85%B1%E4%BA%AB%E4%B8%9A%E5%8A%A1%E7%8A%B6%E6%80%81"><span class="toc-text">8.2 ContextVar 保存任务上下文，不负责共享业务状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Dispatch-Function%EF%BC%9A%E8%AE%A9%E6%95%B0%E6%8D%AE%E5%93%8D%E5%BA%94%E6%B6%88%E6%81%AF"><span class="toc-text">9. Dispatch Function：让数据响应消息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Dispatch-Dictionary%EF%BC%9A%E6%8A%8A%E6%B6%88%E6%81%AF%E6%9F%A5%E6%89%BE%E4%BA%A4%E7%BB%99%E6%98%A0%E5%B0%84"><span class="toc-text">10. Dispatch Dictionary：把消息查找交给映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E7%BA%A6%E6%9D%9F%E4%BC%A0%E6%92%AD%E5%B1%95%E7%A4%BA%E4%BA%86%E5%8F%A6%E4%B8%80%E7%A7%8D%E7%BB%84%E7%BB%87%E6%96%B9%E5%90%91"><span class="toc-text">11. 约束传播展示了另一种组织方向</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-text">一句话总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%B9%E6%98%93%E6%B7%B7%E6%B7%86"><span class="toc-text">容易混淆</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%88%A4%E6%96%AD%E4%B8%8E%E8%A7%A3%E9%87%8A"><span class="toc-text">关键判断与解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Rebinding-%E4%B8%8D%E4%BC%9A%E9%80%9A%E8%BF%87%E6%97%A7%E5%88%AB%E5%90%8D%E4%BC%A0%E6%92%AD%EF%BC%8Cmutation-%E4%BC%9A"><span class="toc-text">1. Rebinding 不会通过旧别名传播，mutation 会</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%8B%AC%E7%AB%8B%E9%97%AD%E5%8C%85%E7%8E%AF%E5%A2%83%E5%BD%A2%E6%88%90%E7%8B%AC%E7%AB%8B%E5%AF%B9%E8%B1%A1%E8%BA%AB%E4%BB%BD"><span class="toc-text">2. 独立闭包环境形成独立对象身份</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BB%8E%E5%8F%AF%E5%8F%98%E5%AE%B9%E5%99%A8%E6%94%B9%E4%B8%BA%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%80%BC%E4%BC%9A%E6%94%B9%E5%8F%98%E8%B5%8B%E5%80%BC%E6%9C%BA%E5%88%B6"><span class="toc-text">3. 从可变容器改为不可变值会改变赋值机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Dispatch-dictionary-%E5%B7%B2%E5%85%B7%E5%A4%87%E5%AF%B9%E8%B1%A1%E9%9B%8F%E5%BD%A2%EF%BC%8C%E4%BD%86%E6%B2%A1%E6%9C%89%E5%AE%8C%E6%95%B4%E7%B1%BB%E6%9C%BA%E5%88%B6"><span class="toc-text">4. Dispatch dictionary 已具备对象雏形，但没有完整类机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行"><img src="/img/composing-programs-runtime-abstraction-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行时如何支持抽象：环境、闭包、作用域与安全执行"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行">运行时如何支持抽象：环境、闭包、作用域与安全执行</a><time datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="求值器如何赋予语义：Eval、Apply 与错误边界"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界">求值器如何赋予语义：Eval、Apply 与错误边界</a><time datetime="2026-08-27T03:00:00.000Z" title="发表于 2026-08-27 11:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img src="/img/composing-programs-source-to-ast-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="程序如何成为数据：从源码到 Token、AST 与 IR"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR">程序如何成为数据：从源码到 Token、AST 与 IR</a><time datetime="2026-08-27T02:00:00.000Z" title="发表于 2026-08-27 10:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/composing-programs-object-abstraction-efficiency/" title="泛型操作：统一协议、表示选择与效率"><img src="/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="泛型操作：统一协议、表示选择与效率"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/24/composing-programs-object-abstraction-efficiency/" title="泛型操作：统一协议、表示选择与效率">泛型操作：统一协议、表示选择与效率</a><time datetime="2026-08-24T05:00:00.000Z" title="发表于 2026-08-24 13:00:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img src="/img/composing-programs-object-system-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="对象系统：属性查找、方法绑定与类的实现"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现">对象系统：属性查找、方法绑定与类的实现</a><time datetime="2026-08-24T04:00:00.000Z" title="发表于 2026-08-24 12:00:00">2026-08-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
