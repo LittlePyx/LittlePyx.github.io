@@ -5,7 +5,7 @@ top_img: /img/composing-programs-runtime-abstraction-nature-cover.jpg
 cover: /img/composing-programs-runtime-abstraction-nature-cover.jpg
 cover_credit: "Brian J. Skerry · National Geographic"
 cover_source: "https://www.nationalgeographic.com/photography/article/wildlife-photo-gallery"
-description: Composing Programs 第三章笔记之三：从名字绑定、Frame 和词法作用域出发实现用户函数与闭包，再扩展到执行预算、能力白名单、安全隔离与可观测性。
+description: Composing Programs 第三章笔记之三：沿着用户函数从定义到调用的完整路径，理解 Environment、Closure 和 Lexical Scope，再扩展到执行预算、能力边界、安全隔离与可观测性。
 categories:
   - Notes
   - Computer Science
@@ -20,11 +20,24 @@ toc_number: false
 katex: false
 ---
 
-前两篇已经让 MiniExpr 能够把源码解析成 AST，并通过 Eval、Apply 和 Primitive 计算组合表达式。但所有操作仍由解释器预先注册，用户不能给值命名，也不能定义自己的函数。
+前两篇已经让 MiniExpr 能够把源码解析成 AST，并通过 Eval、Apply 和 Primitive 计算组合表达式。不过，语言中的所有操作仍由解释器预先注册：用户可以组合 `add` 和 `mul`，却不能给结果命名，也不能定义自己的函数。
 
-本篇受教材 [3.5 Interpreters for Languages with Abstraction](https://www.composingprograms.com/pages/35-interpreters-for-languages-with-abstraction.html) 启发，重点不在复刻 Scheme 项目，而在说明：**运行时怎样用环境保存绑定，用函数对象保存代码与定义环境，并在受控边界内执行用户程序。**
+本篇只沿着一个核心问题展开：**当用户定义并调用一个函数时，运行时究竟需要保存什么，又怎样找到函数体中的名字？**
 
-## 1. 组合能力还不是抽象能力
+我们会依次走过一条完整路径：
+
+```text
+Lambda AST
+    → UserProcedure
+    → Define 建立绑定
+    → Apply 创建调用环境
+    → Closure 决定名字查找路径
+    → ExecutionContext 限制执行能力
+```
+
+前半部分解释函数、环境与作用域，后半部分再讨论工程中的权限、预算、隔离和观测。本文受教材 [3.5 Interpreters for Languages with Abstraction](https://www.composingprograms.com/pages/35-interpreters-for-languages-with-abstraction.html) 启发，但示例和工程边界围绕一个小型 Python 解释器重新组织。
+
+## 1. 从组合已有操作，到定义新操作
 
 当前语言能够写：
 
@@ -32,30 +45,36 @@ katex: false
 (add 1 (mul 2 3))
 ```
 
-这属于 **means of combination（组合手段）**：已有操作可以嵌套成更复杂的计算。
+这属于 **means of combination（组合手段）**：把已有操作拼成更复杂的计算。
 
-但下面的需求还无法表达：
-
-```text
-把 10 命名为 tax
-定义 square
-定义一个能够创建新函数的 make-adder
-```
-
-要获得 **means of abstraction（抽象手段）**，语言至少需要：
+真正的抽象还要求用户能够创造新的名字和操作：
 
 ```text
-名字绑定        name → value
-函数表示        parameters + body + defining environment
-函数调用        arguments → new frame
-作用域规则      在哪里查找自由变量
+(define square
+  (lambda (x)
+    (mul x x)))
+
+(square 5)
 ```
 
-这里会重新连接前两章的概念：环境保存名字绑定，函数是一种运行时值，闭包把代码与环境组合，对函数的 Apply 又会触发新一轮 Eval。
+为了让这段程序得到 `25`，运行时必须回答四个问题：
 
-## 2. Environment 保存名字与值的关系
+| 问题 | 运行时机制 |
+|---|---|
+| `square` 和 `x` 保存在哪里？ | Environment |
+| Lambda 求值后得到什么？ | UserProcedure |
+| 调用时参数 `5` 怎样变成局部变量 `x`？ | 新的调用 Frame |
+| 函数体中的外层名字去哪里查找？ | Closure 与 Lexical Scope |
 
-最简单的名字表是字典：
+这四个机制不是彼此独立的知识点，而是同一次函数调用的不同阶段。
+
+## 2. Environment 让名字获得上下文
+
+名字本身只是字符串。`x` 当前表示 `5`、`100`，还是根本不存在，取决于求值时所在的 **Environment（环境）**。
+
+### 2.1 Frame 保存一层绑定，parent 连接外层
+
+最简单的名字表可以是字典：
 
 ```python
 names = {
@@ -64,23 +83,23 @@ names = {
 }
 ```
 
-但函数调用需要局部作用域。每次调用都应得到自己的参数绑定，同时仍然能够访问外层名字。运行时因此使用一串相连的 **Frame（环境帧）**：
+但函数调用需要局部作用域：每次调用都要拥有自己的参数，同时仍能访问外层名字。运行时因此把环境组织成一串相连的 **Frame（环境帧）**：
 
 {% mermaid %}
-flowchart TB
-    CURRENT["Current frame<br/>x = 2"] -->|parent| OUTER["Enclosing frame<br/>rate = 0.8"]
-    OUTER -->|parent| GLOBAL["Global frame<br/>add = Primitive<br/>x = 10"]
-    GLOBAL -->|parent| NONE["None"]
+flowchart LR
+    CURRENT["当前 Frame<br/>x = 2"] -->|parent| OUTER["外层 Frame<br/>rate = 0.8"]
+    OUTER -->|parent| GLOBAL["全局 Frame<br/>add = Primitive · x = 10<br/>parent = None"]
 {% endmermaid %}
 
-<p class="cp-figure-caption">名字查找从当前 Frame 开始，只有本层不存在时才沿 parent 向外继续。</p>
+<p class="cp-figure-caption">查找从当前 Frame 开始；本层没有对应名字时，才沿 parent 继续向外。</p>
 
-可以把它实现为：
+一个最小实现如下：
 
 ```python
 from dataclasses import dataclass, field
 
 _MISSING = object()
+
 
 @dataclass(slots=True)
 class Environment:
@@ -105,19 +124,21 @@ class Environment:
         return Environment(bindings=bindings, parent=self)
 ```
 
-这里使用 `_MISSING`，而不是 `dict.get(name)` 返回的 `None`，因为 `None` 也可能是一个合法绑定值。
+这里不能用 `dict.get(name)` 返回的 `None` 表示“没有找到”，因为 `None` 本身也可能是合法值，所以需要单独的 `_MISSING` 标记。
 
-### 2.1 `define` 与 `lookup` 的方向不同
+### 2.2 `define` 写当前层，`lookup` 沿链向外读
+
+两种操作的方向不同：
 
 ```text
 define(name, value)
-    只在当前 frame 建立或更新绑定
+    → 只在当前 Frame 建立或更新绑定
 
 lookup(name)
-    从当前 frame 开始，沿 parent 向外查找
+    → 从当前 Frame 开始，沿 parent 向外查找
 ```
 
-假设环境是：
+例如：
 
 ```text
 local frame:  x = 2
@@ -125,89 +146,62 @@ local frame:  x = 2
 global frame: x = 10, add = Primitive(...)
 ```
 
-在 local frame 中查找 `x` 得到 2；查找 `add` 时本层没有，于是到 global frame 得到 Primitive。局部绑定会 **shadow（遮蔽）** 同名外层绑定，但不会删除或修改外层字典。
+在 local frame 中查找 `x` 得到 `2`；查找 `add` 时，本层没有，于是到 global frame 找到 Primitive。局部 `x` 会 **shadow（遮蔽）** 外层 `x`，但外层绑定仍然存在。
 
-### 2.2 Environment 不等于所有运行时状态
+至此，Environment 只解决了“名字怎样找到值”。接下来还需要让函数本身成为一种可以被保存的值。
 
-Environment 专门回答“某个语言名字绑定到什么值”。数据库连接、权限、超时、追踪器和请求标识不应该全部伪装成用户可见变量塞进同一个字典。
+## 3. 函数的诞生：Lambda 变成 UserProcedure
 
-后面会把两者分开：
+`lambda` 不是一次函数调用，而是“创建函数”的语法。创建时不能立即执行函数体，因此 Parser 必须把它保留为独立 AST 节点。
 
-```text
-Environment       → 语言级名字与值
-ExecutionContext  → 解释器级服务、权限、预算和观测信息
-```
+### 3.1 抽象形式必须保留自己的 AST 结构
 
-## 3. AST 必须为抽象形式保留结构
-
-给 MiniExpr 增加三种 AST 节点：
+MiniExpr 至少需要新增 `Lambda` 和 `Define`：
 
 ```python
-@dataclass(frozen=True, slots=True)
-class Define:
-    name: str
-    value: Expr
-
 @dataclass(frozen=True, slots=True)
 class Lambda:
     parameters: tuple[str, ...]
-    body: Expr
+    body: "Expr"
+
 
 @dataclass(frozen=True, slots=True)
-class If:
-    condition: Expr
-    consequent: Expr
-    alternative: Expr
+class Define:
+    name: str
+    value: "Expr"
 ```
 
-最终的表达式联合类型也要同步扩展：
+它们不能被当作普通 Call：
 
-```python
-from typing import TypeAlias
+| 形式 | 不能使用普通调用规则的原因 |
+|---|---|
+| `lambda` 的 parameters | 是参数声明，不是需要 lookup 的变量引用 |
+| `lambda` 的 body | 创建函数时只保存，调用函数时才执行 |
+| `define` 的 name | 是准备建立的名字，不能先求值 |
 
-Expr: TypeAlias = Number | Name | Call | If | Define | Lambda
-```
+上一篇中的 `if` 同理：它只求值被选中的分支。**Special Form（特殊形式）之所以特殊，是因为它拥有自己的求值顺序。**
 
-Parser 看到以下结构时，不再生成普通 Call：
+### 3.2 Eval Lambda 只创建函数，不执行函数体
 
-```text
-(define x 10)
-(lambda (x) (mul x x))
-(if condition consequent alternative)
-```
-
-原因不是它们的名字比较特别，而是其组成部分不能按照普通实参规则求值：
-
-```text
-define 的 name       是即将建立绑定的名字，不能先 lookup
-lambda 的 parameters 是参数声明，不是变量引用
-lambda 的 body       创建函数时不能立即执行
-if 的两个分支        只能执行被选中的一个
-```
-
-将这些形式解析为独立 AST 节点，可以把结构校验放在 Parser/Validator，把求值差异明确保留给 Evaluator。
-
-## 4. Lambda 求值得到一个函数对象
-
-函数定义不是立即执行函数体，而是创建一个可以稍后调用的运行时值：
+Lambda 求值后得到一个运行时函数对象：
 
 ```python
 @dataclass(slots=True)
 class UserProcedure:
     parameters: tuple[str, ...]
-    body: Expr
+    body: "Expr"
     closure: Environment
 ```
 
-三个字段分别回答：
+三个字段分别保存：
 
 ```text
 parameters  调用时怎样接收实参
-body        调用后执行哪段 AST
-closure     body 中的自由变量到哪里查找
+body        调用后执行哪棵 AST
+closure     body 中的外层名字到哪里查找
 ```
 
-Evaluator 对 Lambda 的处理很短：
+Evaluator 的规则很短：
 
 ```python
 if isinstance(expr, Lambda):
@@ -218,27 +212,28 @@ if isinstance(expr, Lambda):
     )
 ```
 
-此时没有求值 `body`。Evaluator 只是把当前环境保存到函数对象中，这个环境称为函数的 **defining environment（定义环境）**。
-
 {% mermaid %}
 flowchart LR
-    L["Lambda AST<br/>parameters + body"] --> BUILD["Eval Lambda"]
-    E["当前 Environment"] --> BUILD
-    BUILD --> P["UserProcedure"]
-    P --> PARAMS["parameters"]
-    P --> BODY["body AST"]
-    P --> CLOSURE["closure → defining Environment"]
+    LAMBDA["Lambda AST<br/>parameters + body"] --> BUILD["Eval Lambda"]
+    ENV["当前 Environment"] --> BUILD
+    BUILD --> PROC["UserProcedure<br/>parameters<br/>body AST<br/>closure → 当前环境"]
 {% endmermaid %}
 
-这就是闭包机制的基础：代码离开定义位置后，仍然携带解释自由变量所需的环境。
+<p class="cp-figure-caption">Eval Lambda 不执行 body，只把代码和当前环境组合成可调用的函数值。</p>
 
-## 5. Define 建立名字绑定
+这里保存的当前环境就是函数的 **defining environment（定义环境）**。代码与定义环境组合在一起，构成 closure 的基础。
+
+### 3.3 Define 再把函数值绑定到名字
+
+对下面的程序：
 
 ```text
-(define square (lambda (x) (mul x x)))
+(define square
+  (lambda (x)
+    (mul x x)))
 ```
 
-对应求值规则：
+Evaluator 先求值右侧 Lambda，再建立名字绑定：
 
 ```python
 if isinstance(expr, Define):
@@ -247,35 +242,34 @@ if isinstance(expr, Define):
     return value
 ```
 
-执行顺序是：
+完整顺序是：
 
 ```text
-Eval Lambda
-    ↓
-得到 UserProcedure
-    ↓
-在当前 Environment 中绑定 square → UserProcedure
+Lambda AST
+    → Eval Lambda
+    → UserProcedure
+    → define("square", procedure)
 ```
 
-`define` 改变了当前环境，所以它不是完全纯粹的表达式。后续 `lookup("square")` 能得到刚创建的函数对象，程序的执行历史开始影响可见绑定。
+因此 `define` 和 `lambda` 不要混成一个动作：Lambda 负责**产生函数值**，Define 负责**给这个值建立名字**。匿名函数只需要前者，具名函数同时使用两者。
 
-## 6. Apply 用户函数时创建调用环境
+## 4. 函数的调用：Apply 创建新的环境
 
-调用：
+现在执行：
 
 ```text
 (square 5)
 ```
 
-Eval 仍然按照普通 Call 的规则工作：
+Eval 仍遵守普通 Call 的规则：
 
 ```text
-Eval operator Name("square") → UserProcedure
-Eval argument Number(5)      → 5
-Apply UserProcedure to [5]
+Eval Name("square")  → UserProcedure
+Eval Number(5)       → 5
+Apply procedure to [5]
 ```
 
-Apply 增加用户函数分支：
+变化发生在 Apply。Primitive 直接调用受控的 Python 实现；UserProcedure 则需要创建调用环境，再回到 Eval 执行函数体。
 
 ```python
 def apply_procedure(procedure, arguments, context):
@@ -288,10 +282,21 @@ def apply_procedure(procedure, arguments, context):
 
         bindings = dict(zip(procedure.parameters, arguments))
         call_environment = procedure.closure.child(bindings)
-        return evaluate(procedure.body, call_environment, context)
+        return evaluate(
+            procedure.body,
+            call_environment,
+            context,
+        )
 
     raise EvaluationError("调用位置得到的不是过程")
 ```
+
+{% mermaid %}
+flowchart LR
+    EVAL["① Eval Call<br/>square → UserProcedure<br/>5 → 5"]
+    EVAL --> APPLY["② Apply UserProcedure<br/>创建调用 Environment<br/>x = 5 · parent = closure"]
+    APPLY --> BODY["③ Eval body<br/>mul x x<br/><b>得到 25</b>"]
+{% endmermaid %}
 
 最关键的一行是：
 
@@ -299,11 +304,39 @@ def apply_procedure(procedure, arguments, context):
 call_environment = procedure.closure.child(bindings)
 ```
 
-新 Frame 的 parent 是函数保存的**定义环境**，不是当前调用者的环境。这条选择实现了 **lexical scope（词法作用域）**。
+它同时完成两件事：
 
-## 7. 闭包让定义环境在函数返回后继续存在
+1. 将形参 `x` 与实参值 `5` 写入新的 Frame；
+2. 让新 Frame 的 parent 指向函数保存的定义环境。
 
-使用一个更能说明问题的例子：
+第二点决定了函数体中的外层名字怎样查找，也就是下一节的闭包与作用域问题。
+
+### 4.1 Eval 与 Apply 为什么会互相递归
+
+用户函数的 body 仍然是一棵 AST，所以 Apply UserProcedure 需要再次调用 Eval；如果 body 中还有 Call，Eval 又会再次调用 Apply：
+
+{% mermaid %}
+flowchart LR
+    EVAL["Eval Call"] --> APPLY["Apply UserProcedure"]
+    APPLY --> FRAME["创建调用 Environment"]
+    FRAME --> BODY["Eval procedure.body"]
+    BODY -->|body 中还有 Call| EVAL
+    BODY -->|基础表达式| VALUE["Runtime value"]
+    APPLY -->|Primitive| HOST["受控宿主实现"]
+{% endmermaid %}
+
+递归不会无限发生，因为存在两类终点：
+
+```text
+Eval 的终点：Number 等可以直接得到值的表达式
+Apply 的终点：Primitive 直接调用宿主实现
+```
+
+用户函数并没有脱离解释器运行；函数体始终由相同的求值规则解释，只是换到了新的 Environment。
+
+## 5. Closure 决定函数体怎样找到外层名字
+
+普通 `square` 只使用参数，看不出 closure 的必要性。下面的 `make-adder` 会返回一个仍然引用外层参数 `x` 的函数：
 
 ```text
 (define make-adder
@@ -315,59 +348,40 @@ call_environment = procedure.closure.child(bindings)
 (add3 10)
 ```
 
-### 7.1 调用 `make-adder`
+### 5.1 `make-adder` 返回后，`x` 为什么还存在
 
-{% mermaid %}
-flowchart TB
-    GLOBAL["global frame<br/>make-adder → UserProcedure"]
-    MAKE["make-adder<br/>closure → global"] -.closure.-> GLOBAL
-    CALL["调用 make-adder(3)"] --> F1["frame f1<br/>x = 3"]
-    F1 -->|parent| GLOBAL
-    MAKE --> CALL
-{% endmermaid %}
+调用 `(make-adder 3)` 时创建 `f1`，其中保存 `x = 3`。函数体是另一个 Lambda；求值它会创建 `add3`，并把当前环境 `f1` 保存为 closure。
 
-函数体是另一个 Lambda。求值它时创建新的 UserProcedure，并把当前环境 `f1` 保存为 closure：
-
-{% mermaid %}
-flowchart LR
-    ADD3["add3<br/>parameters: y<br/>body: add(x, y)"] -->|closure| F1["frame f1<br/>x = 3"]
-    F1 -->|parent| GLOBAL["global frame<br/>add = Primitive"]
-{% endmermaid %}
-
-`make-adder` 已经返回，但 `add3` 仍然引用 `f1`，因此 `f1` 不能被回收。闭包保存的不是一次计算后的 `x` 文本替换，而是能够执行名字查找的环境关系。
-
-### 7.2 调用 `add3`
+随后调用 `(add3 10)`，又创建 `f2`，其中保存 `y = 10`，而它的 parent 指向 `add3.closure`，也就是 `f1`：
 
 {% mermaid %}
 flowchart LR
     CALL["调用 add3(10)"] --> F2["frame f2<br/>y = 10"]
-    F2 -->|parent = add3.closure| F1["frame f1<br/>x = 3"]
+    F2 -->|"parent = add3.closure"| F1["frame f1<br/>x = 3"]
     F1 -->|parent| GLOBAL["global frame<br/>add = Primitive"]
-    F2 -.lookup y.-> F2
-    F2 -.lookup x.-> F1
-    F2 -.lookup add.-> GLOBAL
+    ADD3["add3<br/>body: add(x, y)"] -.closure.-> F1
 {% endmermaid %}
 
-<p class="cp-figure-caption">调用结束后，add3 仍引用 f1；这条引用就是外层变量 x 能继续存活的原因。</p>
+<p class="cp-figure-caption">add3 持有对 f1 的引用，因此 make-adder 返回后，保存 x = 3 的环境仍然可达。</p>
 
-求值 `(add x y)`：
+求值函数体 `(add x y)` 时：
 
 ```text
-lookup add：f2 没有 → f1 没有 → global 找到 Primitive(add)
-lookup x：  f2 没有 → f1 找到 3
 lookup y：  f2 找到 10
+lookup x：  f2 没有 → f1 找到 3
+lookup add：f2 没有 → f1 没有 → global 找到 Primitive(add)
 Apply add to [3, 10] → 13
 ```
 
-闭包可以压缩为：
+因此可以把闭包压缩为：
 
 ```text
 Closure = Function Code + Defining Environment
 ```
 
-但“环境”不是把所有可见值复制一份快照。它通常保存对环境对象的引用；如果语言允许修改外层绑定，之后的查找也可能观察到变化。
+Closure 不是把外层变量文本替换进函数体，也不一定复制所有值。它通常保存对环境对象的引用；只要函数还引用这个环境，环境就不能被回收。
 
-## 8. Lexical scope 与 dynamic scope 的差别
+### 5.2 Lexical Scope 看定义位置，不看调用位置
 
 考虑：
 
@@ -383,46 +397,24 @@ Closure = Function Code + Defining Environment
 (call-with-local-x 1)
 ```
 
-词法作用域根据函数**定义在哪里**决定名字查找路径，所以 `read-x` 的 closure 指向 global，结果是 100。
+`read-x` 定义在 global，因此它的 closure 指向 global。即使调用者恰好有一个局部 `x = 1`，词法作用域仍然得到 `100`。
 
 {% mermaid %}
-flowchart TB
-    subgraph LEXICAL["Lexical scope：看定义位置"]
-      LC["read-x 调用帧"] -->|parent = procedure.closure| LG["global frame<br/>x = 100"]
-    end
-    subgraph DYNAMIC["Dynamic scope：看调用位置"]
-      DC["read-x 调用帧"] -->|parent = caller environment| DL["调用者 frame<br/>x = 1"]
-    end
-    LG -.对比查找结果.-> DC
+flowchart LR
+    CALL["调用 read-x"] --> CHOICE{"新调用帧的 parent<br/>指向哪里？"}
+    CHOICE --> LEXICAL["词法作用域 · 看定义位置<br/>parent = procedure.closure<br/>global frame · x = 100<br/><b>read-x 返回 100</b>"]
+    CHOICE --> DYNAMIC["动态作用域 · 看调用位置<br/>parent = caller environment<br/>调用者 frame · x = 1<br/><b>read-x 返回 1</b>"]
+    class LEXICAL cp-path-good
+    class DYNAMIC cp-path-bad
 {% endmermaid %}
 
-如果 Apply 错误地把当前调用者环境作为 parent，`read-x` 会看到调用者参数 `x=1`，语言就变成了另一种作用域规则。作用域不是“字典查找的实现细节”，而是语言语义的一部分。
+<p class="cp-figure-caption">parent 指向定义时保存的 closure，查到 x = 100；指向当前调用者环境，则查到 x = 1。</p>
 
-## 9. Eval 与 Apply 形成互相递归
+如果 Apply 错误地把调用者环境设为 parent，MiniExpr 就会从 lexical scope 变成 dynamic scope。可见作用域不是字典查找的实现细节，而是语言语义的一部分。
 
-加入用户函数后，完整关系更加清楚：
+### 5.3 递归函数也依赖环境查找
 
-{% mermaid %}
-flowchart TB
-    EC["Eval Call"] --> PARTS["Eval operator 与 arguments"]
-    PARTS --> APPLY["Apply UserProcedure"]
-    APPLY --> FRAME["创建 child Environment"]
-    FRAME --> BODY["Eval procedure.body"]
-    BODY -->|body 中再次出现 Call| EC
-    BODY -->|Number 等基础节点| VALUE["Runtime value"]
-    APPLY -->|Primitive| HOST["调用受控宿主实现"]
-{% endmermaid %}
-
-递归的终点有两类：
-
-```text
-Eval base case：Number 等 self-evaluating expression
-Apply base case：Primitive 直接调用宿主语言实现
-```
-
-用户定义函数没有脱离解释器运行。它的函数体仍是一棵 AST，只是在新的环境中再次交给 Eval。
-
-### 9.1 递归函数怎样找到自己
+递归定义看似特殊，实际仍然使用同一套机制：
 
 ```text
 (define factorial
@@ -432,73 +424,96 @@ Apply base case：Primitive 直接调用宿主语言实现
         (mul n (factorial (sub n 1))))))
 ```
 
-Lambda 创建时保存 global frame；随后 `define` 把 `factorial` 绑定到同一个 global frame。函数体执行到 `Name("factorial")` 时，沿 closure 查找就能找到后来建立的绑定。
+Lambda 创建时保存 global frame；随后 Define 把 `factorial` 绑定到这个 global frame。函数体再次查找 `factorial` 时，沿 closure 就能找到自己：
 
 ```text
 UserProcedure.closure ──> global frame
                               └── factorial ──> UserProcedure
 ```
 
-这个环状引用在语义上支持递归。Python 的垃圾回收能够处理普通引用环，但解释器仍要避免无意中让大量环境和中间值永久可达。
+这不是单独的“递归魔法”，而是函数对象与 Environment 形成的引用关系。
 
-## 10. 程序成为数据后，可以被分析和转换
+## 6. 受控解释器决定程序能够表达和执行什么
 
-解释器看到的用户程序不是“神秘代码”，而是 AST 对象：
+到这里，MiniExpr 已经支持用户函数。接下来的问题不再是“怎样算出结果”，而是“允许用户程序影响什么”。
+
+### 6.1 程序成为 AST 后，可以先分析再执行
+
+解释器看到的不是一段必须立刻运行的神秘代码，而是一棵数据树：
 
 ```text
-用户视角：表达式规定要完成的计算
-解释器视角：一棵需要按规则遍历的数据树
+用户视角：表达式描述要完成的计算
+解释器视角：AST 是等待校验和遍历的数据
 ```
 
-因此执行前可以：
+执行前可以完成：
 
-- 收集引用的操作名；
-- 检查禁止节点；
-- 限制树深度和节点数量；
-- 对常量表达式预计算；
-- 插入追踪节点；
-- 把一种外部语法转换成统一 IR。
+- 检查禁止节点和未知操作；
+- 限制 AST 深度、宽度和节点总数；
+- 校验参数结构；
+- 收集即将使用的能力；
+- 将多种输入语法规范化为统一 IR；
+- 插入追踪或预算检查。
 
-但能够分析 AST 不代表它天然安全。最终风险取决于 Evaluator 允许哪些节点，以及 Primitive 能访问哪些宿主能力。
+不过，AST 可分析不等于天然安全。真正的能力边界还取决于 Evaluator 支持哪些节点，以及 Primitive Registry 暴露哪些宿主操作。
 
-## 11. 不要用 `eval` 代替受控解释器
+### 6.2 Primitive Registry 是显式能力白名单
 
-Python 的 `eval()` 会按照 Python 语义执行表达式：
+自定义解释器只执行主动实现的语义：
+
+```text
+AST 节点白名单
+    决定用户程序能表达哪些结构
+
+Primitive Registry
+    决定程序能调用哪些宿主能力
+```
+
+一个仅注册 `add`、`mul` 的解释器不能凭空访问文件或网络；一旦注册了 `http_request`、数据库写入等 Primitive，就必须为这些能力单独设计权限、超时、重试和审计。
+
+### 6.3 不要用 Python `eval` 代替受控解释器
+
+Python 的 `eval()` 按照 Python 语义执行字符串：
 
 ```python
 eval("2 + 2")  # 4
 ```
 
-如果输入不可信，攻击者就不再受 MiniExpr 的节点类型和 Primitive 注册表限制。仅仅删除一部分 `globals` 或修改 `__builtins__` 不能构成可靠安全边界。
+面对不可信输入，它会绕开 MiniExpr 的 AST 类型和 Primitive Registry。删掉部分 `globals`、修改 `__builtins__` 或增加 AST 黑名单，都不能自动形成可靠沙箱。
+
+`ast.literal_eval()` 只接受 Python 字面量和容器，不执行任意函数调用或名字查找，适合解析受限数据；但巨大或极深的输入仍可能消耗大量内存、CPU 或栈空间。
+
+如果必须执行不可信 Python 代码，需要独立进程或容器、操作系统权限、文件和网络限制以及资源配额。自定义解释器的优势，是从语言设计层面主动缩小可表达和可调用的能力集合。
+
+## 7. 工程运行时还要管理预算、权限与观测
+
+Environment 保存的是**被解释程序可见的名字**。数据库连接、超时、权限和 trace id 属于解释器自身，不应伪装成普通语言变量。
+
+### 7.1 Environment 与 ExecutionContext 分工
 
 ```text
-自定义解释器
-    只识别主动实现的 AST 节点
-    只暴露主动注册的 Primitive
+Environment
+    名字绑定 · parent 链 · 词法作用域
 
-Python eval / exec
-    执行 Python 语言能力
-    攻击面远大于小型 DSL
+ExecutionContext
+    执行预算 · deadline · capability · trace
 ```
 
-`ast.literal_eval()` 不执行任意函数调用或名字查找，只接受 Python 字面量和容器结构，但它也不是处理任意不可信大输入的完整防护：恶意构造的深层或巨大输入仍可能造成 CPU、内存或栈资源耗尽。
+Registry 描述平台**总共支持哪些能力**，ExecutionContext 则描述**这一次执行获准使用其中哪些能力**。前者通常是全局配置，后者随请求或任务创建。
 
-如果需求是真正执行不可信 Python 代码，单靠自定义字典、异常捕获或 AST 黑名单并不够，通常还需要独立进程或容器、操作系统权限隔离、网络和文件系统限制以及资源配额。
-
-## 12. Environment 与 ExecutionContext 分开设计
-
-语言变量和执行控制属于不同层次：
+一个简单的 ExecutionContext 可以这样实现：
 
 ```python
 from dataclasses import dataclass
 from time import monotonic
+
 
 @dataclass(slots=True)
 class ExecutionContext:
     remaining_steps: int
     deadline: float
     trace_id: str
-    services: dict[str, object]
+    capabilities: dict[str, object]
 
     def tick(self) -> None:
         self.remaining_steps -= 1
@@ -508,7 +523,7 @@ class ExecutionContext:
             raise ResourceLimitError("执行超时")
 ```
 
-Evaluator 每处理一个节点就调用一次 `context.tick()`：
+Evaluator 每处理一个节点就消耗一步预算：
 
 ```python
 def evaluate(expr, environment, context):
@@ -516,49 +531,39 @@ def evaluate(expr, environment, context):
     ...
 ```
 
-两类状态的职责是：
+分开设计后，用户可以在 Environment 中定义名为 `deadline` 的普通变量，却无法覆盖解释器真正使用的 deadline 或数据库连接。
 
-| 状态 | 面向谁 | 保存什么 |
-|---|---|---|
-| Environment | 被解释程序 | 名字绑定与作用域关系 |
-| ExecutionContext | 解释器和宿主系统 | 预算、服务、权限、trace id |
-
-这样用户函数可以访问自己的变量，却不能因为定义了同名变量就覆盖解释器的 deadline、数据库连接或权限对象。
-
-## 13. 安全执行需要多层限制
-
-受控 AST 和 allowlist 是必要条件，但还不是完整沙箱。一个允许递归和外部操作的解释器至少应考虑：
+### 7.2 安全执行是多层限制，不是一个开关
 
 {% mermaid %}
-flowchart TB
-    INPUT["输入限制<br/>字符 · Token · AST 深度"] --> SEMANTIC["语义限制<br/>节点 · 操作 · 参数 schema"]
-    SEMANTIC --> COMPUTE["计算限制<br/>步数 · 调用深度 · 超时 · 输出"]
-    COMPUTE --> CAPABILITY["能力限制<br/>文件 · 网络 · 数据库 · 进程"]
-    CAPABILITY --> ISOLATION["隔离限制<br/>独立进程 · 容器 · 受限账户"]
+flowchart LR
+    INPUT["① 输入与语义边界<br/>字符 · Token<br/>AST 规模 · 节点<br/>参数 schema"]
+    INPUT --> COMPUTE["② 解释器资源边界<br/>步数 · 调用深度<br/>超时 · 输出大小<br/>内存预算"]
+    COMPUTE --> CAPABILITY["③ 宿主能力边界<br/>文件 · 网络<br/>数据库 · 进程<br/>权限 · 审计"]
+    CAPABILITY --> ISOLATION["④ 操作系统隔离<br/>独立进程 · 容器<br/>受限账户<br/>资源配额"]
 {% endmermaid %}
 
-<p class="cp-figure-caption">安全执行不是某一个开关，而是从输入到操作系统的多层约束。</p>
+<p class="cp-figure-caption">限制从语言输入一直延伸到宿主系统；越接近外部副作用，越需要更强的边界。</p>
 
-其中有几个容易混淆的点：
+几个常见误区：
 
-- AST 白名单限制“表达什么”，不能限制一个已注册 Primitive 内部做什么；
-- Evaluator 的协作式 deadline 只能在下一次 `tick()` 时生效，无法中断卡在阻塞 I/O 中的 Primitive；
-- Python 线程超时不等于底层任务已经停止；
-- 只限制递归深度不能阻止宽度巨大但不深的 AST；
-- 只限制 wall-clock 时间不能阻止短时间内占用大量内存。
+- AST 白名单只能限制“表达什么”，不能约束已注册 Primitive 内部的行为；
+- `context.tick()` 只能在解释器重新取得控制权时检查超时，无法中断阻塞中的外部 I/O；
+- Python 线程等待超时，不代表底层任务已经停止；
+- 只限制递归深度，挡不住很宽但不深的巨大 AST；
+- 只限制运行时间，挡不住短时间内大量占用内存。
 
-外部操作本身还需要超时和取消机制；需要强隔离时，应把执行放到可以终止和回收的独立边界中。
+外部操作需要自己的超时和取消机制；需要强隔离时，应把执行放进可以终止并回收的独立进程或容器。
 
-## 14. 可观测性要记录语义事件
+### 7.3 可观测性记录语义事件，而不是泄露全部数据
 
-只记录“执行失败”很难还原解释器发生了什么。更有价值的是结构化事件：
+比“执行失败”更有用的是结构化事件：
 
 ```text
 trace_id
 node_type
 source_span
 operation_name
-argument_summary
 duration_ms
 status
 error_code
@@ -575,83 +580,48 @@ Eval Call(add) start
 └── Apply Primitive(add) success: 7
 ```
 
-记录时应避免直接保存完整输入、凭据和敏感返回值。观测系统需要足够的信息定位阶段和操作，但不应变成数据泄漏通道。
+日志应记录阶段、操作和耗时，不应默认保存完整提示词、凭据或敏感返回值。用户程序错误与解释器缺陷也要分开：
 
-### 14.1 解释器自身错误与用户程序错误分开
+| 类型 | 示例 | 处理方式 |
+|---|---|---|
+| 用户程序错误 | 未知名字、参数数量错误、预算耗尽 | 返回稳定错误码和安全提示 |
+| 解释器自身缺陷 | 漏处理 AST 节点、状态损坏、意外异常 | 记录 traceback，对外返回通用内部错误 |
 
-```text
-User program error
-    未知名字、arity 不符、资源预算用尽
-    → 稳定错误码，可以展示给调用者
+若用 `except Exception` 把所有异常都变成“执行失败”，表面上更统一，实际会丢失定位解释器缺陷所需的因果链。
 
-Interpreter defect
-    漏处理节点、内部状态损坏、意外异常
-    → 记录 traceback，对外返回通用内部错误
-```
+## 8. 把一次完整执行路径串起来
 
-若把所有异常都转换成 `EvaluationError("执行失败")`，系统表面上更“稳定”，实际却丢失了排查解释器缺陷所需的信息。
-
-## 15. 一个可扩展解释器的模块边界
-
-三篇笔记最终得到的不是一个巨大的 `eval` 函数，而是一组可以独立演进的组件：
+现在可以把全文收束成一条从源码到受控副作用的路径：
 
 {% mermaid %}
-flowchart LR
-    SOURCE["Source Adapter"] --> PARSER["Tokenizer / Parser"]
-    PARSER --> VALIDATOR["Validator / Normalizer"]
-    VALIDATOR --> EVALUATOR["Evaluator"]
-    ENV["Environment<br/>名字与作用域"] --> EVALUATOR
-    PROC["Procedure<br/>Primitive / UserProcedure"] --> EVALUATOR
-    CONTEXT["ExecutionContext<br/>权限 · 预算 · 追踪"] --> EVALUATOR
-    EVALUATOR --> REGISTRY["Capability Registry"]
+flowchart TB
+    INPUT["Source → Parser → AST / IR"] --> CORE["Eval ↔ Apply"]
+    SUPPORT["运行时支撑<br/>Environment · Procedure · ExecutionContext"] --> CORE
+    CORE --> VALUE["Runtime Value"]
+    CORE --> REGISTRY["Capability Registry"]
     REGISTRY --> EXTERNAL["External Systems"]
 {% endmermaid %}
 
-这种分层允许分别替换：
+这条路径中，各组件各自回答一个问题：
 
-- 外部语法可以从前缀表达式换成 JSON，而不重写求值规则；
-- AST 可以规范化为同一 IR，让多个输入协议共用执行器；
-- Primitive 可以在测试中替换为 fake，而不修改 Parser；
-- REPL 可以换成 HTTP 边界，而不把网络逻辑塞进 Environment；
-- 预算和 tracing 可以统一包围所有求值路径。
+| 组件 | 核心职责 |
+|---|---|
+| Parser / Validator | 程序结构是否合法 |
+| Environment | 某个名字当前绑定到什么值 |
+| UserProcedure / Closure | 函数执行什么代码，外层名字去哪里找 |
+| Eval / Apply | 表达式和过程怎样得到结果 |
+| ExecutionContext | 本次执行拥有多少预算和哪些权限 |
+| Capability Registry | 哪些宿主操作可以真正触达外部系统 |
 
-## 16. 把第三章串起来
+最终需要保留五个判断：
 
-{% mermaid %}
-mindmap
-  root((MiniExpr 运行时))
-    程序表示
-      Source
-      Token Stream
-      AST
-      受控 IR
-    求值机制
-      Eval
-      Apply
-      Primitive
-      UserProcedure
-    抽象能力
-      Environment
-      Closure
-      Lexical scope
-    工程边界
-      ExecutionContext
-      Capability Registry
-      资源限制
-      可观测性
-{% endmermaid %}
+1. **Environment 是一条 Frame 链**：当前层保存局部绑定，parent 提供外层可见名字；
+2. **Lambda 先产生函数值，Define 再建立名字**：创建函数和命名函数是两个阶段；
+3. **Closure = 函数代码 + 定义环境**：它让函数离开定义位置后仍能解析自由变量；
+4. **Apply 用户函数时，调用 Frame 的 parent 指向 closure**：这条连接实现 lexical scope；
+5. **抽象能力与执行能力必须分层**：Environment 管理语言名字，ExecutionContext 和 Registry 管理预算、权限与宿主副作用。
 
-需要保留的几个判断：
-
-1. Frame 保存一层绑定，Environment 是当前 Frame 及其 parent 链；
-2. 用户函数不仅保存参数和函数体，还要保存定义环境；
-3. Apply 用户函数时，新 Frame 的 parent 指向 closure，词法作用域才成立；
-4. Eval 与 Apply 互相递归，Primitive 是 Apply 的基本情形；
-5. Environment 管理语言名字，ExecutionContext 管理宿主资源，两者不应混成一个万能字典；
-6. AST 白名单只能约束语言表面，Primitive 的权限和执行隔离仍要单独设计；
-7. 抽象能力让用户能够定义新运算，安全边界则决定这些运算最终可以影响什么。
-
-解释器最值得学习的地方，不是 Scheme 括号或某几段项目代码，而是它揭示了语言机制可以怎样逐层构成：文本成为数据，数据按规则求值，环境赋予名字含义，闭包保存作用域，而宿主系统负责划定执行能力的边界。
+解释器最值得学习的不是括号语法，而是这些机制怎样相互咬合：AST 保留程序结构，Eval 和 Apply 赋予结构含义，Environment 赋予名字上下文，Closure 固定作用域，而宿主运行时负责划定执行能力的边界。
 
 ## 参考
 
