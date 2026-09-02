@@ -78,11 +78,14 @@
   }
 
   function countCodeLines(figure) {
-    const codeLines = figure.querySelectorAll('td.code .line, pre .line')
+    const codeBlock = figure.querySelector('td.code') || figure.querySelector(':scope > pre')
+    if (!codeBlock) return 0
+
+    const codeLines = codeBlock.querySelectorAll('.line')
     if (codeLines.length) return codeLines.length
 
-    const code = figure.querySelector('td.code, pre')?.textContent || ''
-    return code ? code.split('\n').length : 0
+    const code = codeBlock.textContent || ''
+    return code ? code.replace(/\n$/, '').split('\n').length : 0
   }
 
   function makeCodeCollapsible(figure) {

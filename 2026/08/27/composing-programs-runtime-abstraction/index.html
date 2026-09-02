@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>运行时如何支持抽象：环境、闭包、作用域与安全执行 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Composing Programs 第三章笔记之三：从名字绑定、Frame 和词法作用域出发实现用户函数与闭包，再扩展到执行预算、能力白名单、安全隔离与可观测性。">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>运行时如何支持抽象：环境、闭包、作用域与安全执行 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Composing Programs 第三章笔记之三：沿着用户函数从定义到调用的完整路径，理解 Environment、Closure 和 Lexical Scope，再扩展到执行预算、能力边界、安全隔离与可观测性。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="运行时如何支持抽象：环境、闭包、作用域与安全执行">
 <meta property="og:url" content="https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/index.html">
 <meta property="og:site_name" content="小P的猫舍">
-<meta property="og:description" content="Composing Programs 第三章笔记之三：从名字绑定、Frame 和词法作用域出发实现用户函数与闭包，再扩展到执行预算、能力白名单、安全隔离与可观测性。">
+<meta property="og:description" content="Composing Programs 第三章笔记之三：沿着用户函数从定义到调用的完整路径，理解 Environment、Closure 和 Lexical Scope，再扩展到执行预算、能力边界、安全隔离与可观测性。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-runtime-abstraction-nature-cover.jpg">
 <meta property="article:published_time" content="2026-08-27T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-01T03:47:57.120Z">
+<meta property="article:modified_time" content="2026-09-02T02:22:27.284Z">
 <meta property="article:author" content="LittlePyx">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Composing Programs">
@@ -22,7 +22,7 @@
   "url": "https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/",
   "image": "https://littlepyx.github.io/img/composing-programs-runtime-abstraction-nature-cover.jpg",
   "datePublished": "2026-08-27T04:00:00.000Z",
-  "dateModified": "2026-09-01T03:47:57.120Z",
+  "dateModified": "2026-09-02T02:22:27.284Z",
   "author": [
     {
       "@type": "Person",
@@ -163,287 +163,328 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-runtime-abstraction-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">运行时如何支持抽象：环境、闭包、作用域与安全执行</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">运行时如何支持抽象：环境、闭包、作用域与安全执行</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-01T03:47:57.120Z" title="更新于 2026-09-01 11:47:57">2026-09-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>前两篇已经让 MiniExpr 能够把源码解析成 AST，并通过 Eval、Apply 和 Primitive 计算组合表达式。但所有操作仍由解释器预先注册，用户不能给值命名，也不能定义自己的函数。</p>
-<p>本篇受教材 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/35-interpreters-for-languages-with-abstraction.html">3.5 Interpreters for Languages with Abstraction</a> 启发，重点不在复刻 Scheme 项目，而在说明：<strong>运行时怎样用环境保存绑定，用函数对象保存代码与定义环境，并在受控边界内执行用户程序。</strong></p>
-<h2 id="1-组合能力还不是抽象能力">1. 组合能力还不是抽象能力</h2>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-runtime-abstraction-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">运行时如何支持抽象：环境、闭包、作用域与安全执行</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">运行时如何支持抽象：环境、闭包、作用域与安全执行</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-02T02:22:27.284Z" title="更新于 2026-09-02 10:22:27">2026-09-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>前两篇已经让 MiniExpr 能够把源码解析成 AST，并通过 Eval、Apply 和 Primitive 计算组合表达式。不过，语言中的所有操作仍由解释器预先注册：用户可以组合 <code>add</code> 和 <code>mul</code>，却不能给结果命名，也不能定义自己的函数。</p>
+<p>本篇只沿着一个核心问题展开：<strong>当用户定义并调用一个函数时，运行时究竟需要保存什么，又怎样找到函数体中的名字？</strong></p>
+<p>我们会依次走过一条完整路径：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Lambda AST</span><br><span class="line">    → UserProcedure</span><br><span class="line">    → Define 建立绑定</span><br><span class="line">    → Apply 创建调用环境</span><br><span class="line">    → Closure 决定名字查找路径</span><br><span class="line">    → ExecutionContext 限制执行能力</span><br></pre></td></tr></table></figure>
+<p>前半部分解释函数、环境与作用域，后半部分再讨论工程中的权限、预算、隔离和观测。本文受教材 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/35-interpreters-for-languages-with-abstraction.html">3.5 Interpreters for Languages with Abstraction</a> 启发，但示例和工程边界围绕一个小型 Python 解释器重新组织。</p>
+<h2 id="1-从组合已有操作，到定义新操作">1. 从组合已有操作，到定义新操作</h2>
 <p>当前语言能够写：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(add 1 (mul 2 3))</span><br></pre></td></tr></table></figure>
-<p>这属于 <strong>means of combination（组合手段）</strong>：已有操作可以嵌套成更复杂的计算。</p>
-<p>但下面的需求还无法表达：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">把 10 命名为 tax</span><br><span class="line">定义 square</span><br><span class="line">定义一个能够创建新函数的 make-adder</span><br></pre></td></tr></table></figure>
-<p>要获得 <strong>means of abstraction（抽象手段）</strong>，语言至少需要：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">名字绑定        name → value</span><br><span class="line">函数表示        parameters + body + defining environment</span><br><span class="line">函数调用        arguments → new frame</span><br><span class="line">作用域规则      在哪里查找自由变量</span><br></pre></td></tr></table></figure>
-<p>这里会重新连接前两章的概念：环境保存名字绑定，函数是一种运行时值，闭包把代码与环境组合，对函数的 Apply 又会触发新一轮 Eval。</p>
-<h2 id="2-Environment-保存名字与值的关系">2. Environment 保存名字与值的关系</h2>
-<p>最简单的名字表是字典：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">names = &#123;</span><br><span class="line">    <span class="string">&quot;add&quot;</span>: Primitive(...),</span><br><span class="line">    <span class="string">&quot;x&quot;</span>: <span class="number">10</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但函数调用需要局部作用域。每次调用都应得到自己的参数绑定，同时仍然能够访问外层名字。运行时因此使用一串相连的 <strong>Frame（环境帧）</strong>：</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart TB
-    CURRENT[&quot;Current frame&lt;br&#x2F;&gt;x &#x3D; 2&quot;] --&gt;|parent| OUTER[&quot;Enclosing frame&lt;br&#x2F;&gt;rate &#x3D; 0.8&quot;]
-    OUTER --&gt;|parent| GLOBAL[&quot;Global frame&lt;br&#x2F;&gt;add &#x3D; Primitive&lt;br&#x2F;&gt;x &#x3D; 10&quot;]
-    GLOBAL --&gt;|parent| NONE[&quot;None&quot;]
-  </pre></div>
-<p class="cp-figure-caption">名字查找从当前 Frame 开始，只有本层不存在时才沿 parent 向外继续。</p>
-<p>可以把它实现为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field</span><br><span class="line"></span><br><span class="line">_MISSING = <span class="built_in">object</span>()</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Environment</span>:</span><br><span class="line">    bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>] = field(default_factory=<span class="built_in">dict</span>)</span><br><span class="line">    parent: <span class="string">&quot;Environment | None&quot;</span> = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">define</span>(<span class="params">self, name: <span class="built_in">str</span>, value: <span class="built_in">object</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.bindings[name] = value</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lookup</span>(<span class="params">self, name: <span class="built_in">str</span></span>) -&gt; <span class="built_in">object</span>:</span><br><span class="line">        environment: Environment | <span class="literal">None</span> = <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> environment <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            value = environment.bindings.get(name, _MISSING)</span><br><span class="line">            <span class="keyword">if</span> value <span class="keyword">is</span> <span class="keyword">not</span> _MISSING:</span><br><span class="line">                <span class="keyword">return</span> value</span><br><span class="line">            environment = environment.parent</span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> NameResolutionError(<span class="string">f&quot;未定义的名字：<span class="subst">&#123;name&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">child</span>(<span class="params">self, bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>]</span>) -&gt; <span class="string">&quot;Environment&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> Environment(bindings=bindings, parent=<span class="variable language_">self</span>)</span><br></pre></td></tr></table></figure>
-<p>这里使用 <code>_MISSING</code>，而不是 <code>dict.get(name)</code> 返回的 <code>None</code>，因为 <code>None</code> 也可能是一个合法绑定值。</p>
-<h3 id="2-1-define-与-lookup-的方向不同">2.1 <code>define</code> 与 <code>lookup</code> 的方向不同</h3>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">define(name, value)</span><br><span class="line">    只在当前 frame 建立或更新绑定</span><br><span class="line"></span><br><span class="line">lookup(name)</span><br><span class="line">    从当前 frame 开始，沿 parent 向外查找</span><br></pre></td></tr></table></figure>
-<p>假设环境是：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">local frame:  x = 2</span><br><span class="line">    ↓ parent</span><br><span class="line">global frame: x = 10, add = Primitive(...)</span><br></pre></td></tr></table></figure>
-<p>在 local frame 中查找 <code>x</code> 得到 2；查找 <code>add</code> 时本层没有，于是到 global frame 得到 Primitive。局部绑定会 <strong>shadow（遮蔽）</strong> 同名外层绑定，但不会删除或修改外层字典。</p>
-<h3 id="2-2-Environment-不等于所有运行时状态">2.2 Environment 不等于所有运行时状态</h3>
-<p>Environment 专门回答“某个语言名字绑定到什么值”。数据库连接、权限、超时、追踪器和请求标识不应该全部伪装成用户可见变量塞进同一个字典。</p>
-<p>后面会把两者分开：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Environment       → 语言级名字与值</span><br><span class="line">ExecutionContext  → 解释器级服务、权限、预算和观测信息</span><br></pre></td></tr></table></figure>
-<h2 id="3-AST-必须为抽象形式保留结构">3. AST 必须为抽象形式保留结构</h2>
-<p>给 MiniExpr 增加三种 AST 节点：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span>, slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Define</span>:</span><br><span class="line">    name: <span class="built_in">str</span></span><br><span class="line">    value: Expr</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span>, slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lambda</span>:</span><br><span class="line">    parameters: <span class="built_in">tuple</span>[<span class="built_in">str</span>, ...]</span><br><span class="line">    body: Expr</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span>, slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">If</span>:</span><br><span class="line">    condition: Expr</span><br><span class="line">    consequent: Expr</span><br><span class="line">    alternative: Expr</span><br></pre></td></tr></table></figure>
-<p>最终的表达式联合类型也要同步扩展：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> TypeAlias</span><br><span class="line"></span><br><span class="line">Expr: TypeAlias = Number | Name | Call | If | Define | Lambda</span><br></pre></td></tr></table></figure>
-<p>Parser 看到以下结构时，不再生成普通 Call：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(define x 10)</span><br><span class="line">(lambda (x) (mul x x))</span><br><span class="line">(if condition consequent alternative)</span><br></pre></td></tr></table></figure>
-<p>原因不是它们的名字比较特别，而是其组成部分不能按照普通实参规则求值：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">define 的 name       是即将建立绑定的名字，不能先 lookup</span><br><span class="line">lambda 的 parameters 是参数声明，不是变量引用</span><br><span class="line">lambda 的 body       创建函数时不能立即执行</span><br><span class="line">if 的两个分支        只能执行被选中的一个</span><br></pre></td></tr></table></figure>
-<p>将这些形式解析为独立 AST 节点，可以把结构校验放在 Parser/Validator，把求值差异明确保留给 Evaluator。</p>
-<h2 id="4-Lambda-求值得到一个函数对象">4. Lambda 求值得到一个函数对象</h2>
-<p>函数定义不是立即执行函数体，而是创建一个可以稍后调用的运行时值：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserProcedure</span>:</span><br><span class="line">    parameters: <span class="built_in">tuple</span>[<span class="built_in">str</span>, ...]</span><br><span class="line">    body: Expr</span><br><span class="line">    closure: Environment</span><br></pre></td></tr></table></figure>
-<p>三个字段分别回答：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">parameters  调用时怎样接收实参</span><br><span class="line">body        调用后执行哪段 AST</span><br><span class="line">closure     body 中的自由变量到哪里查找</span><br></pre></td></tr></table></figure>
-<p>Evaluator 对 Lambda 的处理很短：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">isinstance</span>(expr, Lambda):</span><br><span class="line">    <span class="keyword">return</span> UserProcedure(</span><br><span class="line">        parameters=expr.parameters,</span><br><span class="line">        body=expr.body,</span><br><span class="line">        closure=environment,</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
-<p>此时没有求值 <code>body</code>。Evaluator 只是把当前环境保存到函数对象中，这个环境称为函数的 <strong>defining environment（定义环境）</strong>。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    L[&quot;Lambda AST&lt;br&#x2F;&gt;parameters + body&quot;] --&gt; BUILD[&quot;Eval Lambda&quot;]
-    E[&quot;当前 Environment&quot;] --&gt; BUILD
-    BUILD --&gt; P[&quot;UserProcedure&quot;]
-    P --&gt; PARAMS[&quot;parameters&quot;]
-    P --&gt; BODY[&quot;body AST&quot;]
-    P --&gt; CLOSURE[&quot;closure → defining Environment&quot;]
-  </pre></div>
-<p>这就是闭包机制的基础：代码离开定义位置后，仍然携带解释自由变量所需的环境。</p>
-<h2 id="5-Define-建立名字绑定">5. Define 建立名字绑定</h2>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(define square (lambda (x) (mul x x)))</span><br></pre></td></tr></table></figure>
-<p>对应求值规则：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">isinstance</span>(expr, Define):</span><br><span class="line">    value = evaluate(expr.value, environment, context)</span><br><span class="line">    environment.define(expr.name, value)</span><br><span class="line">    <span class="keyword">return</span> value</span><br></pre></td></tr></table></figure>
-<p>执行顺序是：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Eval Lambda</span><br><span class="line">    ↓</span><br><span class="line">得到 UserProcedure</span><br><span class="line">    ↓</span><br><span class="line">在当前 Environment 中绑定 square → UserProcedure</span><br></pre></td></tr></table></figure>
-<p><code>define</code> 改变了当前环境，所以它不是完全纯粹的表达式。后续 <code>lookup(&quot;square&quot;)</code> 能得到刚创建的函数对象，程序的执行历史开始影响可见绑定。</p>
-<h2 id="6-Apply-用户函数时创建调用环境">6. Apply 用户函数时创建调用环境</h2>
-<p>调用：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(square 5)</span><br></pre></td></tr></table></figure>
-<p>Eval 仍然按照普通 Call 的规则工作：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Eval operator Name(&quot;square&quot;) → UserProcedure</span><br><span class="line">Eval argument Number(5)      → 5</span><br><span class="line">Apply UserProcedure to [5]</span><br></pre></td></tr></table></figure>
-<p>Apply 增加用户函数分支：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">apply_procedure</span>(<span class="params">procedure, arguments, context</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(procedure, Primitive):</span><br><span class="line">        <span class="keyword">return</span> apply_primitive(procedure, arguments, context)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(procedure, UserProcedure):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(arguments) != <span class="built_in">len</span>(procedure.parameters):</span><br><span class="line">            <span class="keyword">raise</span> ArityError(<span class="string">&quot;用户函数的参数数量不匹配&quot;</span>)</span><br><span class="line"></span><br><span class="line">        bindings = <span class="built_in">dict</span>(<span class="built_in">zip</span>(procedure.parameters, arguments))</span><br><span class="line">        call_environment = procedure.closure.child(bindings)</span><br><span class="line">        <span class="keyword">return</span> evaluate(procedure.body, call_environment, context)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">raise</span> EvaluationError(<span class="string">&quot;调用位置得到的不是过程&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>最关键的一行是：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_environment = procedure.closure.child(bindings)</span><br></pre></td></tr></table></figure>
-<p>新 Frame 的 parent 是函数保存的<strong>定义环境</strong>，不是当前调用者的环境。这条选择实现了 <strong>lexical scope（词法作用域）</strong>。</p>
-<h2 id="7-闭包让定义环境在函数返回后继续存在">7. 闭包让定义环境在函数返回后继续存在</h2>
-<p>使用一个更能说明问题的例子：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(define make-adder</span><br><span class="line">  (lambda (x)</span><br><span class="line">    (lambda (y)</span><br><span class="line">      (add x y))))</span><br><span class="line"></span><br><span class="line">(define add3 (make-adder 3))</span><br><span class="line">(add3 10)</span><br></pre></td></tr></table></figure>
-<h3 id="7-1-调用-make-adder">7.1 调用 <code>make-adder</code></h3>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart TB
-    GLOBAL[&quot;global frame&lt;br&#x2F;&gt;make-adder → UserProcedure&quot;]
-    MAKE[&quot;make-adder&lt;br&#x2F;&gt;closure → global&quot;] -.closure.-&gt; GLOBAL
-    CALL[&quot;调用 make-adder(3)&quot;] --&gt; F1[&quot;frame f1&lt;br&#x2F;&gt;x &#x3D; 3&quot;]
-    F1 --&gt;|parent| GLOBAL
-    MAKE --&gt; CALL
-  </pre></div>
-<p>函数体是另一个 Lambda。求值它时创建新的 UserProcedure，并把当前环境 <code>f1</code> 保存为 closure：</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    ADD3[&quot;add3&lt;br&#x2F;&gt;parameters: y&lt;br&#x2F;&gt;body: add(x, y)&quot;] --&gt;|closure| F1[&quot;frame f1&lt;br&#x2F;&gt;x &#x3D; 3&quot;]
-    F1 --&gt;|parent| GLOBAL[&quot;global frame&lt;br&#x2F;&gt;add &#x3D; Primitive&quot;]
-  </pre></div>
-<p><code>make-adder</code> 已经返回，但 <code>add3</code> 仍然引用 <code>f1</code>，因此 <code>f1</code> 不能被回收。闭包保存的不是一次计算后的 <code>x</code> 文本替换，而是能够执行名字查找的环境关系。</p>
-<h3 id="7-2-调用-add3">7.2 调用 <code>add3</code></h3>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    CALL[&quot;调用 add3(10)&quot;] --&gt; F2[&quot;frame f2&lt;br&#x2F;&gt;y &#x3D; 10&quot;]
-    F2 --&gt;|parent &#x3D; add3.closure| F1[&quot;frame f1&lt;br&#x2F;&gt;x &#x3D; 3&quot;]
-    F1 --&gt;|parent| GLOBAL[&quot;global frame&lt;br&#x2F;&gt;add &#x3D; Primitive&quot;]
-    F2 -.lookup y.-&gt; F2
-    F2 -.lookup x.-&gt; F1
-    F2 -.lookup add.-&gt; GLOBAL
-  </pre></div>
-<p class="cp-figure-caption">调用结束后，add3 仍引用 f1；这条引用就是外层变量 x 能继续存活的原因。</p>
-<p>求值 <code>(add x y)</code>：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lookup add：f2 没有 → f1 没有 → global 找到 Primitive(add)</span><br><span class="line">lookup x：  f2 没有 → f1 找到 3</span><br><span class="line">lookup y：  f2 找到 10</span><br><span class="line">Apply add to [3, 10] → 13</span><br></pre></td></tr></table></figure>
-<p>闭包可以压缩为：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Closure = Function Code + Defining Environment</span><br></pre></td></tr></table></figure>
-<p>但“环境”不是把所有可见值复制一份快照。它通常保存对环境对象的引用；如果语言允许修改外层绑定，之后的查找也可能观察到变化。</p>
-<h2 id="8-Lexical-scope-与-dynamic-scope-的差别">8. Lexical scope 与 dynamic scope 的差别</h2>
-<p>考虑：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(define x 100)</span><br><span class="line"></span><br><span class="line">(define read-x</span><br><span class="line">  (lambda () x))</span><br><span class="line"></span><br><span class="line">(define call-with-local-x</span><br><span class="line">  (lambda (x) (read-x)))</span><br><span class="line"></span><br><span class="line">(call-with-local-x 1)</span><br></pre></td></tr></table></figure>
-<p>词法作用域根据函数<strong>定义在哪里</strong>决定名字查找路径，所以 <code>read-x</code> 的 closure 指向 global，结果是 100。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart TB
-    subgraph LEXICAL[&quot;Lexical scope：看定义位置&quot;]
-      LC[&quot;read-x 调用帧&quot;] --&gt;|parent &#x3D; procedure.closure| LG[&quot;global frame&lt;br&#x2F;&gt;x &#x3D; 100&quot;]
-    end
-    subgraph DYNAMIC[&quot;Dynamic scope：看调用位置&quot;]
-      DC[&quot;read-x 调用帧&quot;] --&gt;|parent &#x3D; caller environment| DL[&quot;调用者 frame&lt;br&#x2F;&gt;x &#x3D; 1&quot;]
-    end
-    LG -.对比查找结果.-&gt; DC
-  </pre></div>
-<p>如果 Apply 错误地把当前调用者环境作为 parent，<code>read-x</code> 会看到调用者参数 <code>x=1</code>，语言就变成了另一种作用域规则。作用域不是“字典查找的实现细节”，而是语言语义的一部分。</p>
-<h2 id="9-Eval-与-Apply-形成互相递归">9. Eval 与 Apply 形成互相递归</h2>
-<p>加入用户函数后，完整关系更加清楚：</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart TB
-    EC[&quot;Eval Call&quot;] --&gt; PARTS[&quot;Eval operator 与 arguments&quot;]
-    PARTS --&gt; APPLY[&quot;Apply UserProcedure&quot;]
-    APPLY --&gt; FRAME[&quot;创建 child Environment&quot;]
-    FRAME --&gt; BODY[&quot;Eval procedure.body&quot;]
-    BODY --&gt;|body 中再次出现 Call| EC
-    BODY --&gt;|Number 等基础节点| VALUE[&quot;Runtime value&quot;]
-    APPLY --&gt;|Primitive| HOST[&quot;调用受控宿主实现&quot;]
-  </pre></div>
-<p>递归的终点有两类：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Eval base case：Number 等 self-evaluating expression</span><br><span class="line">Apply base case：Primitive 直接调用宿主语言实现</span><br></pre></td></tr></table></figure>
-<p>用户定义函数没有脱离解释器运行。它的函数体仍是一棵 AST，只是在新的环境中再次交给 Eval。</p>
-<h3 id="9-1-递归函数怎样找到自己">9.1 递归函数怎样找到自己</h3>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(define factorial</span><br><span class="line">  (lambda (n)</span><br><span class="line">    (if (eq n 0)</span><br><span class="line">        1</span><br><span class="line">        (mul n (factorial (sub n 1))))))</span><br></pre></td></tr></table></figure>
-<p>Lambda 创建时保存 global frame；随后 <code>define</code> 把 <code>factorial</code> 绑定到同一个 global frame。函数体执行到 <code>Name(&quot;factorial&quot;)</code> 时，沿 closure 查找就能找到后来建立的绑定。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UserProcedure.closure ──&gt; global frame</span><br><span class="line">                              └── factorial ──&gt; UserProcedure</span><br></pre></td></tr></table></figure>
-<p>这个环状引用在语义上支持递归。Python 的垃圾回收能够处理普通引用环，但解释器仍要避免无意中让大量环境和中间值永久可达。</p>
-<h2 id="10-程序成为数据后，可以被分析和转换">10. 程序成为数据后，可以被分析和转换</h2>
-<p>解释器看到的用户程序不是“神秘代码”，而是 AST 对象：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用户视角：表达式规定要完成的计算</span><br><span class="line">解释器视角：一棵需要按规则遍历的数据树</span><br></pre></td></tr></table></figure>
-<p>因此执行前可以：</p>
-<ul>
-<li>收集引用的操作名；</li>
-<li>检查禁止节点；</li>
-<li>限制树深度和节点数量；</li>
-<li>对常量表达式预计算；</li>
-<li>插入追踪节点；</li>
-<li>把一种外部语法转换成统一 IR。</li>
-</ul>
-<p>但能够分析 AST 不代表它天然安全。最终风险取决于 Evaluator 允许哪些节点，以及 Primitive 能访问哪些宿主能力。</p>
-<h2 id="11-不要用-eval-代替受控解释器">11. 不要用 <code>eval</code> 代替受控解释器</h2>
-<p>Python 的 <code>eval()</code> 会按照 Python 语义执行表达式：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span>(<span class="string">&quot;2 + 2&quot;</span>)  <span class="comment"># 4</span></span><br></pre></td></tr></table></figure>
-<p>如果输入不可信，攻击者就不再受 MiniExpr 的节点类型和 Primitive 注册表限制。仅仅删除一部分 <code>globals</code> 或修改 <code>__builtins__</code> 不能构成可靠安全边界。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">自定义解释器</span><br><span class="line">    只识别主动实现的 AST 节点</span><br><span class="line">    只暴露主动注册的 Primitive</span><br><span class="line"></span><br><span class="line">Python eval / exec</span><br><span class="line">    执行 Python 语言能力</span><br><span class="line">    攻击面远大于小型 DSL</span><br></pre></td></tr></table></figure>
-<p><code>ast.literal_eval()</code> 不执行任意函数调用或名字查找，只接受 Python 字面量和容器结构，但它也不是处理任意不可信大输入的完整防护：恶意构造的深层或巨大输入仍可能造成 CPU、内存或栈资源耗尽。</p>
-<p>如果需求是真正执行不可信 Python 代码，单靠自定义字典、异常捕获或 AST 黑名单并不够，通常还需要独立进程或容器、操作系统权限隔离、网络和文件系统限制以及资源配额。</p>
-<h2 id="12-Environment-与-ExecutionContext-分开设计">12. Environment 与 ExecutionContext 分开设计</h2>
-<p>语言变量和执行控制属于不同层次：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> monotonic</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionContext</span>:</span><br><span class="line">    remaining_steps: <span class="built_in">int</span></span><br><span class="line">    deadline: <span class="built_in">float</span></span><br><span class="line">    trace_id: <span class="built_in">str</span></span><br><span class="line">    services: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">tick</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.remaining_steps -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.remaining_steps &lt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> ResourceLimitError(<span class="string">&quot;执行步数超过限制&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> monotonic() &gt; <span class="variable language_">self</span>.deadline:</span><br><span class="line">            <span class="keyword">raise</span> ResourceLimitError(<span class="string">&quot;执行超时&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>Evaluator 每处理一个节点就调用一次 <code>context.tick()</code>：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate</span>(<span class="params">expr, environment, context</span>):</span><br><span class="line">    context.tick()</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<p>两类状态的职责是：</p>
+<p>这属于 <strong>means of combination（组合手段）</strong>：把已有操作拼成更复杂的计算。</p>
+<p>真正的抽象还要求用户能够创造新的名字和操作：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(define square</span><br><span class="line">  (lambda (x)</span><br><span class="line">    (mul x x)))</span><br><span class="line"></span><br><span class="line">(square 5)</span><br></pre></td></tr></table></figure>
+<p>为了让这段程序得到 <code>25</code>，运行时必须回答四个问题：</p>
 <table>
 <thead>
 <tr>
-<th>状态</th>
-<th>面向谁</th>
-<th>保存什么</th>
+<th>问题</th>
+<th>运行时机制</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><code>square</code> 和 <code>x</code> 保存在哪里？</td>
 <td>Environment</td>
-<td>被解释程序</td>
-<td>名字绑定与作用域关系</td>
 </tr>
 <tr>
-<td>ExecutionContext</td>
-<td>解释器和宿主系统</td>
-<td>预算、服务、权限、trace id</td>
+<td>Lambda 求值后得到什么？</td>
+<td>UserProcedure</td>
+</tr>
+<tr>
+<td>调用时参数 <code>5</code> 怎样变成局部变量 <code>x</code>？</td>
+<td>新的调用 Frame</td>
+</tr>
+<tr>
+<td>函数体中的外层名字去哪里查找？</td>
+<td>Closure 与 Lexical Scope</td>
 </tr>
 </tbody>
 </table>
-<p>这样用户函数可以访问自己的变量，却不能因为定义了同名变量就覆盖解释器的 deadline、数据库连接或权限对象。</p>
-<h2 id="13-安全执行需要多层限制">13. 安全执行需要多层限制</h2>
-<p>受控 AST 和 allowlist 是必要条件，但还不是完整沙箱。一个允许递归和外部操作的解释器至少应考虑：</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart TB
-    INPUT[&quot;输入限制&lt;br&#x2F;&gt;字符 · Token · AST 深度&quot;] --&gt; SEMANTIC[&quot;语义限制&lt;br&#x2F;&gt;节点 · 操作 · 参数 schema&quot;]
-    SEMANTIC --&gt; COMPUTE[&quot;计算限制&lt;br&#x2F;&gt;步数 · 调用深度 · 超时 · 输出&quot;]
-    COMPUTE --&gt; CAPABILITY[&quot;能力限制&lt;br&#x2F;&gt;文件 · 网络 · 数据库 · 进程&quot;]
-    CAPABILITY --&gt; ISOLATION[&quot;隔离限制&lt;br&#x2F;&gt;独立进程 · 容器 · 受限账户&quot;]
-  </pre></div>
-<p class="cp-figure-caption">安全执行不是某一个开关，而是从输入到操作系统的多层约束。</p>
-<p>其中有几个容易混淆的点：</p>
-<ul>
-<li>AST 白名单限制“表达什么”，不能限制一个已注册 Primitive 内部做什么；</li>
-<li>Evaluator 的协作式 deadline 只能在下一次 <code>tick()</code> 时生效，无法中断卡在阻塞 I/O 中的 Primitive；</li>
-<li>Python 线程超时不等于底层任务已经停止；</li>
-<li>只限制递归深度不能阻止宽度巨大但不深的 AST；</li>
-<li>只限制 wall-clock 时间不能阻止短时间内占用大量内存。</li>
-</ul>
-<p>外部操作本身还需要超时和取消机制；需要强隔离时，应把执行放到可以终止和回收的独立边界中。</p>
-<h2 id="14-可观测性要记录语义事件">14. 可观测性要记录语义事件</h2>
-<p>只记录“执行失败”很难还原解释器发生了什么。更有价值的是结构化事件：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">trace_id</span><br><span class="line">node_type</span><br><span class="line">source_span</span><br><span class="line">operation_name</span><br><span class="line">argument_summary</span><br><span class="line">duration_ms</span><br><span class="line">status</span><br><span class="line">error_code</span><br></pre></td></tr></table></figure>
-<p>一次调用可以形成：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Eval Call(add) start</span><br><span class="line">├── Eval Name(add) success</span><br><span class="line">├── Eval Number(1) success</span><br><span class="line">├── Eval Call(mul) start</span><br><span class="line">│   └── Apply Primitive(mul) success: 6</span><br><span class="line">└── Apply Primitive(add) success: 7</span><br></pre></td></tr></table></figure>
-<p>记录时应避免直接保存完整输入、凭据和敏感返回值。观测系统需要足够的信息定位阶段和操作，但不应变成数据泄漏通道。</p>
-<h3 id="14-1-解释器自身错误与用户程序错误分开">14.1 解释器自身错误与用户程序错误分开</h3>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">User program error</span><br><span class="line">    未知名字、arity 不符、资源预算用尽</span><br><span class="line">    → 稳定错误码，可以展示给调用者</span><br><span class="line"></span><br><span class="line">Interpreter defect</span><br><span class="line">    漏处理节点、内部状态损坏、意外异常</span><br><span class="line">    → 记录 traceback，对外返回通用内部错误</span><br></pre></td></tr></table></figure>
-<p>若把所有异常都转换成 <code>EvaluationError(&quot;执行失败&quot;)</code>，系统表面上更“稳定”，实际却丢失了排查解释器缺陷所需的信息。</p>
-<h2 id="15-一个可扩展解释器的模块边界">15. 一个可扩展解释器的模块边界</h2>
-<p>三篇笔记最终得到的不是一个巨大的 <code>eval</code> 函数，而是一组可以独立演进的组件：</p>
+<p>这四个机制不是彼此独立的知识点，而是同一次函数调用的不同阶段。</p>
+<h2 id="2-Environment-让名字获得上下文">2. Environment 让名字获得上下文</h2>
+<p>名字本身只是字符串。<code>x</code> 当前表示 <code>5</code>、<code>100</code>，还是根本不存在，取决于求值时所在的 <strong>Environment（环境）</strong>。</p>
+<h3 id="2-1-Frame-保存一层绑定，parent-连接外层">2.1 Frame 保存一层绑定，parent 连接外层</h3>
+<p>最简单的名字表可以是字典：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">names = &#123;</span><br><span class="line">    <span class="string">&quot;add&quot;</span>: Primitive(...),</span><br><span class="line">    <span class="string">&quot;x&quot;</span>: <span class="number">10</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但函数调用需要局部作用域：每次调用都要拥有自己的参数，同时仍能访问外层名字。运行时因此把环境组织成一串相连的 <strong>Frame（环境帧）</strong>：</p>
 <div class="mermaid-wrap"><pre class="mermaid-src" hidden>
     flowchart LR
-    SOURCE[&quot;Source Adapter&quot;] --&gt; PARSER[&quot;Tokenizer &#x2F; Parser&quot;]
-    PARSER --&gt; VALIDATOR[&quot;Validator &#x2F; Normalizer&quot;]
-    VALIDATOR --&gt; EVALUATOR[&quot;Evaluator&quot;]
-    ENV[&quot;Environment&lt;br&#x2F;&gt;名字与作用域&quot;] --&gt; EVALUATOR
-    PROC[&quot;Procedure&lt;br&#x2F;&gt;Primitive &#x2F; UserProcedure&quot;] --&gt; EVALUATOR
-    CONTEXT[&quot;ExecutionContext&lt;br&#x2F;&gt;权限 · 预算 · 追踪&quot;] --&gt; EVALUATOR
-    EVALUATOR --&gt; REGISTRY[&quot;Capability Registry&quot;]
+    CURRENT[&quot;当前 Frame&lt;br&#x2F;&gt;x &#x3D; 2&quot;] --&gt;|parent| OUTER[&quot;外层 Frame&lt;br&#x2F;&gt;rate &#x3D; 0.8&quot;]
+    OUTER --&gt;|parent| GLOBAL[&quot;全局 Frame&lt;br&#x2F;&gt;add &#x3D; Primitive · x &#x3D; 10&lt;br&#x2F;&gt;parent &#x3D; None&quot;]
+  </pre></div>
+<p class="cp-figure-caption">查找从当前 Frame 开始；本层没有对应名字时，才沿 parent 继续向外。</p>
+<p>一个最小实现如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field</span><br><span class="line"></span><br><span class="line">_MISSING = <span class="built_in">object</span>()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Environment</span>:</span><br><span class="line">    bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>] = field(default_factory=<span class="built_in">dict</span>)</span><br><span class="line">    parent: <span class="string">&quot;Environment | None&quot;</span> = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">define</span>(<span class="params">self, name: <span class="built_in">str</span>, value: <span class="built_in">object</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.bindings[name] = value</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">lookup</span>(<span class="params">self, name: <span class="built_in">str</span></span>) -&gt; <span class="built_in">object</span>:</span><br><span class="line">        environment: Environment | <span class="literal">None</span> = <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> environment <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            value = environment.bindings.get(name, _MISSING)</span><br><span class="line">            <span class="keyword">if</span> value <span class="keyword">is</span> <span class="keyword">not</span> _MISSING:</span><br><span class="line">                <span class="keyword">return</span> value</span><br><span class="line">            environment = environment.parent</span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> NameResolutionError(<span class="string">f&quot;未定义的名字：<span class="subst">&#123;name&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">child</span>(<span class="params">self, bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>]</span>) -&gt; <span class="string">&quot;Environment&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> Environment(bindings=bindings, parent=<span class="variable language_">self</span>)</span><br></pre></td></tr></table></figure>
+<p>这里不能用 <code>dict.get(name)</code> 返回的 <code>None</code> 表示“没有找到”，因为 <code>None</code> 本身也可能是合法值，所以需要单独的 <code>_MISSING</code> 标记。</p>
+<h3 id="2-2-define-写当前层，lookup-沿链向外读">2.2 <code>define</code> 写当前层，<code>lookup</code> 沿链向外读</h3>
+<p>两种操作的方向不同：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">define(name, value)</span><br><span class="line">    → 只在当前 Frame 建立或更新绑定</span><br><span class="line"></span><br><span class="line">lookup(name)</span><br><span class="line">    → 从当前 Frame 开始，沿 parent 向外查找</span><br></pre></td></tr></table></figure>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">local frame:  x = 2</span><br><span class="line">    ↓ parent</span><br><span class="line">global frame: x = 10, add = Primitive(...)</span><br></pre></td></tr></table></figure>
+<p>在 local frame 中查找 <code>x</code> 得到 <code>2</code>；查找 <code>add</code> 时，本层没有，于是到 global frame 找到 Primitive。局部 <code>x</code> 会 <strong>shadow（遮蔽）</strong> 外层 <code>x</code>，但外层绑定仍然存在。</p>
+<p>至此，Environment 只解决了“名字怎样找到值”。接下来还需要让函数本身成为一种可以被保存的值。</p>
+<h2 id="3-函数的诞生：Lambda-变成-UserProcedure">3. 函数的诞生：Lambda 变成 UserProcedure</h2>
+<p><code>lambda</code> 不是一次函数调用，而是“创建函数”的语法。创建时不能立即执行函数体，因此 Parser 必须把它保留为独立 AST 节点。</p>
+<h3 id="3-1-抽象形式必须保留自己的-AST-结构">3.1 抽象形式必须保留自己的 AST 结构</h3>
+<p>MiniExpr 至少需要新增 <code>Lambda</code> 和 <code>Define</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span>, slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Lambda</span>:</span><br><span class="line">    parameters: <span class="built_in">tuple</span>[<span class="built_in">str</span>, ...]</span><br><span class="line">    body: <span class="string">&quot;Expr&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">frozen=<span class="literal">True</span>, slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Define</span>:</span><br><span class="line">    name: <span class="built_in">str</span></span><br><span class="line">    value: <span class="string">&quot;Expr&quot;</span></span><br></pre></td></tr></table></figure>
+<p>它们不能被当作普通 Call：</p>
+<table>
+<thead>
+<tr>
+<th>形式</th>
+<th>不能使用普通调用规则的原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lambda</code> 的 parameters</td>
+<td>是参数声明，不是需要 lookup 的变量引用</td>
+</tr>
+<tr>
+<td><code>lambda</code> 的 body</td>
+<td>创建函数时只保存，调用函数时才执行</td>
+</tr>
+<tr>
+<td><code>define</code> 的 name</td>
+<td>是准备建立的名字，不能先求值</td>
+</tr>
+</tbody>
+</table>
+<p>上一篇中的 <code>if</code> 同理：它只求值被选中的分支。<strong>Special Form（特殊形式）之所以特殊，是因为它拥有自己的求值顺序。</strong></p>
+<h3 id="3-2-Eval-Lambda-只创建函数，不执行函数体">3.2 Eval Lambda 只创建函数，不执行函数体</h3>
+<p>Lambda 求值后得到一个运行时函数对象：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserProcedure</span>:</span><br><span class="line">    parameters: <span class="built_in">tuple</span>[<span class="built_in">str</span>, ...]</span><br><span class="line">    body: <span class="string">&quot;Expr&quot;</span></span><br><span class="line">    closure: Environment</span><br></pre></td></tr></table></figure>
+<p>三个字段分别保存：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">parameters  调用时怎样接收实参</span><br><span class="line">body        调用后执行哪棵 AST</span><br><span class="line">closure     body 中的外层名字到哪里查找</span><br></pre></td></tr></table></figure>
+<p>Evaluator 的规则很短：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">isinstance</span>(expr, Lambda):</span><br><span class="line">    <span class="keyword">return</span> UserProcedure(</span><br><span class="line">        parameters=expr.parameters,</span><br><span class="line">        body=expr.body,</span><br><span class="line">        closure=environment,</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    LAMBDA[&quot;Lambda AST&lt;br&#x2F;&gt;parameters + body&quot;] --&gt; BUILD[&quot;Eval Lambda&quot;]
+    ENV[&quot;当前 Environment&quot;] --&gt; BUILD
+    BUILD --&gt; PROC[&quot;UserProcedure&lt;br&#x2F;&gt;parameters&lt;br&#x2F;&gt;body AST&lt;br&#x2F;&gt;closure → 当前环境&quot;]
+  </pre></div>
+<p class="cp-figure-caption">Eval Lambda 不执行 body，只把代码和当前环境组合成可调用的函数值。</p>
+<p>这里保存的当前环境就是函数的 <strong>defining environment（定义环境）</strong>。代码与定义环境组合在一起，构成 closure 的基础。</p>
+<h3 id="3-3-Define-再把函数值绑定到名字">3.3 Define 再把函数值绑定到名字</h3>
+<p>对下面的程序：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(define square</span><br><span class="line">  (lambda (x)</span><br><span class="line">    (mul x x)))</span><br></pre></td></tr></table></figure>
+<p>Evaluator 先求值右侧 Lambda，再建立名字绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">isinstance</span>(expr, Define):</span><br><span class="line">    value = evaluate(expr.value, environment, context)</span><br><span class="line">    environment.define(expr.name, value)</span><br><span class="line">    <span class="keyword">return</span> value</span><br></pre></td></tr></table></figure>
+<p>完整顺序是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Lambda AST</span><br><span class="line">    → Eval Lambda</span><br><span class="line">    → UserProcedure</span><br><span class="line">    → define(&quot;square&quot;, procedure)</span><br></pre></td></tr></table></figure>
+<p>因此 <code>define</code> 和 <code>lambda</code> 不要混成一个动作：Lambda 负责<strong>产生函数值</strong>，Define 负责<strong>给这个值建立名字</strong>。匿名函数只需要前者，具名函数同时使用两者。</p>
+<h2 id="4-函数的调用：Apply-创建新的环境">4. 函数的调用：Apply 创建新的环境</h2>
+<p>现在执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(square 5)</span><br></pre></td></tr></table></figure>
+<p>Eval 仍遵守普通 Call 的规则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Eval Name(&quot;square&quot;)  → UserProcedure</span><br><span class="line">Eval Number(5)       → 5</span><br><span class="line">Apply procedure to [5]</span><br></pre></td></tr></table></figure>
+<p>变化发生在 Apply。Primitive 直接调用受控的 Python 实现；UserProcedure 则需要创建调用环境，再回到 Eval 执行函数体。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">apply_procedure</span>(<span class="params">procedure, arguments, context</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(procedure, Primitive):</span><br><span class="line">        <span class="keyword">return</span> apply_primitive(procedure, arguments, context)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(procedure, UserProcedure):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(arguments) != <span class="built_in">len</span>(procedure.parameters):</span><br><span class="line">            <span class="keyword">raise</span> ArityError(<span class="string">&quot;用户函数的参数数量不匹配&quot;</span>)</span><br><span class="line"></span><br><span class="line">        bindings = <span class="built_in">dict</span>(<span class="built_in">zip</span>(procedure.parameters, arguments))</span><br><span class="line">        call_environment = procedure.closure.child(bindings)</span><br><span class="line">        <span class="keyword">return</span> evaluate(</span><br><span class="line">            procedure.body,</span><br><span class="line">            call_environment,</span><br><span class="line">            context,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">raise</span> EvaluationError(<span class="string">&quot;调用位置得到的不是过程&quot;</span>)</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    EVAL[&quot;① Eval Call&lt;br&#x2F;&gt;square → UserProcedure&lt;br&#x2F;&gt;5 → 5&quot;]
+    EVAL --&gt; APPLY[&quot;② Apply UserProcedure&lt;br&#x2F;&gt;创建调用 Environment&lt;br&#x2F;&gt;x &#x3D; 5 · parent &#x3D; closure&quot;]
+    APPLY --&gt; BODY[&quot;③ Eval body&lt;br&#x2F;&gt;mul x x&lt;br&#x2F;&gt;&lt;b&gt;得到 25&lt;&#x2F;b&gt;&quot;]
+  </pre></div>
+<p>最关键的一行是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_environment = procedure.closure.child(bindings)</span><br></pre></td></tr></table></figure>
+<p>它同时完成两件事：</p>
+<ol>
+<li>将形参 <code>x</code> 与实参值 <code>5</code> 写入新的 Frame；</li>
+<li>让新 Frame 的 parent 指向函数保存的定义环境。</li>
+</ol>
+<p>第二点决定了函数体中的外层名字怎样查找，也就是下一节的闭包与作用域问题。</p>
+<h3 id="4-1-Eval-与-Apply-为什么会互相递归">4.1 Eval 与 Apply 为什么会互相递归</h3>
+<p>用户函数的 body 仍然是一棵 AST，所以 Apply UserProcedure 需要再次调用 Eval；如果 body 中还有 Call，Eval 又会再次调用 Apply：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    EVAL[&quot;Eval Call&quot;] --&gt; APPLY[&quot;Apply UserProcedure&quot;]
+    APPLY --&gt; FRAME[&quot;创建调用 Environment&quot;]
+    FRAME --&gt; BODY[&quot;Eval procedure.body&quot;]
+    BODY --&gt;|body 中还有 Call| EVAL
+    BODY --&gt;|基础表达式| VALUE[&quot;Runtime value&quot;]
+    APPLY --&gt;|Primitive| HOST[&quot;受控宿主实现&quot;]
+  </pre></div>
+<p>递归不会无限发生，因为存在两类终点：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Eval 的终点：Number 等可以直接得到值的表达式</span><br><span class="line">Apply 的终点：Primitive 直接调用宿主实现</span><br></pre></td></tr></table></figure>
+<p>用户函数并没有脱离解释器运行；函数体始终由相同的求值规则解释，只是换到了新的 Environment。</p>
+<h2 id="5-Closure-决定函数体怎样找到外层名字">5. Closure 决定函数体怎样找到外层名字</h2>
+<p>普通 <code>square</code> 只使用参数，看不出 closure 的必要性。下面的 <code>make-adder</code> 会返回一个仍然引用外层参数 <code>x</code> 的函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(define make-adder</span><br><span class="line">  (lambda (x)</span><br><span class="line">    (lambda (y)</span><br><span class="line">      (add x y))))</span><br><span class="line"></span><br><span class="line">(define add3 (make-adder 3))</span><br><span class="line">(add3 10)</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-make-adder-返回后，x-为什么还存在">5.1 <code>make-adder</code> 返回后，<code>x</code> 为什么还存在</h3>
+<p>调用 <code>(make-adder 3)</code> 时创建 <code>f1</code>，其中保存 <code>x = 3</code>。函数体是另一个 Lambda；求值它会创建 <code>add3</code>，并把当前环境 <code>f1</code> 保存为 closure。</p>
+<p>随后调用 <code>(add3 10)</code>，又创建 <code>f2</code>，其中保存 <code>y = 10</code>，而它的 parent 指向 <code>add3.closure</code>，也就是 <code>f1</code>：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    CALL[&quot;调用 add3(10)&quot;] --&gt; F2[&quot;frame f2&lt;br&#x2F;&gt;y &#x3D; 10&quot;]
+    F2 --&gt;|&quot;parent &#x3D; add3.closure&quot;| F1[&quot;frame f1&lt;br&#x2F;&gt;x &#x3D; 3&quot;]
+    F1 --&gt;|parent| GLOBAL[&quot;global frame&lt;br&#x2F;&gt;add &#x3D; Primitive&quot;]
+    ADD3[&quot;add3&lt;br&#x2F;&gt;body: add(x, y)&quot;] -.closure.-&gt; F1
+  </pre></div>
+<p class="cp-figure-caption">add3 持有对 f1 的引用，因此 make-adder 返回后，保存 x = 3 的环境仍然可达。</p>
+<p>求值函数体 <code>(add x y)</code> 时：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lookup y：  f2 找到 10</span><br><span class="line">lookup x：  f2 没有 → f1 找到 3</span><br><span class="line">lookup add：f2 没有 → f1 没有 → global 找到 Primitive(add)</span><br><span class="line">Apply add to [3, 10] → 13</span><br></pre></td></tr></table></figure>
+<p>因此可以把闭包压缩为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Closure = Function Code + Defining Environment</span><br></pre></td></tr></table></figure>
+<p>Closure 不是把外层变量文本替换进函数体，也不一定复制所有值。它通常保存对环境对象的引用；只要函数还引用这个环境，环境就不能被回收。</p>
+<h3 id="5-2-Lexical-Scope-看定义位置，不看调用位置">5.2 Lexical Scope 看定义位置，不看调用位置</h3>
+<p>考虑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(define x 100)</span><br><span class="line"></span><br><span class="line">(define read-x</span><br><span class="line">  (lambda () x))</span><br><span class="line"></span><br><span class="line">(define call-with-local-x</span><br><span class="line">  (lambda (x) (read-x)))</span><br><span class="line"></span><br><span class="line">(call-with-local-x 1)</span><br></pre></td></tr></table></figure>
+<p><code>read-x</code> 定义在 global，因此它的 closure 指向 global。即使调用者恰好有一个局部 <code>x = 1</code>，词法作用域仍然得到 <code>100</code>。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    CALL[&quot;调用 read-x&quot;] --&gt; CHOICE{&quot;新调用帧的 parent&lt;br&#x2F;&gt;指向哪里？&quot;}
+    CHOICE --&gt; LEXICAL[&quot;词法作用域 · 看定义位置&lt;br&#x2F;&gt;parent &#x3D; procedure.closure&lt;br&#x2F;&gt;global frame · x &#x3D; 100&lt;br&#x2F;&gt;&lt;b&gt;read-x 返回 100&lt;&#x2F;b&gt;&quot;]
+    CHOICE --&gt; DYNAMIC[&quot;动态作用域 · 看调用位置&lt;br&#x2F;&gt;parent &#x3D; caller environment&lt;br&#x2F;&gt;调用者 frame · x &#x3D; 1&lt;br&#x2F;&gt;&lt;b&gt;read-x 返回 1&lt;&#x2F;b&gt;&quot;]
+    class LEXICAL cp-path-good
+    class DYNAMIC cp-path-bad
+  </pre></div>
+<p class="cp-figure-caption">parent 指向定义时保存的 closure，查到 x = 100；指向当前调用者环境，则查到 x = 1。</p>
+<p>如果 Apply 错误地把调用者环境设为 parent，MiniExpr 就会从 lexical scope 变成 dynamic scope。可见作用域不是字典查找的实现细节，而是语言语义的一部分。</p>
+<h3 id="5-3-递归函数也依赖环境查找">5.3 递归函数也依赖环境查找</h3>
+<p>递归定义看似特殊，实际仍然使用同一套机制：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(define factorial</span><br><span class="line">  (lambda (n)</span><br><span class="line">    (if (eq n 0)</span><br><span class="line">        1</span><br><span class="line">        (mul n (factorial (sub n 1))))))</span><br></pre></td></tr></table></figure>
+<p>Lambda 创建时保存 global frame；随后 Define 把 <code>factorial</code> 绑定到这个 global frame。函数体再次查找 <code>factorial</code> 时，沿 closure 就能找到自己：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UserProcedure.closure ──&gt; global frame</span><br><span class="line">                              └── factorial ──&gt; UserProcedure</span><br></pre></td></tr></table></figure>
+<p>这不是单独的“递归魔法”，而是函数对象与 Environment 形成的引用关系。</p>
+<h2 id="6-受控解释器决定程序能够表达和执行什么">6. 受控解释器决定程序能够表达和执行什么</h2>
+<p>到这里，MiniExpr 已经支持用户函数。接下来的问题不再是“怎样算出结果”，而是“允许用户程序影响什么”。</p>
+<h3 id="6-1-程序成为-AST-后，可以先分析再执行">6.1 程序成为 AST 后，可以先分析再执行</h3>
+<p>解释器看到的不是一段必须立刻运行的神秘代码，而是一棵数据树：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用户视角：表达式描述要完成的计算</span><br><span class="line">解释器视角：AST 是等待校验和遍历的数据</span><br></pre></td></tr></table></figure>
+<p>执行前可以完成：</p>
+<ul>
+<li>检查禁止节点和未知操作；</li>
+<li>限制 AST 深度、宽度和节点总数；</li>
+<li>校验参数结构；</li>
+<li>收集即将使用的能力；</li>
+<li>将多种输入语法规范化为统一 IR；</li>
+<li>插入追踪或预算检查。</li>
+</ul>
+<p>不过，AST 可分析不等于天然安全。真正的能力边界还取决于 Evaluator 支持哪些节点，以及 Primitive Registry 暴露哪些宿主操作。</p>
+<h3 id="6-2-Primitive-Registry-是显式能力白名单">6.2 Primitive Registry 是显式能力白名单</h3>
+<p>自定义解释器只执行主动实现的语义：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AST 节点白名单</span><br><span class="line">    决定用户程序能表达哪些结构</span><br><span class="line"></span><br><span class="line">Primitive Registry</span><br><span class="line">    决定程序能调用哪些宿主能力</span><br></pre></td></tr></table></figure>
+<p>一个仅注册 <code>add</code>、<code>mul</code> 的解释器不能凭空访问文件或网络；一旦注册了 <code>http_request</code>、数据库写入等 Primitive，就必须为这些能力单独设计权限、超时、重试和审计。</p>
+<h3 id="6-3-不要用-Python-eval-代替受控解释器">6.3 不要用 Python <code>eval</code> 代替受控解释器</h3>
+<p>Python 的 <code>eval()</code> 按照 Python 语义执行字符串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span>(<span class="string">&quot;2 + 2&quot;</span>)  <span class="comment"># 4</span></span><br></pre></td></tr></table></figure>
+<p>面对不可信输入，它会绕开 MiniExpr 的 AST 类型和 Primitive Registry。删掉部分 <code>globals</code>、修改 <code>__builtins__</code> 或增加 AST 黑名单，都不能自动形成可靠沙箱。</p>
+<p><code>ast.literal_eval()</code> 只接受 Python 字面量和容器，不执行任意函数调用或名字查找，适合解析受限数据；但巨大或极深的输入仍可能消耗大量内存、CPU 或栈空间。</p>
+<p>如果必须执行不可信 Python 代码，需要独立进程或容器、操作系统权限、文件和网络限制以及资源配额。自定义解释器的优势，是从语言设计层面主动缩小可表达和可调用的能力集合。</p>
+<h2 id="7-工程运行时还要管理预算、权限与观测">7. 工程运行时还要管理预算、权限与观测</h2>
+<p>Environment 保存的是<strong>被解释程序可见的名字</strong>。数据库连接、超时、权限和 trace id 属于解释器自身，不应伪装成普通语言变量。</p>
+<h3 id="7-1-Environment-与-ExecutionContext-分工">7.1 Environment 与 ExecutionContext 分工</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Environment</span><br><span class="line">    名字绑定 · parent 链 · 词法作用域</span><br><span class="line"></span><br><span class="line">ExecutionContext</span><br><span class="line">    执行预算 · deadline · capability · trace</span><br></pre></td></tr></table></figure>
+<p>Registry 描述平台<strong>总共支持哪些能力</strong>，ExecutionContext 则描述<strong>这一次执行获准使用其中哪些能力</strong>。前者通常是全局配置，后者随请求或任务创建。</p>
+<p>一个简单的 ExecutionContext 可以这样实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> monotonic</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass(<span class="params">slots=<span class="literal">True</span></span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ExecutionContext</span>:</span><br><span class="line">    remaining_steps: <span class="built_in">int</span></span><br><span class="line">    deadline: <span class="built_in">float</span></span><br><span class="line">    trace_id: <span class="built_in">str</span></span><br><span class="line">    capabilities: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">tick</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.remaining_steps -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.remaining_steps &lt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">raise</span> ResourceLimitError(<span class="string">&quot;执行步数超过限制&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> monotonic() &gt; <span class="variable language_">self</span>.deadline:</span><br><span class="line">            <span class="keyword">raise</span> ResourceLimitError(<span class="string">&quot;执行超时&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>Evaluator 每处理一个节点就消耗一步预算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate</span>(<span class="params">expr, environment, context</span>):</span><br><span class="line">    context.tick()</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>分开设计后，用户可以在 Environment 中定义名为 <code>deadline</code> 的普通变量，却无法覆盖解释器真正使用的 deadline 或数据库连接。</p>
+<h3 id="7-2-安全执行是多层限制，不是一个开关">7.2 安全执行是多层限制，不是一个开关</h3>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    INPUT[&quot;① 输入与语义边界&lt;br&#x2F;&gt;字符 · Token&lt;br&#x2F;&gt;AST 规模 · 节点&lt;br&#x2F;&gt;参数 schema&quot;]
+    INPUT --&gt; COMPUTE[&quot;② 解释器资源边界&lt;br&#x2F;&gt;步数 · 调用深度&lt;br&#x2F;&gt;超时 · 输出大小&lt;br&#x2F;&gt;内存预算&quot;]
+    COMPUTE --&gt; CAPABILITY[&quot;③ 宿主能力边界&lt;br&#x2F;&gt;文件 · 网络&lt;br&#x2F;&gt;数据库 · 进程&lt;br&#x2F;&gt;权限 · 审计&quot;]
+    CAPABILITY --&gt; ISOLATION[&quot;④ 操作系统隔离&lt;br&#x2F;&gt;独立进程 · 容器&lt;br&#x2F;&gt;受限账户&lt;br&#x2F;&gt;资源配额&quot;]
+  </pre></div>
+<p class="cp-figure-caption">限制从语言输入一直延伸到宿主系统；越接近外部副作用，越需要更强的边界。</p>
+<p>几个常见误区：</p>
+<ul>
+<li>AST 白名单只能限制“表达什么”，不能约束已注册 Primitive 内部的行为；</li>
+<li><code>context.tick()</code> 只能在解释器重新取得控制权时检查超时，无法中断阻塞中的外部 I/O；</li>
+<li>Python 线程等待超时，不代表底层任务已经停止；</li>
+<li>只限制递归深度，挡不住很宽但不深的巨大 AST；</li>
+<li>只限制运行时间，挡不住短时间内大量占用内存。</li>
+</ul>
+<p>外部操作需要自己的超时和取消机制；需要强隔离时，应把执行放进可以终止并回收的独立进程或容器。</p>
+<h3 id="7-3-可观测性记录语义事件，而不是泄露全部数据">7.3 可观测性记录语义事件，而不是泄露全部数据</h3>
+<p>比“执行失败”更有用的是结构化事件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">trace_id</span><br><span class="line">node_type</span><br><span class="line">source_span</span><br><span class="line">operation_name</span><br><span class="line">duration_ms</span><br><span class="line">status</span><br><span class="line">error_code</span><br></pre></td></tr></table></figure>
+<p>一次调用可以形成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Eval Call(add) start</span><br><span class="line">├── Eval Name(add) success</span><br><span class="line">├── Eval Number(1) success</span><br><span class="line">├── Eval Call(mul) start</span><br><span class="line">│   └── Apply Primitive(mul) success: 6</span><br><span class="line">└── Apply Primitive(add) success: 7</span><br></pre></td></tr></table></figure>
+<p>日志应记录阶段、操作和耗时，不应默认保存完整提示词、凭据或敏感返回值。用户程序错误与解释器缺陷也要分开：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>示例</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户程序错误</td>
+<td>未知名字、参数数量错误、预算耗尽</td>
+<td>返回稳定错误码和安全提示</td>
+</tr>
+<tr>
+<td>解释器自身缺陷</td>
+<td>漏处理 AST 节点、状态损坏、意外异常</td>
+<td>记录 traceback，对外返回通用内部错误</td>
+</tr>
+</tbody>
+</table>
+<p>若用 <code>except Exception</code> 把所有异常都变成“执行失败”，表面上更统一，实际会丢失定位解释器缺陷所需的因果链。</p>
+<h2 id="8-把一次完整执行路径串起来">8. 把一次完整执行路径串起来</h2>
+<p>现在可以把全文收束成一条从源码到受控副作用的路径：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    INPUT[&quot;Source → Parser → AST &#x2F; IR&quot;] --&gt; CORE[&quot;Eval ↔ Apply&quot;]
+    SUPPORT[&quot;运行时支撑&lt;br&#x2F;&gt;Environment · Procedure · ExecutionContext&quot;] --&gt; CORE
+    CORE --&gt; VALUE[&quot;Runtime Value&quot;]
+    CORE --&gt; REGISTRY[&quot;Capability Registry&quot;]
     REGISTRY --&gt; EXTERNAL[&quot;External Systems&quot;]
   </pre></div>
-<p>这种分层允许分别替换：</p>
-<ul>
-<li>外部语法可以从前缀表达式换成 JSON，而不重写求值规则；</li>
-<li>AST 可以规范化为同一 IR，让多个输入协议共用执行器；</li>
-<li>Primitive 可以在测试中替换为 fake，而不修改 Parser；</li>
-<li>REPL 可以换成 HTTP 边界，而不把网络逻辑塞进 Environment；</li>
-<li>预算和 tracing 可以统一包围所有求值路径。</li>
-</ul>
-<h2 id="16-把第三章串起来">16. 把第三章串起来</h2>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    mindmap
-  root((MiniExpr 运行时))
-    程序表示
-      Source
-      Token Stream
-      AST
-      受控 IR
-    求值机制
-      Eval
-      Apply
-      Primitive
-      UserProcedure
-    抽象能力
-      Environment
-      Closure
-      Lexical scope
-    工程边界
-      ExecutionContext
-      Capability Registry
-      资源限制
-      可观测性
-  </pre></div>
-<p>需要保留的几个判断：</p>
+<p>这条路径中，各组件各自回答一个问题：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>核心职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parser / Validator</td>
+<td>程序结构是否合法</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td>某个名字当前绑定到什么值</td>
+</tr>
+<tr>
+<td>UserProcedure / Closure</td>
+<td>函数执行什么代码，外层名字去哪里找</td>
+</tr>
+<tr>
+<td>Eval / Apply</td>
+<td>表达式和过程怎样得到结果</td>
+</tr>
+<tr>
+<td>ExecutionContext</td>
+<td>本次执行拥有多少预算和哪些权限</td>
+</tr>
+<tr>
+<td>Capability Registry</td>
+<td>哪些宿主操作可以真正触达外部系统</td>
+</tr>
+</tbody>
+</table>
+<p>最终需要保留五个判断：</p>
 <ol>
-<li>Frame 保存一层绑定，Environment 是当前 Frame 及其 parent 链；</li>
-<li>用户函数不仅保存参数和函数体，还要保存定义环境；</li>
-<li>Apply 用户函数时，新 Frame 的 parent 指向 closure，词法作用域才成立；</li>
-<li>Eval 与 Apply 互相递归，Primitive 是 Apply 的基本情形；</li>
-<li>Environment 管理语言名字，ExecutionContext 管理宿主资源，两者不应混成一个万能字典；</li>
-<li>AST 白名单只能约束语言表面，Primitive 的权限和执行隔离仍要单独设计；</li>
-<li>抽象能力让用户能够定义新运算，安全边界则决定这些运算最终可以影响什么。</li>
+<li><strong>Environment 是一条 Frame 链</strong>：当前层保存局部绑定，parent 提供外层可见名字；</li>
+<li><strong>Lambda 先产生函数值，Define 再建立名字</strong>：创建函数和命名函数是两个阶段；</li>
+<li><strong>Closure = 函数代码 + 定义环境</strong>：它让函数离开定义位置后仍能解析自由变量；</li>
+<li><strong>Apply 用户函数时，调用 Frame 的 parent 指向 closure</strong>：这条连接实现 lexical scope；</li>
+<li><strong>抽象能力与执行能力必须分层</strong>：Environment 管理语言名字，ExecutionContext 和 Registry 管理预算、权限与宿主副作用。</li>
 </ol>
-<p>解释器最值得学习的地方，不是 Scheme 括号或某几段项目代码，而是它揭示了语言机制可以怎样逐层构成：文本成为数据，数据按规则求值，环境赋予名字含义，闭包保存作用域，而宿主系统负责划定执行能力的边界。</p>
+<p>解释器最值得学习的不是括号语法，而是这些机制怎样相互咬合：AST 保留程序结构，Eval 和 Apply 赋予结构含义，Environment 赋予名字上下文，Closure 固定作用域，而宿主运行时负责划定执行能力的边界。</p>
 <h2 id="参考">参考</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/35-interpreters-for-languages-with-abstraction.html">Composing Programs 3.5：Interpreters for Languages with Abstraction</a></li>
@@ -451,13 +492,13 @@
 <li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/functions.html#eval">Python 文档：<code>eval</code></a></li>
 <li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/ast.html#ast.literal_eval">Python 文档：<code>ast.literal_eval</code></a></li>
 </ul>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/">https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Interpreter/">Interpreter</a><a class="post-meta__tags" href="/tags/Closure/">Closure</a><a class="post-meta__tags" href="/tags/Runtime/">Runtime</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-runtime-abstraction-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img class="cover" src="/img/composing-programs-source-to-ast-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">程序如何成为数据：从源码到 Token、AST 与 IR</div></div><div class="info-2"><div class="info-item-1">前两章研究的是怎样用函数和对象组织计算；第三章把程序本身也纳入研究对象。一段源码首先只是一串字符，只有经过解析并按照语言规则解释，它才会产生计算结果。 本篇受教材以下内容启发，但不按教材顺序复述：  3.1 Introduction 3.2 Functional Programming 3.4 Interpreters for Languages with Combination  我们会设计一个很小的表达式语言 MiniExpr，并让它在三篇笔记中逐步成长。第一步只解决一件事：怎样把源码转换成结构明确、可以被程序处理的数据。 1. 源码、程序结构与执行结果属于不同层次 先看一段 MiniExpr 源码： 1(add 1 (mul 2 3)) 它表达的是“先计算 2 × 3，再把结果与 1 相加”。但对于我们正在编写的 Python 程序，这段输入最初只是一个字符串： 1source = &quot;(add 1 (mul 2 3))&quot; 字符串不会自己执行。解释器至少要经历下面几个阶段：      flowchart TB     A[&quot;Source&lt;b...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解：      flowchart TB     R[&quot;具体表示&quot;] --&gt; A[&quot;构造器 · 选择器&lt;br&#x2F;&gt;行为契约&quot;]     A --&gt; S[&quot;序列接口&lt;br&#x2F;&gt;递归数据&quot;]     S --&gt; M[&quot;可变状态&lt;br&#x2F;&gt;身份 · 消息&quot;]     M --&gt; O[&quot;类 · 实例&lt;br&#x2F;&gt;属性查找 · 方法绑定&quot;]     O --&gt; G[&quot;对象协议&lt;br&#x2F;&gt;泛型操作&quot;]     G --&gt; E[&quot;表示选择&lt;br&#x2F;&gt;算法效率&quot;]    本篇先完成前两步。对应教材：  2...</div></div></div></a><a class="pagination-related" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为"><img class="cover" src="/img/composing-programs-higher-order-functions-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-28</div><div class="info-item-2">高阶函数：从参数化数据到参数化行为</div></div><div class="info-2"><div class="info-item-1">1. 最小前置：函数值、调用与环境 高阶函数并不依赖复杂语法，但依赖三个容易被日常编码习惯掩盖的事实：函数是值，调用会创建局部环境，函数还关联着自己的定义环境。 1.1 函数名与函数调用不是一回事 执行 def 时，Python 创建一个函数对象，再把名字绑定到这个对象： 12345def square(x):    return x * xoperation = squareresult = operation(5)  # 25 square 表示函数对象，square(5) 才表示调用后的结果。operation = square 没有执行函数，只是让两个名字引用同一个函数对象。 这个区别决定了高阶函数传递的是什么：  传入 square，交付的是一条“之后可以执行”的计算规则； 传入 square(5)，交付的只是这次调用得到的数值 25。  函数能够像数字、字符串一样被绑定、传递和返回，就是函数具有一等地位的含义。 1.2 函数参数也只是局部名字 1234567def apply_twice(f, x):    return f(f(x))def increment(x)...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/">https://littlepyx.github.io/2026/08/27/composing-programs-runtime-abstraction/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Interpreter/">Interpreter</a><a class="post-meta__tags" href="/tags/Closure/">Closure</a><a class="post-meta__tags" href="/tags/Runtime/">Runtime</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-runtime-abstraction-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"><img class="cover" src="/img/composing-programs-lazy-pipeline-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</div></div><div class="info-2"><div class="info-item-1">前三章分别讨论了怎样组织函数、对象和解释器。第四章把关注点转向数据处理：当数据多到不能一次放进内存，或者数据还在持续产生时，程序应该怎样组织计算？ 本篇受教材 4.1 Introduction 与 4.2 Implicit Sequences 启发，但不从斐波那契数列开始，而是贯穿一个更常见的场景：逐条读取任务执行事件，筛选失败记录并统计耗时。 整篇只沿着一条主线展开：      flowchart TB     DATA[&quot;大量或持续到达的数据&quot;] --&gt; ITERATOR[&quot;Iterator&lt;br&#x2F;&gt;按需取得并记录位置&quot;]     ITERATOR --&gt; PIPELINE[&quot;Generator Pipeline&lt;br&#x2F;&gt;产生 · 过滤 · 转换 · 聚合&quot;]    惰性处理不是某个独立语法，而是从迭代协议一直延伸到整条数据管道的执行方式。 1. 问题不只是数据很大，而是数据不必同时存在 假设 events.jsonl 的每一行都是一条 JSON 事件。最直接的...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img class="cover" src="/img/composing-programs-source-to-ast-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">程序如何成为数据：从源码到 Token、AST 与 IR</div></div><div class="info-2"><div class="info-item-1">前两章研究的是怎样用函数和对象组织计算；第三章把程序本身也纳入研究对象。一段源码首先只是一串字符，只有经过解析并按照语言规则解释，它才会产生计算结果。 本篇受教材以下内容启发，但不按教材顺序复述：  3.1 Introduction 3.2 Functional Programming 3.4 Interpreters for Languages with Combination  我们会设计一个很小的表达式语言 MiniExpr，并让它在三篇笔记中逐步成长。第一步只解决一件事：怎样把源码转换成结构明确、可以被程序处理的数据。 1. 源码、程序结构与执行结果属于不同层次 先看一段 MiniExpr 源码： 1(add 1 (mul 2 3)) 它表达的是“先计算 2 × 3，再把结果与 1 相加”。但对于我们正在编写的 Python 程序，这段输入最初只是一个字符串： 1source = &quot;(add 1 (mul 2 3))&quot; 字符串不会自己执行。解释器至少要经历下面几个阶段：      flowchart TB     A[&quot;Source&lt;b...</div></div></div></a><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解：      flowchart TB     R[&quot;具体表示&quot;] --&gt; A[&quot;构造器 · 选择器&lt;br&#x2F;&gt;行为契约&quot;]     A --&gt; S[&quot;序列接口&lt;br&#x2F;&gt;递归数据&quot;]     S --&gt; M[&quot;可变状态&lt;br&#x2F;&gt;身份 · 消息&quot;]     M --&gt; O[&quot;类 · 实例&lt;br&#x2F;&gt;属性查找 · 方法绑定&quot;]     O --&gt; G[&quot;对象协议&lt;br&#x2F;&gt;泛型操作&quot;]     G --&gt; E[&quot;表示选择&lt;br&#x2F;&gt;算法效率&quot;]    本篇先完成前两步。对应教材：  2...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"><img class="cover" src="/img/composing-programs-declarative-unification-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-02</div><div class="info-item-2">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</div></div><div class="info-2"><div class="info-item-1">上一篇用 Iterator 和 Generator 把大量数据组织成按需流动的 Pipeline。不过，那条管道仍然由程序员规定了每一个执行步骤：先读取，再过滤，然后转换和聚合。 这一次继续向上抽象：程序只描述结果必须满足什么条件，执行系统自己决定怎样得到结果。 本文把教材 4.3 Declarative Programming、4.4 Logic Programming 和 4.5 Unification 重新组织成一条递进路线：      flowchart TB     PROCEDURE[&quot;命令式程序&lt;br&#x2F;&gt;描述怎样执行&quot;] --&gt; DECLARE[&quot;SQL + Logic Rules&lt;br&#x2F;&gt;声明结果与关系&quot;]     DECLARE --&gt; SOLVE[&quot;Unification + Search&lt;br&#x2F;&gt;绑定变量并寻找证明&quot;]    1. 声明式编程隐藏的是执行过程，不是计算本身 假设任务执行记录保存在 task_runs 表中：...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
 本科：杭州电子科技大学<br>
 研究生：电子科技大学<br><br>
 <strong>研究方向</strong><br>
 AI Agent 开发、计算成像、深度学习、光学<br><br>
 新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
-</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%BB%84%E5%90%88%E8%83%BD%E5%8A%9B%E8%BF%98%E4%B8%8D%E6%98%AF%E6%8A%BD%E8%B1%A1%E8%83%BD%E5%8A%9B"><span class="toc-text">1. 组合能力还不是抽象能力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Environment-%E4%BF%9D%E5%AD%98%E5%90%8D%E5%AD%97%E4%B8%8E%E5%80%BC%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">2. Environment 保存名字与值的关系</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-define-%E4%B8%8E-lookup-%E7%9A%84%E6%96%B9%E5%90%91%E4%B8%8D%E5%90%8C"><span class="toc-text">2.1 define 与 lookup 的方向不同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Environment-%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%89%80%E6%9C%89%E8%BF%90%E8%A1%8C%E6%97%B6%E7%8A%B6%E6%80%81"><span class="toc-text">2.2 Environment 不等于所有运行时状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-AST-%E5%BF%85%E9%A1%BB%E4%B8%BA%E6%8A%BD%E8%B1%A1%E5%BD%A2%E5%BC%8F%E4%BF%9D%E7%95%99%E7%BB%93%E6%9E%84"><span class="toc-text">3. AST 必须为抽象形式保留结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Lambda-%E6%B1%82%E5%80%BC%E5%BE%97%E5%88%B0%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0%E5%AF%B9%E8%B1%A1"><span class="toc-text">4. Lambda 求值得到一个函数对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Define-%E5%BB%BA%E7%AB%8B%E5%90%8D%E5%AD%97%E7%BB%91%E5%AE%9A"><span class="toc-text">5. Define 建立名字绑定</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Apply-%E7%94%A8%E6%88%B7%E5%87%BD%E6%95%B0%E6%97%B6%E5%88%9B%E5%BB%BA%E8%B0%83%E7%94%A8%E7%8E%AF%E5%A2%83"><span class="toc-text">6. Apply 用户函数时创建调用环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E9%97%AD%E5%8C%85%E8%AE%A9%E5%AE%9A%E4%B9%89%E7%8E%AF%E5%A2%83%E5%9C%A8%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E5%90%8E%E7%BB%A7%E7%BB%AD%E5%AD%98%E5%9C%A8"><span class="toc-text">7. 闭包让定义环境在函数返回后继续存在</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E8%B0%83%E7%94%A8-make-adder"><span class="toc-text">7.1 调用 make-adder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E8%B0%83%E7%94%A8-add3"><span class="toc-text">7.2 调用 add3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Lexical-scope-%E4%B8%8E-dynamic-scope-%E7%9A%84%E5%B7%AE%E5%88%AB"><span class="toc-text">8. Lexical scope 与 dynamic scope 的差别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Eval-%E4%B8%8E-Apply-%E5%BD%A2%E6%88%90%E4%BA%92%E7%9B%B8%E9%80%92%E5%BD%92"><span class="toc-text">9. Eval 与 Apply 形成互相递归</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E6%80%8E%E6%A0%B7%E6%89%BE%E5%88%B0%E8%87%AA%E5%B7%B1"><span class="toc-text">9.1 递归函数怎样找到自己</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-%E7%A8%8B%E5%BA%8F%E6%88%90%E4%B8%BA%E6%95%B0%E6%8D%AE%E5%90%8E%EF%BC%8C%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%88%86%E6%9E%90%E5%92%8C%E8%BD%AC%E6%8D%A2"><span class="toc-text">10. 程序成为数据后，可以被分析和转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%B8%8D%E8%A6%81%E7%94%A8-eval-%E4%BB%A3%E6%9B%BF%E5%8F%97%E6%8E%A7%E8%A7%A3%E9%87%8A%E5%99%A8"><span class="toc-text">11. 不要用 eval 代替受控解释器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-Environment-%E4%B8%8E-ExecutionContext-%E5%88%86%E5%BC%80%E8%AE%BE%E8%AE%A1"><span class="toc-text">12. Environment 与 ExecutionContext 分开设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B1%82%E9%99%90%E5%88%B6"><span class="toc-text">13. 安全执行需要多层限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E8%A6%81%E8%AE%B0%E5%BD%95%E8%AF%AD%E4%B9%89%E4%BA%8B%E4%BB%B6"><span class="toc-text">14. 可观测性要记录语义事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E8%A7%A3%E9%87%8A%E5%99%A8%E8%87%AA%E8%BA%AB%E9%94%99%E8%AF%AF%E4%B8%8E%E7%94%A8%E6%88%B7%E7%A8%8B%E5%BA%8F%E9%94%99%E8%AF%AF%E5%88%86%E5%BC%80"><span class="toc-text">14.1 解释器自身错误与用户程序错误分开</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E4%B8%80%E4%B8%AA%E5%8F%AF%E6%89%A9%E5%B1%95%E8%A7%A3%E9%87%8A%E5%99%A8%E7%9A%84%E6%A8%A1%E5%9D%97%E8%BE%B9%E7%95%8C"><span class="toc-text">15. 一个可扩展解释器的模块边界</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E6%8A%8A%E7%AC%AC%E4%B8%89%E7%AB%A0%E4%B8%B2%E8%B5%B7%E6%9D%A5"><span class="toc-text">16. 把第三章串起来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行"><img src="/img/composing-programs-runtime-abstraction-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行时如何支持抽象：环境、闭包、作用域与安全执行"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行">运行时如何支持抽象：环境、闭包、作用域与安全执行</a><time datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="求值器如何赋予语义：Eval、Apply 与错误边界"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界">求值器如何赋予语义：Eval、Apply 与错误边界</a><time datetime="2026-08-27T03:00:00.000Z" title="发表于 2026-08-27 11:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR"><img src="/img/composing-programs-source-to-ast-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="程序如何成为数据：从源码到 Token、AST 与 IR"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-source-to-ast/" title="程序如何成为数据：从源码到 Token、AST 与 IR">程序如何成为数据：从源码到 Token、AST 与 IR</a><time datetime="2026-08-27T02:00:00.000Z" title="发表于 2026-08-27 10:00:00">2026-08-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/composing-programs-object-abstraction-efficiency/" title="泛型操作：统一协议、表示选择与效率"><img src="/img/composing-programs-object-abstraction-efficiency-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="泛型操作：统一协议、表示选择与效率"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/24/composing-programs-object-abstraction-efficiency/" title="泛型操作：统一协议、表示选择与效率">泛型操作：统一协议、表示选择与效率</a><time datetime="2026-08-24T05:00:00.000Z" title="发表于 2026-08-24 13:00:00">2026-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现"><img src="/img/composing-programs-object-system-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="对象系统：属性查找、方法绑定与类的实现"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/24/composing-programs-object-system/" title="对象系统：属性查找、方法绑定与类的实现">对象系统：属性查找、方法绑定与类的实现</a><time datetime="2026-08-24T04:00:00.000Z" title="发表于 2026-08-24 12:00:00">2026-08-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%8E%E7%BB%84%E5%90%88%E5%B7%B2%E6%9C%89%E6%93%8D%E4%BD%9C%EF%BC%8C%E5%88%B0%E5%AE%9A%E4%B9%89%E6%96%B0%E6%93%8D%E4%BD%9C"><span class="toc-text">1. 从组合已有操作，到定义新操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Environment-%E8%AE%A9%E5%90%8D%E5%AD%97%E8%8E%B7%E5%BE%97%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text">2. Environment 让名字获得上下文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Frame-%E4%BF%9D%E5%AD%98%E4%B8%80%E5%B1%82%E7%BB%91%E5%AE%9A%EF%BC%8Cparent-%E8%BF%9E%E6%8E%A5%E5%A4%96%E5%B1%82"><span class="toc-text">2.1 Frame 保存一层绑定，parent 连接外层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-define-%E5%86%99%E5%BD%93%E5%89%8D%E5%B1%82%EF%BC%8Clookup-%E6%B2%BF%E9%93%BE%E5%90%91%E5%A4%96%E8%AF%BB"><span class="toc-text">2.2 define 写当前层，lookup 沿链向外读</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%87%BD%E6%95%B0%E7%9A%84%E8%AF%9E%E7%94%9F%EF%BC%9ALambda-%E5%8F%98%E6%88%90-UserProcedure"><span class="toc-text">3. 函数的诞生：Lambda 变成 UserProcedure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%8A%BD%E8%B1%A1%E5%BD%A2%E5%BC%8F%E5%BF%85%E9%A1%BB%E4%BF%9D%E7%95%99%E8%87%AA%E5%B7%B1%E7%9A%84-AST-%E7%BB%93%E6%9E%84"><span class="toc-text">3.1 抽象形式必须保留自己的 AST 结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Eval-Lambda-%E5%8F%AA%E5%88%9B%E5%BB%BA%E5%87%BD%E6%95%B0%EF%BC%8C%E4%B8%8D%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0%E4%BD%93"><span class="toc-text">3.2 Eval Lambda 只创建函数，不执行函数体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Define-%E5%86%8D%E6%8A%8A%E5%87%BD%E6%95%B0%E5%80%BC%E7%BB%91%E5%AE%9A%E5%88%B0%E5%90%8D%E5%AD%97"><span class="toc-text">3.3 Define 再把函数值绑定到名字</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%87%BD%E6%95%B0%E7%9A%84%E8%B0%83%E7%94%A8%EF%BC%9AApply-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E7%8E%AF%E5%A2%83"><span class="toc-text">4. 函数的调用：Apply 创建新的环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Eval-%E4%B8%8E-Apply-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E4%BA%92%E7%9B%B8%E9%80%92%E5%BD%92"><span class="toc-text">4.1 Eval 与 Apply 为什么会互相递归</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Closure-%E5%86%B3%E5%AE%9A%E5%87%BD%E6%95%B0%E4%BD%93%E6%80%8E%E6%A0%B7%E6%89%BE%E5%88%B0%E5%A4%96%E5%B1%82%E5%90%8D%E5%AD%97"><span class="toc-text">5. Closure 决定函数体怎样找到外层名字</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-make-adder-%E8%BF%94%E5%9B%9E%E5%90%8E%EF%BC%8Cx-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E5%AD%98%E5%9C%A8"><span class="toc-text">5.1 make-adder 返回后，x 为什么还存在</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Lexical-Scope-%E7%9C%8B%E5%AE%9A%E4%B9%89%E4%BD%8D%E7%BD%AE%EF%BC%8C%E4%B8%8D%E7%9C%8B%E8%B0%83%E7%94%A8%E4%BD%8D%E7%BD%AE"><span class="toc-text">5.2 Lexical Scope 看定义位置，不看调用位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E9%80%92%E5%BD%92%E5%87%BD%E6%95%B0%E4%B9%9F%E4%BE%9D%E8%B5%96%E7%8E%AF%E5%A2%83%E6%9F%A5%E6%89%BE"><span class="toc-text">5.3 递归函数也依赖环境查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%8F%97%E6%8E%A7%E8%A7%A3%E9%87%8A%E5%99%A8%E5%86%B3%E5%AE%9A%E7%A8%8B%E5%BA%8F%E8%83%BD%E5%A4%9F%E8%A1%A8%E8%BE%BE%E5%92%8C%E6%89%A7%E8%A1%8C%E4%BB%80%E4%B9%88"><span class="toc-text">6. 受控解释器决定程序能够表达和执行什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E7%A8%8B%E5%BA%8F%E6%88%90%E4%B8%BA-AST-%E5%90%8E%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%85%88%E5%88%86%E6%9E%90%E5%86%8D%E6%89%A7%E8%A1%8C"><span class="toc-text">6.1 程序成为 AST 后，可以先分析再执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-Primitive-Registry-%E6%98%AF%E6%98%BE%E5%BC%8F%E8%83%BD%E5%8A%9B%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-text">6.2 Primitive Registry 是显式能力白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E4%B8%8D%E8%A6%81%E7%94%A8-Python-eval-%E4%BB%A3%E6%9B%BF%E5%8F%97%E6%8E%A7%E8%A7%A3%E9%87%8A%E5%99%A8"><span class="toc-text">6.3 不要用 Python eval 代替受控解释器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%B7%A5%E7%A8%8B%E8%BF%90%E8%A1%8C%E6%97%B6%E8%BF%98%E8%A6%81%E7%AE%A1%E7%90%86%E9%A2%84%E7%AE%97%E3%80%81%E6%9D%83%E9%99%90%E4%B8%8E%E8%A7%82%E6%B5%8B"><span class="toc-text">7. 工程运行时还要管理预算、权限与观测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-Environment-%E4%B8%8E-ExecutionContext-%E5%88%86%E5%B7%A5"><span class="toc-text">7.1 Environment 与 ExecutionContext 分工</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E5%AE%89%E5%85%A8%E6%89%A7%E8%A1%8C%E6%98%AF%E5%A4%9A%E5%B1%82%E9%99%90%E5%88%B6%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%B8%80%E4%B8%AA%E5%BC%80%E5%85%B3"><span class="toc-text">7.2 安全执行是多层限制，不是一个开关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E8%AE%B0%E5%BD%95%E8%AF%AD%E4%B9%89%E4%BA%8B%E4%BB%B6%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%B3%84%E9%9C%B2%E5%85%A8%E9%83%A8%E6%95%B0%E6%8D%AE"><span class="toc-text">7.3 可观测性记录语义事件，而不是泄露全部数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E6%8A%8A%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E6%89%A7%E8%A1%8C%E8%B7%AF%E5%BE%84%E4%B8%B2%E8%B5%B7%E6%9D%A5"><span class="toc-text">8. 把一次完整执行路径串起来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-parallel-mapreduce/" title="计算如何同时展开：并发、并行、MapReduce 与共享状态"><img src="/img/composing-programs-parallel-mapreduce-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算如何同时展开：并发、并行、MapReduce 与共享状态"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-parallel-mapreduce/" title="计算如何同时展开：并发、并行、MapReduce 与共享状态">计算如何同时展开：并发、并行、MapReduce 与共享状态</a><time datetime="2026-09-02T05:00:00.000Z" title="发表于 2026-09-02 13:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败"><img src="/img/composing-programs-distributed-reliability-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器之间如何协作：消息、协议与分布式失败"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败">机器之间如何协作：消息、协议与分布式失败</a><time datetime="2026-09-02T04:00:00.000Z" title="发表于 2026-09-02 12:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"><img src="/img/composing-programs-declarative-unification-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</a><time datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"><img src="/img/composing-programs-lazy-pipeline-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</a><time datetime="2026-09-02T02:00:00.000Z" title="发表于 2026-09-02 10:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行"><img src="/img/composing-programs-runtime-abstraction-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行时如何支持抽象：环境、闭包、作用域与安全执行"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行">运行时如何支持抽象：环境、闭包、作用域与安全执行</a><time datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
   const runMermaid = ele => {
     window.loadMermaid = true
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'

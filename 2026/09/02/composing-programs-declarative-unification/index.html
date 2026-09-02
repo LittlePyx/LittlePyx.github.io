@@ -1,0 +1,560 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Composing Programs 第四章笔记之二：从 SQL 的结果描述走向事实、规则和查询，再用 Unification 解释变量绑定与逻辑推理怎样发生。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification">
+<meta property="og:url" content="https://littlepyx.github.io/2026/09/02/composing-programs-declarative-unification/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="Composing Programs 第四章笔记之二：从 SQL 的结果描述走向事实、规则和查询，再用 Unification 解释变量绑定与逻辑推理怎样发生。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-declarative-unification-nature-cover.jpg">
+<meta property="article:published_time" content="2026-09-02T03:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-02T15:30:46.803Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="Composing Programs">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="Declarative Programming">
+<meta property="article:tag" content="Logic Programming">
+<meta property="article:tag" content="Unification">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/composing-programs-declarative-unification-nature-cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification",
+  "url": "https://littlepyx.github.io/2026/09/02/composing-programs-declarative-unification/",
+  "image": "https://littlepyx.github.io/img/composing-programs-declarative-unification-nature-cover.jpg",
+  "datePublished": "2026-09-02T03:00:00.000Z",
+  "dateModified": "2026-09-02T15:30:46.803Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "LittlePyx",
+      "url": "https://littlepyx.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/2026/09/02/composing-programs-declarative-unification/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-declarative-unification-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-02T15:30:46.803Z" title="更新于 2026-09-02 23:30:46">2026-09-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>上一篇用 Iterator 和 Generator 把大量数据组织成按需流动的 Pipeline。不过，那条管道仍然由程序员规定了每一个执行步骤：先读取，再过滤，然后转换和聚合。</p>
+<p>这一次继续向上抽象：<strong>程序只描述结果必须满足什么条件，执行系统自己决定怎样得到结果。</strong></p>
+<p>本文把教材 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/43-declarative-programming.html">4.3 Declarative Programming</a>、<a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/44-logic-programming.html">4.4 Logic Programming</a> 和 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/45-unification.html">4.5 Unification</a> 重新组织成一条递进路线：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    PROCEDURE[&quot;命令式程序&lt;br&#x2F;&gt;描述怎样执行&quot;] --&gt; DECLARE[&quot;SQL + Logic Rules&lt;br&#x2F;&gt;声明结果与关系&quot;]
+    DECLARE --&gt; SOLVE[&quot;Unification + Search&lt;br&#x2F;&gt;绑定变量并寻找证明&quot;]
+  </pre></div>
+<h2 id="1-声明式编程隐藏的是执行过程，不是计算本身">1. 声明式编程隐藏的是执行过程，不是计算本身</h2>
+<p>假设任务执行记录保存在 <code>task_runs</code> 表中：</p>
+<table>
+<thead>
+<tr>
+<th>task_id</th>
+<th>service</th>
+<th>status</th>
+<th style="text-align:right">duration_ms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t-17</td>
+<td>search</td>
+<td>failed</td>
+<td style="text-align:right">820</td>
+</tr>
+<tr>
+<td>t-18</td>
+<td>storage</td>
+<td>succeeded</td>
+<td style="text-align:right">140</td>
+</tr>
+<tr>
+<td>t-19</td>
+<td>search</td>
+<td>failed</td>
+<td style="text-align:right">510</td>
+</tr>
+</tbody>
+</table>
+<p>我们希望得到每个服务失败任务的平均耗时。</p>
+<h3 id="1-1-命令式写法规定了控制流程">1.1 命令式写法规定了控制流程</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">totals: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">int</span>] = &#123;&#125;</span><br><span class="line">counts: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">int</span>] = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> run <span class="keyword">in</span> task_runs:</span><br><span class="line">    <span class="keyword">if</span> run[<span class="string">&quot;status&quot;</span>] != <span class="string">&quot;failed&quot;</span>:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    service = run[<span class="string">&quot;service&quot;</span>]</span><br><span class="line">    totals[service] = totals.get(service, <span class="number">0</span>) + run[<span class="string">&quot;duration_ms&quot;</span>]</span><br><span class="line">    counts[service] = counts.get(service, <span class="number">0</span>) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">averages = &#123;</span><br><span class="line">    service: totals[service] / counts[service]</span><br><span class="line">    <span class="keyword">for</span> service <span class="keyword">in</span> totals</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码同时描述了：</p>
+<ul>
+<li>以什么顺序遍历记录；</li>
+<li>何时跳过一条记录；</li>
+<li>用哪些中间字典保存状态；</li>
+<li>怎样完成累加和除法。</li>
+</ul>
+<h3 id="1-2-SQL-描述结果应该具有什么形状">1.2 SQL 描述结果应该具有什么形状</h3>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    service,</span><br><span class="line">    <span class="built_in">AVG</span>(duration_ms) <span class="keyword">AS</span> average_duration_ms</span><br><span class="line"><span class="keyword">FROM</span> task_runs</span><br><span class="line"><span class="keyword">WHERE</span> status <span class="operator">=</span> <span class="string">&#x27;failed&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> service;</span><br></pre></td></tr></table></figure>
+<p>SQL 说明了需要哪些列、哪些行以及怎样分组，却没有指定数据库必须使用哪一种循环、索引或连接算法。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">命令式：告诉计算机每一步怎样做</span><br><span class="line">声明式：告诉系统最终结果需要满足什么关系</span><br></pre></td></tr></table></figure>
+<p>声明式并不意味着“没有执行过程”。过滤、分组和聚合仍然必须发生，只是具体过程由数据库执行器和优化器负责。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    REQUEST[&quot;结果需求 → SQL&lt;br&#x2F;&gt;列 · 条件 · 分组 · 聚合&quot;]
+    REQUEST --&gt; PLAN[&quot;数据库选择执行计划&quot;]
+    PLAN --&gt; RESULT[&quot;关系结果&lt;br&#x2F;&gt;service + average&quot;]
+  </pre></div>
+<h2 id="2-表与查询操作构成了一套数据变换语言">2. 表与查询操作构成了一套数据变换语言</h2>
+<p>数据库把结构相似的记录组织成 table。查询再把一个或多个输入表转换成结果表。</p>
+<h3 id="2-1-四种最重要的关系操作">2.1 四种最重要的关系操作</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>SQL 中的常见形式</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Selection（选择）</td>
+<td><code>WHERE</code></td>
+<td>保留满足条件的行</td>
+</tr>
+<tr>
+<td>Projection（投影）</td>
+<td><code>SELECT column</code></td>
+<td>选择或计算输出列</td>
+</tr>
+<tr>
+<td>Join（连接）</td>
+<td><code>JOIN ... ON</code></td>
+<td>按条件组合不同表的行</td>
+</tr>
+<tr>
+<td>Aggregation（聚合）</td>
+<td><code>GROUP BY</code>、<code>COUNT</code>、<code>SUM</code></td>
+<td>把多行汇总成组级结果</td>
+</tr>
+</tbody>
+</table>
+<p>例如，任务表只保存提交者 ID，用户名称位于另一张表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    users.name,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">AS</span> failure_count</span><br><span class="line"><span class="keyword">FROM</span> task_runs</span><br><span class="line"><span class="keyword">JOIN</span> users <span class="keyword">ON</span> users.id <span class="operator">=</span> task_runs.user_id</span><br><span class="line"><span class="keyword">WHERE</span> task_runs.status <span class="operator">=</span> <span class="string">&#x27;failed&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> users.id, users.name</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> failure_count <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+<p>可以用一条概念管道理解查询，但不要把它误认为数据库唯一的物理执行顺序：</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    SOURCE[&quot;FROM + JOIN&lt;br&#x2F;&gt;取得并连接输入行&quot;] --&gt; FILTER[&quot;WHERE + GROUP BY&lt;br&#x2F;&gt;过滤并分组&quot;]
+    FILTER --&gt; OUTPUT[&quot;SELECT + ORDER BY&lt;br&#x2F;&gt;形成并排列结果&quot;]
+  </pre></div>
+<p>查询结果仍然是结构化行，因此可以继续被下一层查询、视图或应用程序消费。这种“输入关系 → 输出关系”的闭合性，让复杂查询可以逐层组合。</p>
+<h3 id="2-2-结果顺序也需要明确声明">2.2 结果顺序也需要明确声明</h3>
+<p>没有 <code>ORDER BY</code> 时，不应依赖数据库“碰巧”返回的顺序。即使同一条查询今天看起来稳定，索引、数据量或执行计划变化后，行顺序也可能改变。</p>
+<p>这是声明式接口的一项基本纪律：<strong>调用者只能依赖查询明确承诺的结果，不应依赖执行器内部碰巧采用的过程。</strong></p>
+<h2 id="3-Query-Plan-把“要什么”翻译成“怎样算”">3. Query Plan 把“要什么”翻译成“怎样算”</h2>
+<p>同一条 SQL 通常存在多种合法执行方法。以连接用户与失败任务为例：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">方案 A：先连接全部任务和用户，再过滤失败记录</span><br><span class="line">方案 B：先过滤出失败任务，再与用户连接</span><br></pre></td></tr></table></figure>
+<p>如果失败记录只占很小一部分，方案 B 可能显著减少后续工作。数据库还可能根据统计信息选择：</p>
+<ul>
+<li>全表扫描还是索引扫描；</li>
+<li>哪张表作为连接的驱动端；</li>
+<li>使用 nested loop、hash join 还是 merge join；</li>
+<li>先聚合还是先连接；</li>
+<li>是否并行执行部分算子。</li>
+</ul>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    SQL[&quot;同一条 SQL&quot;] --&gt; A[&quot;Plan A&lt;br&#x2F;&gt;Join 全量数据&lt;br&#x2F;&gt;再 Filter&quot;]
+    SQL --&gt; B[&quot;Plan B&lt;br&#x2F;&gt;先 Filter&lt;br&#x2F;&gt;再 Join 少量数据&quot;]
+    STATS[&quot;索引 · 数据量 · 分布统计&quot;] --&gt; OPT[&quot;Optimizer&quot;]
+    OPT --&gt; A
+    OPT --&gt; B
+    A --&gt; RESULT[&quot;相同结果&quot;]
+    B --&gt; RESULT
+  </pre></div>
+<h3 id="3-1-声明式抽象为什么给优化留下空间">3.1 声明式抽象为什么给优化留下空间</h3>
+<p>命令式循环已经决定了执行顺序，系统很难在不改变可观察行为的前提下随意重排。SQL 主要描述关系结果，只要不同计划产生同样的语义结果，优化器就可以选择成本更低的一种。</p>
+<p>因此可以把抽象分工写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">查询编写者负责：结果条件是否正确</span><br><span class="line">数据库负责：怎样执行这些条件</span><br></pre></td></tr></table></figure>
+<p>但优化器并非全知。索引缺失、统计信息过期、数据分布倾斜或表达式写法不当，都可能导致计划不理想。工程中应通过 <code>EXPLAIN</code> 或 <code>EXPLAIN ANALYZE</code> 检查真实计划，而不是凭 SQL 长短判断性能。</p>
+<h3 id="3-2-ORM-没有消除查询成本">3.2 ORM 没有消除查询成本</h3>
+<p>ORM 可以把表映射为对象，但数据库仍然执行查询。典型的 N+1 问题是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 次查询取得 N 个 task</span><br><span class="line">随后为每个 task 各查询一次 user</span><br><span class="line">总计 N + 1 次数据库往返</span><br></pre></td></tr></table></figure>
+<p>对象访问写起来像普通属性，并不代表数据已经在本地。是否预加载、是否连接、产生多少 SQL，仍然需要观察。</p>
+<h2 id="4-Logic-Programming-从“查询记录”走向“推导关系”">4. Logic Programming 从“查询记录”走向“推导关系”</h2>
+<p>SQL 擅长从表中筛选和组合记录。<strong>Logic Programming（逻辑编程）</strong> 进一步允许系统根据事实和规则推导新的关系。</p>
+<p>我们用一个权限例子代替教材中的动物族谱。</p>
+<h3 id="4-1-Fact-表示已经成立的关系">4.1 Fact 表示已经成立的关系</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">role(alice, reviewer)</span><br><span class="line">role(bob, operator)</span><br><span class="line">grant(reviewer, read_report)</span><br><span class="line">grant(operator, run_task)</span><br></pre></td></tr></table></figure>
+<p>这些不是函数调用，而是声明：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alice 与 reviewer 之间存在 role 关系</span><br><span class="line">reviewer 与 read_report 之间存在 grant 关系</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-Rule-描述怎样从已有关系推出新关系">4.2 Rule 描述怎样从已有关系推出新关系</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">allowed(User, Action) :-</span><br><span class="line">    role(User, Role),</span><br><span class="line">    grant(Role, Action)</span><br></pre></td></tr></table></figure>
+<p>读作：如果某个用户拥有一个角色，并且该角色被授予某个操作，那么用户被允许执行该操作。</p>
+<p>规则没有手写“遍历全部用户，再遍历全部角色”的循环。它只描述 <code>allowed</code> 成立所需要满足的关系。</p>
+<h3 id="4-3-Query-留出未知变量">4.3 Query 留出未知变量</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allowed(alice, ?action)</span><br></pre></td></tr></table></figure>
+<p>查询中的 <code>?action</code> 是变量，系统需要寻找能够让整个关系成立的绑定：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?action = read_report</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    QUERY[&quot;Query&lt;br&#x2F;&gt;allowed(alice, ?action)&quot;] --&gt; RULE[&quot;Rule&lt;br&#x2F;&gt;role(alice, ?role)&lt;br&#x2F;&gt;grant(?role, ?action)&quot;]
+    RULE --&gt; FACTS[&quot;Facts&lt;br&#x2F;&gt;role(alice, reviewer)&lt;br&#x2F;&gt;grant(reviewer, read_report)&quot;]
+    FACTS --&gt; ANSWER[&quot;Bindings&lt;br&#x2F;&gt;?role &#x3D; reviewer&lt;br&#x2F;&gt;?action &#x3D; read_report&quot;]
+    class ANSWER cp-path-good
+  </pre></div>
+<h2 id="5-Relation-为什么不只是换一种写法的函数">5. Relation 为什么不只是换一种写法的函数</h2>
+<p>普通函数通常具有明确方向：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">输入 → 执行函数 → 输出</span><br></pre></td></tr></table></figure>
+<p>关系描述的是多个值之间是否满足约束，并不天然规定哪个位置是输入、哪个位置是输出。</p>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">append_to_form(left, right, whole)</span><br></pre></td></tr></table></figure>
+<p>同一条关系可以支持不同查询：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">已知 left 和 right，求 whole</span><br><span class="line">已知 whole，求所有可能的 left 与 right</span><br><span class="line">已知 left 和 whole，求 right</span><br></pre></td></tr></table></figure>
+<p>命令式函数往往需要为不同方向编写不同实现；关系则描述三者共同满足的条件，由查询中的已知量和变量决定本次求解方向。</p>
+<p>这也是逻辑编程表达力强的来源之一，但代价是系统必须在候选绑定中进行搜索。</p>
+<h2 id="6-Unification-寻找让两个结构一致的变量绑定">6. Unification 寻找让两个结构一致的变量绑定</h2>
+<p>查询怎样与事实或规则连接起来？最基础的操作是 <strong>Unification（合一）</strong>：</p>
+<blockquote>
+<p>给定两个可能包含变量的结构，寻找一组变量绑定，使替换变量后的两个结构相同。</p>
+</blockquote>
+<h3 id="6-1-从简单匹配开始">6.1 从简单匹配开始</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">查询：role(alice, ?role)</span><br><span class="line">事实：role(alice, reviewer)</span><br></pre></td></tr></table></figure>
+<p>逐项比较：</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>查询</th>
+<th>事实</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>关系名</td>
+<td><code>role</code></td>
+<td><code>role</code></td>
+<td>相同</td>
+</tr>
+<tr>
+<td>第一个参数</td>
+<td><code>alice</code></td>
+<td><code>alice</code></td>
+<td>相同</td>
+</tr>
+<tr>
+<td>第二个参数</td>
+<td><code>?role</code></td>
+<td><code>reviewer</code></td>
+<td>绑定 <code>?role = reviewer</code></td>
+</tr>
+</tbody>
+</table>
+<p>得到 substitution：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;?role&quot;</span>: <span class="string">&quot;reviewer&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="6-2-同一个变量必须始终表示同一个值">6.2 同一个变量必须始终表示同一个值</h3>
+<p>模式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">same(?x, ?x)</span><br></pre></td></tr></table></figure>
+<p>与 <code>same(read, read)</code> 可以合一，得到 <code>?x = read</code>；与 <code>same(read, write)</code> 不能合一，因为同一个 <code>?x</code> 不可能同时绑定两个不同值。</p>
+<h3 id="6-3-Unification-可以同时处理两边的变量">6.3 Unification 可以同时处理两边的变量</h3>
+<p>Pattern matching 常指“用含变量的模式匹配一个确定值”；Unification 更一般，两边都可能包含变量：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">allowed(?user, read_report)</span><br><span class="line">allowed(alice, ?action)</span><br></pre></td></tr></table></figure>
+<p>可以得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?user = alice</span><br><span class="line">?action = read_report</span><br></pre></td></tr></table></figure>
+<h3 id="6-4-嵌套结构需要递归合一">6.4 嵌套结构需要递归合一</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">event(task(?id), result(failed, ?reason))</span><br><span class="line">event(task(t-17), result(failed, timeout))</span><br></pre></td></tr></table></figure>
+<p>外层结构相同后，还要递归比较 <code>task(...)</code> 和 <code>result(...)</code>，最终得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?id = t-17</span><br><span class="line">?reason = timeout</span><br></pre></td></tr></table></figure>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    ROOT[&quot;event(…, …)&quot;] --&gt; LEFT[&quot;task(?id)&lt;br&#x2F;&gt;↔ task(t-17)&quot;]
+    ROOT --&gt; RIGHT[&quot;result(failed, ?reason)&lt;br&#x2F;&gt;↔ result(failed, timeout)&quot;]
+    LEFT --&gt; ID[&quot;?id &#x3D; t-17&quot;]
+    RIGHT --&gt; REASON[&quot;?reason &#x3D; timeout&quot;]
+    ID --&gt; ENV[&quot;Bindings&quot;]
+    REASON --&gt; ENV
+    class ENV cp-path-good
+  </pre></div>
+<h3 id="6-5-一个最小-Unification-算法">6.5 一个最小 Unification 算法</h3>
+<p>下面用 tuple 表示结构，以 <code>?</code> 开头的字符串表示变量：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">is_variable</span>(<span class="params">value: <span class="built_in">object</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">isinstance</span>(value, <span class="built_in">str</span>) <span class="keyword">and</span> value.startswith(<span class="string">&quot;?&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">resolve</span>(<span class="params">value: <span class="built_in">object</span>, bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>]</span>) -&gt; <span class="built_in">object</span>:</span><br><span class="line">    <span class="keyword">while</span> is_variable(value) <span class="keyword">and</span> value <span class="keyword">in</span> bindings:</span><br><span class="line">        value = bindings[value]</span><br><span class="line">    <span class="keyword">return</span> value</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">unify</span>(<span class="params"></span></span><br><span class="line"><span class="params">    left: <span class="built_in">object</span>,</span></span><br><span class="line"><span class="params">    right: <span class="built_in">object</span>,</span></span><br><span class="line"><span class="params">    bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>],</span></span><br><span class="line"><span class="params"></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    left = resolve(left, bindings)</span><br><span class="line">    right = resolve(right, bindings)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> left == right:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> is_variable(left):</span><br><span class="line">        bindings[left] = right</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> is_variable(right):</span><br><span class="line">        bindings[right] = left</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(left, <span class="built_in">tuple</span>) <span class="keyword">and</span> <span class="built_in">isinstance</span>(right, <span class="built_in">tuple</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(left) != <span class="built_in">len</span>(right):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">all</span>(</span><br><span class="line">            unify(a, b, bindings)</span><br><span class="line">            <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="built_in">zip</span>(left, right)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query = (<span class="string">&quot;role&quot;</span>, <span class="string">&quot;alice&quot;</span>, <span class="string">&quot;?role&quot;</span>)</span><br><span class="line">fact = (<span class="string">&quot;role&quot;</span>, <span class="string">&quot;alice&quot;</span>, <span class="string">&quot;reviewer&quot;</span>)</span><br><span class="line">bindings: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>] = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">assert</span> unify(query, fact, bindings)</span><br><span class="line"><span class="keyword">assert</span> bindings == &#123;<span class="string">&quot;?role&quot;</span>: <span class="string">&quot;reviewer&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>这个版本足以说明递归结构和变量绑定，但完整实现还需要处理循环绑定、失败回滚、变量重命名等问题。例如 <code>?x</code> 与 <code>f(?x)</code> 不应形成无限递归的自引用；成熟系统会使用 occurs check 或其他约束避免这种绑定。</p>
+<h2 id="7-Unification-负责连接，Search-负责寻找整条证明路径">7. Unification 负责连接，Search 负责寻找整条证明路径</h2>
+<p>Unification 只回答“这两个局部结构能否一致”。要证明一条查询，解释器还要搜索事实和规则的组合。</p>
+<p>对：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allowed(alice, ?action)</span><br></pre></td></tr></table></figure>
+<p>大致过程是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. 将查询与 allowed 规则的结论合一</span><br><span class="line">2. 得到需要满足的子目标 role(alice, ?role)</span><br><span class="line">3. 在事实库中寻找与子目标合一的事实</span><br><span class="line">4. 得到 ?role = reviewer</span><br><span class="line">5. 继续寻找 grant(reviewer, ?action)</span><br><span class="line">6. 得到 ?action = read_report</span><br><span class="line">7. 所有子目标成立，返回绑定</span><br></pre></td></tr></table></figure>
+<p>如果某一步有多个候选事实，系统要逐个探索；一条路径失败时，再返回最近的选择点尝试其他候选，这就是 backtracking（回溯）。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart LR
+    Q[&quot;allowed(alice, ?action)&quot;] --&gt; R1[&quot;尝试 role &#x3D; reviewer&quot;]
+    Q --&gt; R2[&quot;尝试 role &#x3D; operator&quot;]
+    R1 --&gt; G1[&quot;grant(reviewer, read_report)&quot;] --&gt; OK[&quot;成功&lt;br&#x2F;&gt;?action &#x3D; read_report&quot;]
+    R2 --&gt; G2[&quot;没有匹配 grant&quot;] --&gt; BACK[&quot;回溯&quot;]
+    class OK cp-path-good
+    class G2,BACK cp-path-bad
+  </pre></div>
+<h3 id="7-1-声明式语义不等于自动高效">7.1 声明式语义不等于自动高效</h3>
+<p>同一组事实和规则可以有清楚的逻辑含义，但不同搜索顺序的性能差异很大：</p>
+<ul>
+<li>先搜索候选很少的条件，通常更快缩小范围；</li>
+<li>递归规则缺少终止约束时，可能进入无限分支；</li>
+<li>重复子目标可能造成大量重复推导；</li>
+<li>建立索引、缓存中间结果或使用专门求解算法，都可能改变效率。</li>
+</ul>
+<p>因此仍然需要区分：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Declarative semantics  描述什么答案是正确的</span><br><span class="line">Evaluation strategy    决定系统怎样寻找这些答案</span><br></pre></td></tr></table></figure>
+<h2 id="8-工程中怎样使用声明式思想">8. 工程中怎样使用声明式思想</h2>
+<p>声明式思想并不限于 SQL 或 Prolog。它反复出现在工程系统中：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>声明内容</th>
+<th>执行系统负责的过程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL 查询</td>
+<td>需要哪些关系结果</td>
+<td>索引、连接、排序和并行计划</td>
+</tr>
+<tr>
+<td>权限策略</td>
+<td>哪些主体满足访问条件</td>
+<td>匹配身份、资源和规则</td>
+</tr>
+<tr>
+<td>配置编排</td>
+<td>期望系统处于什么状态</td>
+<td>创建、更新和收敛资源</td>
+</tr>
+<tr>
+<td>数据验证</td>
+<td>值需要满足哪些约束</td>
+<td>遍历字段并产生错误信息</td>
+</tr>
+<tr>
+<td>路由规则</td>
+<td>什么条件选择哪个处理器</td>
+<td>规则匹配、优先级和回退</td>
+</tr>
+</tbody>
+</table>
+<p>使用声明式接口时仍需关注三个边界。</p>
+<h3 id="8-1-语义边界">8.1 语义边界</h3>
+<p>条件是否准确表达业务含义？例如权限规则中的默认拒绝、继承和优先级需要明确，不应依赖规则引擎的偶然顺序。</p>
+<h3 id="8-2-性能边界">8.2 性能边界</h3>
+<p>系统是否拥有合适索引和统计信息？是否产生笛卡尔积、N+1 查询或无界搜索？抽象隐藏了过程，但没有消灭过程的成本。</p>
+<h3 id="8-3-安全边界">8.3 安全边界</h3>
+<p>不要通过字符串拼接构造 SQL：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误示例</span></span><br><span class="line">sql = <span class="string">f&quot;SELECT * FROM task_runs WHERE task_id = &#x27;<span class="subst">&#123;task_id&#125;</span>&#x27;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>应使用驱动提供的参数绑定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cursor.execute(</span><br><span class="line">    <span class="string">&quot;SELECT * FROM task_runs WHERE task_id = ?&quot;</span>,</span><br><span class="line">    (task_id,),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>参数化的目的，是把查询结构与输入数据分开，而不是手工猜测应该转义哪些字符。</p>
+<h2 id="9-把本篇收束成四个层次">9. 把本篇收束成四个层次</h2>
+<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
+    flowchart TB
+    GOAL[&quot;目标层&lt;br&#x2F;&gt;想得到什么结果&quot;] --&gt; DECLARE[&quot;声明层&lt;br&#x2F;&gt;SQL · Facts · Rules · Query&quot;]
+    DECLARE --&gt; MATCH[&quot;匹配层&lt;br&#x2F;&gt;Unification 建立变量绑定&quot;]
+    MATCH --&gt; EXECUTE[&quot;执行层&lt;br&#x2F;&gt;Query Plan · Search · Backtracking&quot;]
+  </pre></div>
+<p>最终需要保留六个判断：</p>
+<ol>
+<li><strong>声明式程序隐藏具体执行步骤，但计算仍然真实存在</strong>；</li>
+<li><strong>SQL 查询描述关系结果，Query Plan 决定扫描、连接和聚合方式</strong>；</li>
+<li><strong>Logic Programming 用 Fact、Rule 和 Query 表达关系与推导</strong>；</li>
+<li><strong>关系没有固定输入输出方向</strong>，未知位置由本次查询中的变量决定；</li>
+<li><strong>Unification 寻找一致的变量绑定，Search 再组合事实和规则形成证明</strong>；</li>
+<li><strong>声明式语义正确不代表执行一定高效</strong>，仍要观察计划、索引和搜索空间。</li>
+</ol>
+<p>到这里，数据可以按需流动，计算也可以用更高层的目标来描述。下一篇会处理新的边界：当数据和执行节点位于不同机器上时，函数调用变成网络消息，失败也不再只有“成功”与“抛异常”两种状态。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/43-declarative-programming.html">Composing Programs 4.3：Declarative Programming</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/44-logic-programming.html">Composing Programs 4.4：Logic Programming</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/45-unification.html">Composing Programs 4.5：Unification</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sqlite.org/queryplanner.html">SQLite 文档：Query Planning</a></li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html">OWASP：Query Parameterization Cheat Sheet</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/09/02/composing-programs-declarative-unification/">https://littlepyx.github.io/2026/09/02/composing-programs-declarative-unification/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/SQL/">SQL</a><a class="post-meta__tags" href="/tags/Declarative-Programming/">Declarative Programming</a><a class="post-meta__tags" href="/tags/Logic-Programming/">Logic Programming</a><a class="post-meta__tags" href="/tags/Unification/">Unification</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-declarative-unification-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"><img class="cover" src="/img/composing-programs-lazy-pipeline-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</div></div><div class="info-2"><div class="info-item-1">前三章分别讨论了怎样组织函数、对象和解释器。第四章把关注点转向数据处理：当数据多到不能一次放进内存，或者数据还在持续产生时，程序应该怎样组织计算？ 本篇受教材 4.1 Introduction 与 4.2 Implicit Sequences 启发，但不从斐波那契数列开始，而是贯穿一个更常见的场景：逐条读取任务执行事件，筛选失败记录并统计耗时。 整篇只沿着一条主线展开：      flowchart TB     DATA[&quot;大量或持续到达的数据&quot;] --&gt; ITERATOR[&quot;Iterator&lt;br&#x2F;&gt;按需取得并记录位置&quot;]     ITERATOR --&gt; PIPELINE[&quot;Generator Pipeline&lt;br&#x2F;&gt;产生 · 过滤 · 转换 · 聚合&quot;]    惰性处理不是某个独立语法，而是从迭代协议一直延伸到整条数据管道的执行方式。 1. 问题不只是数据很大，而是数据不必同时存在 假设 events.jsonl 的每一行都是一条 JSON 事件。最直接的...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败"><img class="cover" src="/img/composing-programs-distributed-reliability-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">机器之间如何协作：消息、协议与分布式失败</div></div><div class="info-2"><div class="info-item-1">前两篇都可以在单个进程中完成：Iterator 让数据按需流动，声明式系统负责选择执行过程。当数据、服务和计算节点分布在不同机器上时，程序需要面对一个新的事实：机器之间没有共同的函数栈和内存，只能通过网络发送消息。 本篇受教材 4.6 Distributed Computing 启发，但不把重点放在网络历史或拓扑分类，而是回答工程中更直接的问题： 1234远程调用与本地调用有什么本质区别？超时以后，操作到底有没有执行？重试为什么可能制造重复副作用？怎样让失败可以恢复、定位和解释？ 1. 远程调用不是“慢一点的函数调用” 本地调用： 1result = execute_task(task) 调用者与函数通常位于同一进程。参数通过内存传递，返回值直接回到当前调用栈；如果函数抛出异常，调用者也能在同一运行时中接住它。 远程调用看起来可能很像： 1result = task_client.execute(task) 但内部至少经历：      sequenceDiagram     participant C as Client     participant N as Network ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解：      flowchart TB     R[&quot;具体表示&quot;] --&gt; A[&quot;构造器 · 选择器&lt;br&#x2F;&gt;行为契约&quot;]     A --&gt; S[&quot;序列接口&lt;br&#x2F;&gt;递归数据&quot;]     S --&gt; M[&quot;可变状态&lt;br&#x2F;&gt;身份 · 消息&quot;]     M --&gt; O[&quot;类 · 实例&lt;br&#x2F;&gt;属性查找 · 方法绑定&quot;]     O --&gt; G[&quot;对象协议&lt;br&#x2F;&gt;泛型操作&quot;]     G --&gt; E[&quot;表示选择&lt;br&#x2F;&gt;算法效率&quot;]    本篇先完成前两步。对应教材：  2...</div></div></div></a><a class="pagination-related" href="/2026/07/28/composing-programs-higher-order-functions/" title="高阶函数：从参数化数据到参数化行为"><img class="cover" src="/img/composing-programs-higher-order-functions-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-07-28</div><div class="info-item-2">高阶函数：从参数化数据到参数化行为</div></div><div class="info-2"><div class="info-item-1">1. 最小前置：函数值、调用与环境 高阶函数并不依赖复杂语法，但依赖三个容易被日常编码习惯掩盖的事实：函数是值，调用会创建局部环境，函数还关联着自己的定义环境。 1.1 函数名与函数调用不是一回事 执行 def 时，Python 创建一个函数对象，再把名字绑定到这个对象： 12345def square(x):    return x * xoperation = squareresult = operation(5)  # 25 square 表示函数对象，square(5) 才表示调用后的结果。operation = square 没有执行函数，只是让两个名字引用同一个函数对象。 这个区别决定了高阶函数传递的是什么：  传入 square，交付的是一条“之后可以执行”的计算规则； 传入 square(5)，交付的只是这次调用得到的数值 25。  函数能够像数字、字符串一样被绑定、传递和返回，就是函数具有一等地位的含义。 1.2 函数参数也只是局部名字 1234567def apply_twice(f, x):    return f(f(x))def increment(x)...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败"><img class="cover" src="/img/composing-programs-distributed-reliability-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-02</div><div class="info-item-2">机器之间如何协作：消息、协议与分布式失败</div></div><div class="info-2"><div class="info-item-1">前两篇都可以在单个进程中完成：Iterator 让数据按需流动，声明式系统负责选择执行过程。当数据、服务和计算节点分布在不同机器上时，程序需要面对一个新的事实：机器之间没有共同的函数栈和内存，只能通过网络发送消息。 本篇受教材 4.6 Distributed Computing 启发，但不把重点放在网络历史或拓扑分类，而是回答工程中更直接的问题： 1234远程调用与本地调用有什么本质区别？超时以后，操作到底有没有执行？重试为什么可能制造重复副作用？怎样让失败可以恢复、定位和解释？ 1. 远程调用不是“慢一点的函数调用” 本地调用： 1result = execute_task(task) 调用者与函数通常位于同一进程。参数通过内存传递，返回值直接回到当前调用栈；如果函数抛出异常，调用者也能在同一运行时中接住它。 远程调用看起来可能很像： 1result = task_client.execute(task) 但内部至少经历：      sequenceDiagram     participant C as Client     participant N as Network ...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+AI Agent 开发、计算成像、深度学习、光学<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%A3%B0%E6%98%8E%E5%BC%8F%E7%BC%96%E7%A8%8B%E9%9A%90%E8%97%8F%E7%9A%84%E6%98%AF%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B%EF%BC%8C%E4%B8%8D%E6%98%AF%E8%AE%A1%E7%AE%97%E6%9C%AC%E8%BA%AB"><span class="toc-text">1. 声明式编程隐藏的是执行过程，不是计算本身</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%91%BD%E4%BB%A4%E5%BC%8F%E5%86%99%E6%B3%95%E8%A7%84%E5%AE%9A%E4%BA%86%E6%8E%A7%E5%88%B6%E6%B5%81%E7%A8%8B"><span class="toc-text">1.1 命令式写法规定了控制流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-SQL-%E6%8F%8F%E8%BF%B0%E7%BB%93%E6%9E%9C%E5%BA%94%E8%AF%A5%E5%85%B7%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%A2%E7%8A%B6"><span class="toc-text">1.2 SQL 描述结果应该具有什么形状</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%A1%A8%E4%B8%8E%E6%9F%A5%E8%AF%A2%E6%93%8D%E4%BD%9C%E6%9E%84%E6%88%90%E4%BA%86%E4%B8%80%E5%A5%97%E6%95%B0%E6%8D%AE%E5%8F%98%E6%8D%A2%E8%AF%AD%E8%A8%80"><span class="toc-text">2. 表与查询操作构成了一套数据变换语言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%9B%9B%E7%A7%8D%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E5%85%B3%E7%B3%BB%E6%93%8D%E4%BD%9C"><span class="toc-text">2.1 四种最重要的关系操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%BB%93%E6%9E%9C%E9%A1%BA%E5%BA%8F%E4%B9%9F%E9%9C%80%E8%A6%81%E6%98%8E%E7%A1%AE%E5%A3%B0%E6%98%8E"><span class="toc-text">2.2 结果顺序也需要明确声明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Query-Plan-%E6%8A%8A%E2%80%9C%E8%A6%81%E4%BB%80%E4%B9%88%E2%80%9D%E7%BF%BB%E8%AF%91%E6%88%90%E2%80%9C%E6%80%8E%E6%A0%B7%E7%AE%97%E2%80%9D"><span class="toc-text">3. Query Plan 把“要什么”翻译成“怎样算”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%A3%B0%E6%98%8E%E5%BC%8F%E6%8A%BD%E8%B1%A1%E4%B8%BA%E4%BB%80%E4%B9%88%E7%BB%99%E4%BC%98%E5%8C%96%E7%95%99%E4%B8%8B%E7%A9%BA%E9%97%B4"><span class="toc-text">3.1 声明式抽象为什么给优化留下空间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-ORM-%E6%B2%A1%E6%9C%89%E6%B6%88%E9%99%A4%E6%9F%A5%E8%AF%A2%E6%88%90%E6%9C%AC"><span class="toc-text">3.2 ORM 没有消除查询成本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Logic-Programming-%E4%BB%8E%E2%80%9C%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BD%95%E2%80%9D%E8%B5%B0%E5%90%91%E2%80%9C%E6%8E%A8%E5%AF%BC%E5%85%B3%E7%B3%BB%E2%80%9D"><span class="toc-text">4. Logic Programming 从“查询记录”走向“推导关系”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Fact-%E8%A1%A8%E7%A4%BA%E5%B7%B2%E7%BB%8F%E6%88%90%E7%AB%8B%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">4.1 Fact 表示已经成立的关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Rule-%E6%8F%8F%E8%BF%B0%E6%80%8E%E6%A0%B7%E4%BB%8E%E5%B7%B2%E6%9C%89%E5%85%B3%E7%B3%BB%E6%8E%A8%E5%87%BA%E6%96%B0%E5%85%B3%E7%B3%BB"><span class="toc-text">4.2 Rule 描述怎样从已有关系推出新关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Query-%E7%95%99%E5%87%BA%E6%9C%AA%E7%9F%A5%E5%8F%98%E9%87%8F"><span class="toc-text">4.3 Query 留出未知变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Relation-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%8D%A2%E4%B8%80%E7%A7%8D%E5%86%99%E6%B3%95%E7%9A%84%E5%87%BD%E6%95%B0"><span class="toc-text">5. Relation 为什么不只是换一种写法的函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Unification-%E5%AF%BB%E6%89%BE%E8%AE%A9%E4%B8%A4%E4%B8%AA%E7%BB%93%E6%9E%84%E4%B8%80%E8%87%B4%E7%9A%84%E5%8F%98%E9%87%8F%E7%BB%91%E5%AE%9A"><span class="toc-text">6. Unification 寻找让两个结构一致的变量绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E4%BB%8E%E7%AE%80%E5%8D%95%E5%8C%B9%E9%85%8D%E5%BC%80%E5%A7%8B"><span class="toc-text">6.1 从简单匹配开始</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8F%98%E9%87%8F%E5%BF%85%E9%A1%BB%E5%A7%8B%E7%BB%88%E8%A1%A8%E7%A4%BA%E5%90%8C%E4%B8%80%E4%B8%AA%E5%80%BC"><span class="toc-text">6.2 同一个变量必须始终表示同一个值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-Unification-%E5%8F%AF%E4%BB%A5%E5%90%8C%E6%97%B6%E5%A4%84%E7%90%86%E4%B8%A4%E8%BE%B9%E7%9A%84%E5%8F%98%E9%87%8F"><span class="toc-text">6.3 Unification 可以同时处理两边的变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E5%B5%8C%E5%A5%97%E7%BB%93%E6%9E%84%E9%9C%80%E8%A6%81%E9%80%92%E5%BD%92%E5%90%88%E4%B8%80"><span class="toc-text">6.4 嵌套结构需要递归合一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E4%B8%80%E4%B8%AA%E6%9C%80%E5%B0%8F-Unification-%E7%AE%97%E6%B3%95"><span class="toc-text">6.5 一个最小 Unification 算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Unification-%E8%B4%9F%E8%B4%A3%E8%BF%9E%E6%8E%A5%EF%BC%8CSearch-%E8%B4%9F%E8%B4%A3%E5%AF%BB%E6%89%BE%E6%95%B4%E6%9D%A1%E8%AF%81%E6%98%8E%E8%B7%AF%E5%BE%84"><span class="toc-text">7. Unification 负责连接，Search 负责寻找整条证明路径</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%A3%B0%E6%98%8E%E5%BC%8F%E8%AF%AD%E4%B9%89%E4%B8%8D%E7%AD%89%E4%BA%8E%E8%87%AA%E5%8A%A8%E9%AB%98%E6%95%88"><span class="toc-text">7.1 声明式语义不等于自动高效</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%B7%A5%E7%A8%8B%E4%B8%AD%E6%80%8E%E6%A0%B7%E4%BD%BF%E7%94%A8%E5%A3%B0%E6%98%8E%E5%BC%8F%E6%80%9D%E6%83%B3"><span class="toc-text">8. 工程中怎样使用声明式思想</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E8%AF%AD%E4%B9%89%E8%BE%B9%E7%95%8C"><span class="toc-text">8.1 语义边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E6%80%A7%E8%83%BD%E8%BE%B9%E7%95%8C"><span class="toc-text">8.2 性能边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C"><span class="toc-text">8.3 安全边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E6%8A%8A%E6%9C%AC%E7%AF%87%E6%94%B6%E6%9D%9F%E6%88%90%E5%9B%9B%E4%B8%AA%E5%B1%82%E6%AC%A1"><span class="toc-text">9. 把本篇收束成四个层次</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-parallel-mapreduce/" title="计算如何同时展开：并发、并行、MapReduce 与共享状态"><img src="/img/composing-programs-parallel-mapreduce-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算如何同时展开：并发、并行、MapReduce 与共享状态"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-parallel-mapreduce/" title="计算如何同时展开：并发、并行、MapReduce 与共享状态">计算如何同时展开：并发、并行、MapReduce 与共享状态</a><time datetime="2026-09-02T05:00:00.000Z" title="发表于 2026-09-02 13:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败"><img src="/img/composing-programs-distributed-reliability-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="机器之间如何协作：消息、协议与分布式失败"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败">机器之间如何协作：消息、协议与分布式失败</a><time datetime="2026-09-02T04:00:00.000Z" title="发表于 2026-09-02 12:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"><img src="/img/composing-programs-declarative-unification-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</a><time datetime="2026-09-02T03:00:00.000Z" title="发表于 2026-09-02 11:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"><img src="/img/composing-programs-lazy-pipeline-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据如何按需流动：Iterator、Generator 与惰性 Pipeline"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/02/composing-programs-lazy-pipeline/" title="数据如何按需流动：Iterator、Generator 与惰性 Pipeline">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</a><time datetime="2026-09-02T02:00:00.000Z" title="发表于 2026-09-02 10:00:00">2026-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行"><img src="/img/composing-programs-runtime-abstraction-nature-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="运行时如何支持抽象：环境、闭包、作用域与安全执行"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/08/27/composing-programs-runtime-abstraction/" title="运行时如何支持抽象：环境、闭包、作用域与安全执行">运行时如何支持抽象：环境、闭包、作用域与安全执行</a><time datetime="2026-08-27T04:00:00.000Z" title="发表于 2026-08-27 12:00:00">2026-08-27</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="/js/mermaid-polish.js" defer></script><script src="/js/article-experience.js" defer></script><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
