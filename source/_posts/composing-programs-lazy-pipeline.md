@@ -73,18 +73,26 @@ def iter_events(path: str):
 
 它不会立即解析全部文件，而是在调用者请求下一条数据时才继续读取。
 
-{% mermaid %}
-flowchart LR
-    subgraph EAGER["立即计算：先完成全部工作"]
-        FILE1["完整文件"] --> PARSE1["解析所有行"] --> LIST["完整事件列表"] --> USE1["开始处理"]
-    end
-    subgraph LAZY["惰性计算：请求一个，产生一个"]
-        FILE2["文件流"] --> ONE["读取并解析一行"] --> USE2["立即处理"] --> ONE
-    end
-    class FILE1,FILE2 cp-stage-source
-    class PARSE1,ONE cp-stage-process
-    class LIST,USE1,USE2 cp-stage-output
-{% endmermaid %}
+<div class="cp-lazy-visual cp-lazy-compare">
+  <div class="cp-lazy-visual__head"><strong>执行方式对照</strong><span>差别在于何时产生结果、同时保留多少数据</span></div>
+  <div class="cp-lazy-lane">
+    <div class="cp-lazy-lane__label"><b>立即计算</b><small>先完成，再交付</small></div>
+    <div class="cp-lazy-steps" style="--lazy-steps: 4">
+      <div class="cp-lazy-step"><b>完整文件</b><small>输入全部可用</small></div>
+      <div class="cp-lazy-step"><b>解析所有行</b><small>一次完成</small></div>
+      <div class="cp-lazy-step"><b>保存完整列表</b><small>内存随结果增长</small></div>
+      <div class="cp-lazy-step"><b>开始处理</b><small>首条结果出现较晚</small></div>
+    </div>
+  </div>
+  <div class="cp-lazy-lane cp-lazy-lane--pull">
+    <div class="cp-lazy-lane__label"><b>惰性计算</b><small>请求一个，产生一个</small></div>
+    <div class="cp-lazy-steps" style="--lazy-steps: 3">
+      <div class="cp-lazy-step"><b>调用者请求</b><small>next() 驱动</small></div>
+      <div class="cp-lazy-step"><b>读取并解析一行</b><small>只创建当前值</small></div>
+      <div class="cp-lazy-step"><b>立即处理</b><small>然后等待下一次请求</small></div>
+    </div>
+  </div>
+</div>
 
 二者并不是“列表落后、生成器先进”。它们表达的是不同契约：
 
@@ -165,13 +173,24 @@ while True:
 
 因此，`for` 并不要求对象是列表。它只依赖统一的迭代协议：能够得到 iterator，并能不断询问下一个值。
 
-{% mermaid %}
-stateDiagram-v2
-    [*] --> Ready: iter(iterable)
-    Ready --> Ready: next() 返回一个值
-    Ready --> Exhausted: next() 抛出 StopIteration
-    Exhausted --> Exhausted: 再次 next() 仍然结束
-{% endmermaid %}
+<div class="cp-lazy-visual cp-iterator-state">
+  <div class="cp-lazy-visual__head"><strong>Iterator 状态</strong><span>状态只有两个，变化由 next() 的结果决定</span></div>
+  <div class="cp-iterator-state__row">
+    <div class="cp-state-node">
+      <span class="cp-state-node__name">READY</span>
+      <strong>可以继续取得元素</strong>
+      <small>iter(iterable) 后进入这个状态</small>
+      <em class="cp-state-node__loop">↻ next() 返回值后仍在 Ready</em>
+    </div>
+    <div class="cp-state-edge"><span>next() 抛出 StopIteration</span><b>→</b></div>
+    <div class="cp-state-node cp-state-node--done">
+      <span class="cp-state-node__name">EXHAUSTED</span>
+      <strong>迭代已经结束</strong>
+      <small>不会自动回到开头</small>
+      <em class="cp-state-node__loop">↻ 再次 next() 仍然结束</em>
+    </div>
+  </div>
+</div>
 
 <p class="cp-figure-caption">Iterator 是有状态对象；“下一个元素”取决于此前已经消费了多少数据。</p>
 
@@ -206,19 +225,15 @@ next(numbers)  # 1
 next(numbers)  # StopIteration
 ```
 
-{% mermaid %}
-sequenceDiagram
-    participant C as 调用者
-    participant G as countdown generator
-    C->>G: next()
-    G-->>C: yield 3，并暂停
-    C->>G: next()
-    G-->>C: 从暂停处继续，yield 2
-    C->>G: next()
-    G-->>C: yield 1
-    C->>G: next()
-    G-->>C: 函数结束，StopIteration
-{% endmermaid %}
+<div class="cp-lazy-visual cp-yield-timeline">
+  <div class="cp-lazy-visual__head"><strong>Generator 恢复时间线</strong><span>每次 next() 都从上次暂停处继续</span></div>
+  <div class="cp-yield-timeline__track">
+    <div class="cp-yield-event"><code>next()</code><strong>进入函数</strong><small>运行到第一个 yield，产生 3 并暂停</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>恢复执行</strong><small>从 yield 后继续，current 变为 2</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>再次恢复</strong><small>产生 1，保留新的暂停位置</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>函数结束</strong><small>没有新的 yield，抛出 StopIteration</small></div>
+  </div>
+</div>
 
 暂停时保存的不只是局部变量 `current`，还包括指令位置和未完成的控制结构。下一次恢复时，函数从上次 `yield` 之后继续，而不是从第一行重新运行。
 
@@ -290,19 +305,17 @@ average = total / count if count else 0
 
 创建 `events`、`failures` 和 `durations` 时几乎没有处理数据。真正的执行由最后的 `for` 循环驱动：它请求一个 `duration`，请求会沿着整条管道向上游传播。
 
-{% mermaid %}
-flowchart LR
-    SOURCE["Source<br/>逐行读取"] --> PARSE["Parse<br/>JSON → dict"]
-    PARSE --> FILTER{"Filter<br/>status == failed?"}
-    FILTER -->|否| DROP["丢弃"]
-    FILTER -->|是| MAP["Map<br/>取 duration_ms"]
-    MAP --> REDUCE["Reduce<br/>total + count"]
-    class SOURCE cp-stage-source
-    class PARSE cp-stage-process
-    class DROP cp-path-bad
-    class MAP cp-stage-process
-    class REDUCE cp-stage-output
-{% endmermaid %}
+<div class="cp-lazy-visual cp-pipeline-visual">
+  <div class="cp-lazy-visual__head"><strong>单个元素怎样穿过 Pipeline</strong><span>终止操作发起请求，数据沿主路径向右流动</span></div>
+  <div class="cp-lazy-steps" style="--lazy-steps: 5">
+    <div class="cp-lazy-step"><b>Source</b><small>逐行读取</small></div>
+    <div class="cp-lazy-step"><b>Parse</b><small>JSON → dict</small></div>
+    <div class="cp-lazy-step"><b>Filter</b><small>status == failed?</small></div>
+    <div class="cp-lazy-step"><b>Map</b><small>取得 duration_ms</small></div>
+    <div class="cp-lazy-step"><b>Reduce</b><small>更新 total 与 count</small></div>
+  </div>
+  <div class="cp-pipeline-branch"><b>Filter 为否 ↓</b><span>丢弃当前元素；下一次消费继续向 Source 请求</span></div>
+</div>
 
 <p class="cp-figure-caption">每次下游请求只推动上游产生足够的数据；中间阶段不必保存完整集合。</p>
 
@@ -449,16 +462,15 @@ finally:
 
 同步 generator 通常采用 pull 模型：消费者调用 `next()`，生产者才继续，因此天然不会无限超前。但如果生产者独立运行，例如网络接收任务不断向队列写入，仅仅把消费者写成 generator 并不能限制队列增长。此时需要有界队列、流量控制或暂停上游。
 
-{% mermaid %}
-flowchart LR
-    PRODUCER["独立生产者"] --> QUEUE["有界缓冲区"] --> CONSUMER["较慢消费者"]
-    QUEUE -->|接近容量上限| SIGNAL["暂停 · 限速 · 拒绝"]
-    SIGNAL --> PRODUCER
-    class PRODUCER cp-stage-source
-    class QUEUE cp-stage-process
-    class CONSUMER cp-stage-output
-    class SIGNAL cp-stage-warning
-{% endmermaid %}
+<div class="cp-lazy-visual cp-backpressure">
+  <div class="cp-lazy-visual__head"><strong>背压形成一个反馈回路</strong><span>缓冲区负责吸收波动，但不能隐藏持续过载</span></div>
+  <div class="cp-lazy-steps" style="--lazy-steps: 3">
+    <div class="cp-lazy-step"><b>独立生产者</b><small>持续产生事件</small></div>
+    <div class="cp-lazy-step"><b>有界缓冲区</b><small>容量明确，队列可观测</small></div>
+    <div class="cp-lazy-step"><b>较慢消费者</b><small>按自身速度处理</small></div>
+  </div>
+  <div class="cp-backpressure__feedback"><b>队列接近上限</b><span>暂停、限速或拒绝新的生产</span><b>释放容量后再恢复 ↑</b></div>
+</div>
 
 ### 7.1 异步迭代处理“下一条数据还没有到”
 
