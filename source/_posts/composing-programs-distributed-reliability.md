@@ -24,12 +24,18 @@ katex: false
 
 本篇受教材 [4.6 Distributed Computing](https://www.composingprograms.com/pages/46-distributed-computing.html) 启发，但不把重点放在网络历史或拓扑分类，而是回答工程中更直接的问题：
 
-```text
-远程调用与本地调用有什么本质区别？
-超时以后，操作到底有没有执行？
-重试为什么可能制造重复副作用？
-怎样让失败可以恢复、定位和解释？
-```
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">本篇主线</span>
+    <span class="cp-note-map__hint">可靠性来自一组相互配合的边界</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 4">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">01 · 边界</span><strong>调用变成消息</strong><small>双方不再共享内存和调用栈</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">02 · 不确定</span><strong>超时不等于未执行</strong><small>响应丢失会让结果进入未知状态</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">03 · 恢复</span><strong>Retry + Idempotency</strong><small>允许重传，同时吸收重复业务效果</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">04 · 解释</span><strong>状态 + Observability</strong><small>让失败可以恢复、关联和定位</small></div>
+  </div>
+</div>
 
 ## 1. 远程调用不是“慢一点的函数调用”
 
@@ -137,15 +143,6 @@ timeout = 30
 Client  发起请求并消费结果
 Server  接收请求并提供服务
 ```
-
-{% mermaid %}
-sequenceDiagram
-    participant C as Client
-    participant S as Task Service
-    C->>S: execute(task_id=t-17)
-    S->>S: 校验、执行、持久化结果
-    S-->>C: completed(result)
-{% endmermaid %}
 
 这种分工让多个客户端复用同一服务，也让服务端可以独立扩容。但它同时引入了状态所有权问题：
 
@@ -286,6 +283,14 @@ def call_with_retry(send, *, deadline: float):
 
 这只是控制等待的骨架。它尚未回答最关键的问题：`send()` 被执行多次是否安全？
 
+### 6.3 整条调用链只应有一个重试负责人
+
+假设入口服务重试 3 次，中间服务也重试 3 次，数据库客户端仍重试 3 次。一次用户请求在最坏情况下可能把下游调用放大为 `3 × 3 × 3 = 27` 次。系统原本只是轻微过载，层层重试却可能把它推向完全不可用。
+
+因此需要沿调用链明确：**哪一层最了解操作语义，并负责最终重试决策。** 其他层要么关闭自动重试，要么只做非常有限的连接恢复。指标中还应区分原始请求数和总 attempt 数，否则只看成功率，可能看不出系统正在依靠大量重试勉强维持。
+
+如果失败来自持续过载，而不是短暂抖动，重试本身没有修复能力。此时更合适的是尽早限流、缩短队列、返回明确的过载信号，并让客户端按 `Retry-After` 或服务约定退避。
+
 ## 7. Idempotency 让重复请求不重复产生业务效果
 
 **Idempotency（幂等性）** 指同一个操作执行一次或多次，最终业务效果相同。
@@ -333,7 +338,10 @@ flowchart LR
     CLAIM --> EFFECT["执行业务副作用"]
     EFFECT --> SAVE["保存结果"]
     SAVE --> RESPONSE["返回响应"]
-    class REPLAY,RESPONSE cp-path-good
+    class REQUEST cp-stage-source
+    class CLAIM,EFFECT,SAVE cp-stage-process
+    class WAIT cp-stage-warning
+    class REPLAY,RESPONSE cp-stage-output
 {% endmermaid %}
 
 ### 7.2 去重记录必须和业务状态共同设计
@@ -369,6 +377,27 @@ flowchart LR
 网络层很难凭空保证端到端业务副作用恰好发生一次。工程上通常接受消息可能重复，再通过幂等处理把重复传输收敛成一次业务效果。
 
 消息顺序也不能随意假设。两个请求从客户端按 A、B 发出，服务端可能先观察到 B；如果业务依赖顺序，需要序列号、版本号、单一分区或显式状态机。
+
+### 8.1 Transactional Outbox 处理“写库成功，但消息没发出”
+
+事件驱动服务经常同时做两件事：更新自己的数据库，并向消息系统发布事件。这是两次独立写入，任何一种顺序都有失败窗口：
+
+```text
+先写数据库：提交成功 → 进程崩溃 → 事件没有发出
+先发事件：消息成功 → 数据库回滚 → 下游看到了并不存在的状态
+```
+
+Transactional Outbox（事务发件箱）的做法是：**在同一个数据库事务里更新业务表，并向 outbox 表写入待发布事件。** 独立发布器只读取已经提交的 outbox 记录，再把事件发送到消息系统。
+
+```text
+业务事务：更新 tasks + 插入 outbox
+                     ↓
+发布器：读取 outbox → 发布消息 → 标记已发送
+                     ↓
+消费者：按 event_id 去重后更新自己的状态
+```
+
+发布器仍可能在“消息已发送、标记尚未保存”之间崩溃，所以消息仍可能重复；outbox 解决的是业务状态与“应该发送这条消息”的原子一致性，消费者幂等负责重复投递。两个机制解决的是不同失败窗口。
 
 ## 9. 将共享状态改写为明确的状态所有权
 
@@ -425,13 +454,32 @@ idempotency_key 同一业务意图的重复请求
 
 日志应记录协议阶段和稳定标识，而不是默认输出完整凭据、请求正文或敏感结果。
 
+### 10.1 日志、指标和 Trace 分别回答不同问题
+
+三种信号不应互相替代：日志解释某个具体事件发生了什么，指标说明一类请求是否出现整体异常，Trace 则把一次请求跨服务的路径串起来。一个实用的排障顺序是：先由告警指标发现异常范围，再从慢请求或错误 Trace 定位服务边界，最后用同一个 `trace_id`、`request_id` 或业务 ID 查询细节日志。
+
+<div class="cp-engineering-panel">
+  <strong>为一次远程操作建立可关联证据</strong>
+  <div class="cp-engineering-panel__grid">
+    <div class="cp-engineering-panel__item"><b>Metrics</b><span>错误率、P95/P99、重试放大倍数与队列年龄</span></div>
+    <div class="cp-engineering-panel__item"><b>Trace</b><span>请求在哪个服务、数据库或外部依赖上消耗时间</span></div>
+    <div class="cp-engineering-panel__item"><b>Logs</b><span>记录稳定 ID、协议阶段与结果摘要，并对敏感字段脱敏</span></div>
+  </div>
+</div>
+
 ## 11. 把可靠调用组织成一条完整路径
 
-{% mermaid %}
-flowchart LR
-    CONTRACT["Contract + Request<br/>schema · version<br/>request_id · deadline"] --> DELIVERY["Delivery<br/>timeout · retry · backoff"]
-    DELIVERY --> EFFECT["Effect + Observation<br/>idempotency · transaction<br/>trace · metrics · audit"]
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">可靠调用</span>
+    <span class="cp-note-map__hint">先定义语义，再处理传输，最后约束业务效果</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 3">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">CONTRACT</span><strong>Schema · Version · Deadline</strong><small>双方先对字段语义和时间预算达成一致</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">DELIVERY</span><strong>Timeout · Retry · Backoff</strong><small>处理传输失败，同时限制恢复机制的负载</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">EFFECT</span><strong>Idempotency · Transaction · Trace</strong><small>让重复收敛，并留下可恢复、可解释的证据</small></div>
+  </div>
+</div>
 
 最终需要保留七个判断：
 
@@ -451,3 +499,5 @@ flowchart LR
 - [AWS Builders' Library：Timeouts, Retries, and Backoff with Jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
 - [IETF HTTP Semantics：Idempotent Methods](https://www.rfc-editor.org/rfc/rfc9110.html#name-idempotent-methods)
 - [OpenTelemetry：Traces](https://opentelemetry.io/docs/concepts/signals/traces/)
+- [AWS Well-Architected：Control and limit retry calls](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html)
+- [AWS Prescriptive Guidance：Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)

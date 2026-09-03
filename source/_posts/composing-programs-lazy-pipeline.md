@@ -26,13 +26,17 @@ katex: false
 
 整篇只沿着一条主线展开：
 
-{% mermaid %}
-flowchart TB
-    DATA["大量或持续到达的数据"] --> ITERATOR["Iterator<br/>按需取得并记录位置"]
-    ITERATOR --> PIPELINE["Generator Pipeline<br/>产生 · 过滤 · 转换 · 聚合"]
-{% endmermaid %}
-
-<p class="cp-figure-caption">惰性处理不是某个独立语法，而是从迭代协议一直延伸到整条数据管道的执行方式。</p>
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">本篇主线</span>
+    <span class="cp-note-map__hint">从“数据放不下”走到“计算按需发生”</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 3">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">01 · 问题</span><strong>数据不必同时存在</strong><small>大型文件、分页接口与持续事件流</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">02 · 协议</span><strong>Iterator 记录遍历位置</strong><small>调用者每次只索取下一个值</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">03 · 组合</span><strong>Generator 组成惰性管道</strong><small>产生、过滤、转换，直到终止操作消费</small></div>
+  </div>
+</div>
 
 ## 1. 问题不只是数据很大，而是数据不必同时存在
 
@@ -77,6 +81,9 @@ flowchart LR
     subgraph LAZY["惰性计算：请求一个，产生一个"]
         FILE2["文件流"] --> ONE["读取并解析一行"] --> USE2["立即处理"] --> ONE
     end
+    class FILE1,FILE2 cp-stage-source
+    class PARSE1,ONE cp-stage-process
+    class LIST,USE1,USE2 cp-stage-output
 {% endmermaid %}
 
 二者并不是“列表落后、生成器先进”。它们表达的是不同契约：
@@ -290,8 +297,11 @@ flowchart LR
     FILTER -->|否| DROP["丢弃"]
     FILTER -->|是| MAP["Map<br/>取 duration_ms"]
     MAP --> REDUCE["Reduce<br/>total + count"]
+    class SOURCE cp-stage-source
+    class PARSE cp-stage-process
     class DROP cp-path-bad
-    class MAP,REDUCE cp-path-good
+    class MAP cp-stage-process
+    class REDUCE cp-stage-output
 {% endmermaid %}
 
 <p class="cp-figure-caption">每次下游请求只推动上游产生足够的数据；中间阶段不必保存完整集合。</p>
@@ -444,6 +454,10 @@ flowchart LR
     PRODUCER["独立生产者"] --> QUEUE["有界缓冲区"] --> CONSUMER["较慢消费者"]
     QUEUE -->|接近容量上限| SIGNAL["暂停 · 限速 · 拒绝"]
     SIGNAL --> PRODUCER
+    class PRODUCER cp-stage-source
+    class QUEUE cp-stage-process
+    class CONSUMER cp-stage-output
+    class SIGNAL cp-stage-warning
 {% endmermaid %}
 
 ### 7.1 异步迭代处理“下一条数据还没有到”
@@ -456,6 +470,33 @@ async for event in event_stream:
 ```
 
 其本质仍是“逐个取得元素”，只是 `__anext__()` 返回 awaitable，等待期间事件循环可以运行其他任务。异步迭代扩展了迭代协议，不改变惰性管道的基本思想。
+
+### 7.2 批大小和队列容量需要用指标校准
+
+分批不是越大越好。批次变大通常能减少网络往返和数据库提交次数，却也会增加单批内存、失败后的重做量，以及第一条结果的等待时间。队列容量也不是越大越安全：过大的缓冲区只会把过载暂时藏在内存里，并延长任务排队时间。
+
+工程上可以先从一个保守值开始，再同时观察三个量：
+
+<div class="cp-engineering-panel">
+  <strong>调节 Pipeline 时最有用的三个信号</strong>
+  <div class="cp-engineering-panel__grid">
+    <div class="cp-engineering-panel__item"><b>处理吞吐</b><span>每秒真正完成多少条，而不是进入队列多少条</span></div>
+    <div class="cp-engineering-panel__item"><b>排队等待</b><span>最老元素等待多久，队列是否长期接近上限</span></div>
+    <div class="cp-engineering-panel__item"><b>批次代价</b><span>单批延迟、峰值内存，以及失败后需要重做多少</span></div>
+  </div>
+</div>
+
+如果队列持续增长，说明平均生产速度已经高于消费速度；这时继续扩大容量只能推迟问题，应该限速、增加消费者，或降低单条处理成本。
+
+### 7.3 可恢复进度必须落在副作用之后
+
+流式任务经常需要断点续跑。关键不是“保存一个 cursor”这么简单，而是决定**什么时候承认某条数据已经处理完成**。如果先保存进度、再写数据库，进程在两步之间崩溃，重启后会跳过尚未落库的数据；更稳妥的顺序是：
+
+```text
+读取一批 → 完成写入 → 确认写入成功 → 提交 cursor / offset
+```
+
+这样崩溃后最多会重放最近一批，不会静默漏掉它。代价是下游可能再次收到同一条数据，因此写入操作还需要唯一键、upsert 或幂等键来吸收重复。检查点解决“从哪里继续”，幂等性解决“重复执行是否安全”，两者不能互相替代。
 
 ## 8. 怎样选择列表、Iterator 与 Generator
 
@@ -484,13 +525,18 @@ async for event in event_stream:
 
 ## 9. 把本篇收束成一条执行链
 
-{% mermaid %}
-flowchart LR
-    SOURCE["数据源<br/>文件 · 分页 · 事件流"] --> ITERATION["Iterable → Iterator<br/>开始遍历并记录位置"]
-    ITERATION --> LAZY["Lazy Transform<br/>Generator · itertools"]
-    LAZY --> SINK["终止操作<br/>for · sum · 写入"]
-    SINK -."继续请求".-> ITERATION
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">执行链</span>
+    <span class="cp-note-map__hint">下游消费一次，整条管道向前推进一次</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 4">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">SOURCE</span><strong>文件 · 分页 · 事件流</strong><small>数据可能很大，也可能尚未全部产生</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">ITERATE</span><strong>Iterable → Iterator</strong><small>开始一次遍历并记录当前位置</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">TRANSFORM</span><strong>Generator · itertools</strong><small>只处理当前被请求的元素</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">SINK</span><strong>for · sum · 写入</strong><small>终止操作驱动计算并产生最终效果</small></div>
+  </div>
+</div>
 
 最终需要保留六个判断：
 
@@ -509,3 +555,4 @@ flowchart LR
 - [Composing Programs 4.2：Implicit Sequences](https://www.composingprograms.com/pages/42-implicit-sequences.html)
 - [Python Glossary：iterable、iterator 与 generator](https://docs.python.org/3/glossary.html)
 - [Python 文档：`itertools`](https://docs.python.org/3/library/itertools.html)
+- [Python 文档：`asyncio.Queue`](https://docs.python.org/3/library/asyncio-queue.html)

@@ -27,11 +27,17 @@ katex: false
 
 本文把教材 [4.3 Declarative Programming](https://www.composingprograms.com/pages/43-declarative-programming.html)、[4.4 Logic Programming](https://www.composingprograms.com/pages/44-logic-programming.html) 和 [4.5 Unification](https://www.composingprograms.com/pages/45-unification.html) 重新组织成一条递进路线：
 
-{% mermaid %}
-flowchart TB
-    PROCEDURE["命令式程序<br/>描述怎样执行"] --> DECLARE["SQL + Logic Rules<br/>声明结果与关系"]
-    DECLARE --> SOLVE["Unification + Search<br/>绑定变量并寻找证明"]
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">本篇主线</span>
+    <span class="cp-note-map__hint">抽象逐层提高，但执行成本没有消失</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 3">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">01 · 表达</span><strong>从步骤转向结果条件</strong><small>程序不再手写每一次遍历与判断</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">02 · 关系</span><strong>SQL、Fact 与 Rule</strong><small>用关系描述已有事实和推导规则</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">03 · 求解</span><strong>Unification + Search</strong><small>建立变量绑定，再寻找成立的证明路径</small></div>
+  </div>
+</div>
 
 ## 1. 声明式编程隐藏的是执行过程，不是计算本身
 
@@ -90,14 +96,7 @@ SQL 说明了需要哪些列、哪些行以及怎样分组，却没有指定数�
 声明式：告诉系统最终结果需要满足什么关系
 ```
 
-声明式并不意味着“没有执行过程”。过滤、分组和聚合仍然必须发生，只是具体过程由数据库执行器和优化器负责。
-
-{% mermaid %}
-flowchart TB
-    REQUEST["结果需求 → SQL<br/>列 · 条件 · 分组 · 聚合"]
-    REQUEST --> PLAN["数据库选择执行计划"]
-    PLAN --> RESULT["关系结果<br/>service + average"]
-{% endmermaid %}
+声明式并不意味着“没有执行过程”。过滤、分组和聚合仍然必须发生，只是具体过程由数据库执行器和优化器负责：应用提交结果条件，数据库选择执行计划，最后返回满足条件的关系结果。
 
 ## 2. 表与查询操作构成了一套数据变换语言
 
@@ -131,6 +130,9 @@ ORDER BY failure_count DESC;
 flowchart TB
     SOURCE["FROM + JOIN<br/>取得并连接输入行"] --> FILTER["WHERE + GROUP BY<br/>过滤并分组"]
     FILTER --> OUTPUT["SELECT + ORDER BY<br/>形成并排列结果"]
+    class SOURCE cp-stage-source
+    class FILTER cp-stage-process
+    class OUTPUT cp-stage-output
 {% endmermaid %}
 
 查询结果仍然是结构化行，因此可以继续被下一层查询、视图或应用程序消费。这种“输入关系 → 输出关系”的闭合性，让复杂查询可以逐层组合。
@@ -167,6 +169,10 @@ flowchart TB
     OPT --> B
     A --> RESULT["相同结果"]
     B --> RESULT
+    class SQL,STATS cp-stage-source
+    class OPT cp-stage-process
+    class A cp-stage-warning
+    class B,RESULT cp-stage-output
 {% endmermaid %}
 
 ### 3.1 声明式抽象为什么给优化留下空间
@@ -245,7 +251,9 @@ flowchart TB
     QUERY["Query<br/>allowed(alice, ?action)"] --> RULE["Rule<br/>role(alice, ?role)<br/>grant(?role, ?action)"]
     RULE --> FACTS["Facts<br/>role(alice, reviewer)<br/>grant(reviewer, read_report)"]
     FACTS --> ANSWER["Bindings<br/>?role = reviewer<br/>?action = read_report"]
-    class ANSWER cp-path-good
+    class QUERY,FACTS cp-stage-source
+    class RULE cp-stage-process
+    class ANSWER cp-stage-output
 {% endmermaid %}
 
 ## 5. Relation 为什么不只是换一种写法的函数
@@ -351,7 +359,9 @@ flowchart LR
     RIGHT --> REASON["?reason = timeout"]
     ID --> ENV["Bindings"]
     REASON --> ENV
-    class ENV cp-path-good
+    class ROOT cp-stage-source
+    class LEFT,RIGHT cp-stage-process
+    class ID,REASON,ENV cp-stage-output
 {% endmermaid %}
 
 ### 6.5 一个最小 Unification 算法
@@ -442,7 +452,9 @@ flowchart LR
     Q --> R2["尝试 role = operator"]
     R1 --> G1["grant(reviewer, read_report)"] --> OK["成功<br/>?action = read_report"]
     R2 --> G2["没有匹配 grant"] --> BACK["回溯"]
-    class OK cp-path-good
+    class Q cp-stage-source
+    class R1,R2,G1 cp-stage-process
+    class OK cp-stage-output
     class G2,BACK cp-path-bad
 {% endmermaid %}
 
@@ -484,6 +496,10 @@ Evaluation strategy    决定系统怎样寻找这些答案
 
 系统是否拥有合适索引和统计信息？是否产生笛卡尔积、N+1 查询或无界搜索？抽象隐藏了过程，但没有消灭过程的成本。
 
+以数据库查询为例，排查顺序可以保持简单：先记录真实慢查询，再查看 `EXPLAIN QUERY PLAN`，确认是全表扫描还是索引查找、连接从哪张表开始、排序是否需要额外临时结构。不要看到慢查询就立刻“加一个索引”：索引会加快某些读取，也会占用空间并增加写入维护成本。应该让索引服务于稳定、频繁且有选择性的查询条件。
+
+接口层还要限制一次查询可以消耗多少资源，例如分页大小、排序字段、最大返回行数和查询 deadline。否则一个完全合法的声明，也可能变成拖慢整个数据库的昂贵计划。
+
 ### 8.3 安全边界
 
 不要通过字符串拼接构造 SQL：
@@ -504,14 +520,35 @@ cursor.execute(
 
 参数化的目的，是把查询结构与输入数据分开，而不是手工猜测应该转义哪些字符。
 
+### 8.4 规则系统还需要版本、解释与回退
+
+权限和路由规则一旦从代码中抽离，就会成为可以独立变更的运行时配置。此时真正困难的不只是“规则能否匹配”，还包括：新规则何时生效、发生冲突时谁优先，以及为什么本次请求得到这个结果。
+
+<div class="cp-engineering-panel">
+  <strong>让声明式规则可以安全上线</strong>
+  <div class="cp-engineering-panel__grid">
+    <div class="cp-engineering-panel__item"><b>版本化与测试</b><span>规则和测试用例一起评审，保留可回滚的版本</span></div>
+    <div class="cp-engineering-panel__item"><b>灰度与默认值</b><span>先观察少量流量；权限判断通常采用默认拒绝</span></div>
+    <div class="cp-engineering-panel__item"><b>决策可解释</b><span>记录规则版本、输入摘要、命中分支与 decision_id</span></div>
+  </div>
+</div>
+
+例如权限系统只记录 `allowed = false`，排障时仍不知道是身份不匹配、资源条件不满足，还是规则版本错误。更实用的决策记录会把“结论”和“得出结论的依据”绑定起来；同时要脱敏，避免把令牌、密码或完整敏感输入写入日志。
+
 ## 9. 把本篇收束成四个层次
 
-{% mermaid %}
-flowchart TB
-    GOAL["目标层<br/>想得到什么结果"] --> DECLARE["声明层<br/>SQL · Facts · Rules · Query"]
-    DECLARE --> MATCH["匹配层<br/>Unification 建立变量绑定"]
-    MATCH --> EXECUTE["执行层<br/>Query Plan · Search · Backtracking"]
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">四层模型</span>
+    <span class="cp-note-map__hint">读声明式系统时，分别看语义和执行</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 4">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">GOAL</span><strong>想得到什么</strong><small>先确定结果需要满足的条件</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">DECLARE</span><strong>SQL · Fact · Rule</strong><small>把条件写成可被系统解释的声明</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">MATCH</span><strong>Unification</strong><small>让结构一致并建立变量绑定</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">EXECUTE</span><strong>Plan · Search</strong><small>选择实际扫描、连接和回溯路径</small></div>
+  </div>
+</div>
 
 最终需要保留六个判断：
 
@@ -531,3 +568,5 @@ flowchart TB
 - [Composing Programs 4.5：Unification](https://www.composingprograms.com/pages/45-unification.html)
 - [SQLite 文档：Query Planning](https://www.sqlite.org/queryplanner.html)
 - [OWASP：Query Parameterization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html)
+- [SQLite：`EXPLAIN QUERY PLAN`](https://sqlite.org/eqp.html)
+- [Open Policy Agent：Decision Logs](https://www.openpolicyagent.org/docs/management-decision-logs)

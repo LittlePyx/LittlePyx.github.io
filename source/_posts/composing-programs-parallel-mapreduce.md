@@ -24,11 +24,17 @@ katex: true
 
 本篇整合教材 [4.7 Distributed Data Processing](https://www.composingprograms.com/pages/47-distributed-data-processing.html) 与 [4.8 Parallel Computing](https://www.composingprograms.com/pages/48-parallel-computing.html)，沿着下面的顺序展开：
 
-{% mermaid %}
-flowchart TB
-    MODEL["识别问题并选择模型<br/>并发 · 并行 · 分布式<br/>async · thread · process"] --> CORRECT["保证共享状态正确<br/>race · lock · queue"]
-    CORRECT --> SCALE["扩展并测量数据处理<br/>MapReduce · skew · speedup"]
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">本篇主线</span>
+    <span class="cp-note-map__hint">先保证模型和正确性，再谈扩展速度</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 3">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">01 · MODEL</span><strong>识别等待还是计算</strong><small>区分并发、并行、分布式与 Python 执行模型</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">02 · SAFETY</span><strong>约束共享可变状态</strong><small>理解 race，再选择 lock、queue 或分区所有权</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">03 · SCALE</span><strong>拆分、聚合并测量</strong><small>MapReduce、数据倾斜与真实加速比</small></div>
+  </div>
+</div>
 
 ## 1. Concurrency、Parallelism 与 Distribution 回答不同问题
 
@@ -68,15 +74,7 @@ Core 3  C C C C C
 
 分布式系统可以并行，也可以只是为了容量、隔离或容错。它最显著的特征不是“更快”，而是节点没有共享内存，并且可以局部失败。
 
-{% mermaid %}
-flowchart TB
-    MODEL["三个不同的执行维度"]
-    MODEL --> CONCURRENT["Concurrency<br/>交错推进多个任务"]
-    MODEL --> PARALLEL["Parallelism<br/>同一时刻执行多份工作"]
-    MODEL --> DISTRIBUTED["Distribution<br/>独立节点通过消息协作"]
-{% endmermaid %}
-
-一个系统可能同时拥有三者，例如多个服务节点各自运行异步事件循环，并在每个节点中使用进程池处理 CPU 任务。
+这三者是三个可以组合的维度，而不是互斥选项。一个系统可能在多个服务节点中分别运行异步事件循环，并在每个节点里使用进程池处理 CPU 任务。
 
 ## 2. 先识别工作负载，再选择 Python 执行模型
 
@@ -163,9 +161,38 @@ flowchart LR
     START -->|否，CPU 密集| SHARE{"是否必须共享进程状态？"}
     SHARE -->|否| PROCESS["Process / Interpreter Pool"]
     SHARE -->|是| REDESIGN["先重新设计状态边界<br/>再评估 thread / free-threading"]
+    class ASYNC,THREAD,PROCESS cp-stage-output
+    class REDESIGN cp-stage-warning
 {% endmermaid %}
 
 这不是绝对规则。最终选择要用接近真实数据量的 benchmark 验证。
+
+### 2.7 并发数量必须有上限
+
+`TaskGroup` 负责把一组异步任务放进同一个生命周期：离开上下文前等待全部任务；其中一个任务失败时，取消并等待其余任务，再统一报告异常。它解决的是**任务由谁创建、等待和清理**，但不会自动限制同时发出多少个请求。
+
+如果直接为十万个 ID 同时发起 HTTP 请求，下游连接池、文件描述符和服务端都可能先被压垮。可以先用 `Semaphore` 限制正在执行的请求数：
+
+```python
+import asyncio
+
+
+async def fetch_all(client, task_ids: list[str]):
+    limit = asyncio.Semaphore(20)
+
+    async def fetch_one(task_id: str):
+        async with limit:
+            return await client.fetch(task_id)
+
+    async with asyncio.TaskGroup() as group:
+        tasks = [group.create_task(fetch_one(task_id)) for task_id in task_ids]
+
+    return [task.result() for task in tasks]
+```
+
+这里的 `20` 不是固定最佳值。它需要结合下游限额、连接池大小、单请求延迟和错误率压测；当并发继续增加而吞吐不再提高、P99 和错误率却上升时，瓶颈通常已经转移到下游。
+
+上面的代码仍会一次创建与 `task_ids` 等量的 Task。如果输入本身也可能很大，应改为固定数量的 worker 从 `asyncio.Queue(maxsize=...)` 读取任务：`maxsize` 限制等待区，worker 数限制执行区。队列满时生产者的 `await put()` 会暂停，从而把背压传回上游。
 
 ## 3. 并发错误通常来自共享可变状态
 
@@ -257,6 +284,9 @@ flowchart LR
     W3["Worker C"] -->|Update command| QUEUE
     QUEUE --> OWNER["State Owner<br/>顺序修改状态"]
     OWNER --> SNAPSHOT["一致状态"]
+    class W1,W2,W3 cp-stage-source
+    class QUEUE,OWNER cp-stage-process
+    class SNAPSHOT cp-stage-output
 {% endmermaid %}
 
 这种方式把问题从：
@@ -306,6 +336,9 @@ flowchart LR
     SHUFFLE --> R2["Reducer<br/>service = storage"]
     R1 --> OUTPUT["聚合结果"]
     R2 --> OUTPUT
+    class INPUT cp-stage-source
+    class M1,M2,M3,SHUFFLE,R1,R2 cp-stage-process
+    class OUTPUT cp-stage-output
 {% endmermaid %}
 
 ### 6.1 Map：把输入变成中间 key-value
@@ -365,6 +398,17 @@ MapReduce 的关键价值是 separation of concerns：
 执行框架：负责机器通信、任务调度、分组、重试和进度
 ```
 
+### 6.4 工程执行还需要分片、局部聚合与失败恢复
+
+真实作业不会只运行三个函数。框架还要决定输入如何分片、每个 task 处理多少数据、失败后从哪里重试，以及 Shuffle 中间结果存在哪里。
+
+- **分片太小**：调度、序列化和启动开销会淹没有效计算；
+- **分片太大**：少数慢任务拖住全局，失败时需要重做更多数据；
+- **Map 端局部聚合**：如果操作满足结合律，可以先在每个 mapper 内合并同一 key，显著减少 Shuffle 数据量；
+- **阶段边界持久化**：上游结果可靠落盘后，下游失败只需重跑当前阶段，不必从原始输入重新开始。
+
+例如计数的合并满足结合律，`1 + 1 + 1` 可以先在本地变成 `3` 再发送；而“按原始到达顺序拼接字符串”通常不能随意重排。能否安全局部聚合，取决于运算的代数性质，而不是框架是否提供 `combiner` 开关。
+
 ## 7. 纯函数为什么更容易被并行、重排和重试
 
 如果 mapper 对同一输入总产生相同输出，并且不修改外部状态，框架就可以：
@@ -413,6 +457,9 @@ flowchart LR
     P2 --> PARTIAL
     P3 --> PARTIAL
     PARTIAL --> FINAL["第二阶段合并<br/>search total"]
+    class HOT cp-stage-warning
+    class P1,P2,P3,PARTIAL cp-stage-process
+    class FINAL cp-stage-output
 {% endmermaid %}
 
 key 不只是业务字段，也是执行计划的一部分。
@@ -466,11 +513,18 @@ $$
 
 ## 10. 把第四章的抽象串成一条完整数据路径
 
-{% mermaid %}
-flowchart TB
-    INPUT["Lazy Stream + Query<br/>数据按需到达并声明目标"] --> EXECUTE["Messages + Workers<br/>跨节点并行处理分片"]
-    EXECUTE --> AGGREGATE["Shuffle + Reduce<br/>可靠聚合结果"]
-{% endmermaid %}
+<div class="cp-note-map">
+  <div class="cp-note-map__head">
+    <span class="cp-note-map__eyebrow">第四章全景</span>
+    <span class="cp-note-map__hint">数据从进入系统到可靠产出结果</span>
+  </div>
+  <div class="cp-note-map__steps" style="--cp-map-columns: 4">
+    <div class="cp-note-map__step"><span class="cp-note-map__index">FLOW</span><strong>Lazy Stream</strong><small>数据按需到达，背压约束积压</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">INTENT</span><strong>Query · Rules</strong><small>声明结果条件，把执行选择交给系统</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">WORK</span><strong>Messages · Workers</strong><small>跨执行单元处理彼此独立的分片</small></div>
+    <div class="cp-note-map__step"><span class="cp-note-map__index">RESULT</span><strong>Shuffle · Reduce</strong><small>重新汇合相同 key，并可靠地产出结果</small></div>
+  </div>
+</div>
 
 最终需要保留八个判断：
 
@@ -493,3 +547,6 @@ flowchart TB
 - [Python 文档：`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html)
 - [Python 文档：Multiprocessing](https://docs.python.org/3/library/multiprocessing.html)
 - [Python 文档：Free-threaded Python](https://docs.python.org/3/howto/free-threading-python.html)
+- [Python 文档：`asyncio.TaskGroup`](https://docs.python.org/3/library/asyncio-task.html#task-groups)
+- [Python 文档：`asyncio` 同步原语](https://docs.python.org/3/library/asyncio-sync.html)
+- [Python 文档：`asyncio.Queue`](https://docs.python.org/3/library/asyncio-queue.html)
