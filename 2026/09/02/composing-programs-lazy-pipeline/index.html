@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-lazy-pipeline-nature-cover.jpg">
 <meta property="article:published_time" content="2026-09-02T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-03T02:34:43.797Z">
+<meta property="article:modified_time" content="2026-09-03T16:11:08.439Z">
 <meta property="article:author" content="LittlePyx">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Composing Programs">
@@ -22,7 +22,7 @@
   "url": "https://littlepyx.github.io/2026/09/02/composing-programs-lazy-pipeline/",
   "image": "https://littlepyx.github.io/img/composing-programs-lazy-pipeline-nature-cover.jpg",
   "datePublished": "2026-09-02T02:00:00.000Z",
-  "dateModified": "2026-09-03T02:34:43.797Z",
+  "dateModified": "2026-09-03T16:11:08.439Z",
   "author": [
     {
       "@type": "Person",
@@ -163,7 +163,7 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-lazy-pipeline-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-02T02:00:00.000Z" title="发表于 2026-09-02 10:00:00">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-03T02:34:43.797Z" title="更新于 2026-09-03 10:34:43">2026-09-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>前三章分别讨论了怎样组织函数、对象和解释器。第四章把关注点转向数据处理：当数据多到不能一次放进内存，或者数据还在持续产生时，程序应该怎样组织计算？</p>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-lazy-pipeline-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">数据如何按需流动：Iterator、Generator 与惰性 Pipeline</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-02T02:00:00.000Z" title="发表于 2026-09-02 10:00:00">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-03T16:11:08.439Z" title="更新于 2026-09-04 00:11:08">2026-09-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>前三章分别讨论了怎样组织函数、对象和解释器。第四章把关注点转向数据处理：当数据多到不能一次放进内存，或者数据还在持续产生时，程序应该怎样组织计算？</p>
 <p>本篇受教材 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/41-introduction.html">4.1 Introduction</a> 与 <a target="_blank" rel="noopener" href="https://www.composingprograms.com/pages/42-implicit-sequences.html">4.2 Implicit Sequences</a> 启发，但不从斐波那契数列开始，而是贯穿一个更常见的场景：<strong>逐条读取任务执行事件，筛选失败记录并统计耗时。</strong></p>
 <p>整篇只沿着一条主线展开：</p>
 <div class="cp-note-map">
@@ -186,18 +186,26 @@
 <p>可以把函数改成生成器：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">iter_events</span>(<span class="params">path: <span class="built_in">str</span></span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(path, encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> file:</span><br><span class="line">            <span class="keyword">yield</span> json.loads(line)</span><br></pre></td></tr></table></figure>
 <p>它不会立即解析全部文件，而是在调用者请求下一条数据时才继续读取。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    subgraph EAGER[&quot;立即计算：先完成全部工作&quot;]
-        FILE1[&quot;完整文件&quot;] --&gt; PARSE1[&quot;解析所有行&quot;] --&gt; LIST[&quot;完整事件列表&quot;] --&gt; USE1[&quot;开始处理&quot;]
-    end
-    subgraph LAZY[&quot;惰性计算：请求一个，产生一个&quot;]
-        FILE2[&quot;文件流&quot;] --&gt; ONE[&quot;读取并解析一行&quot;] --&gt; USE2[&quot;立即处理&quot;] --&gt; ONE
-    end
-    class FILE1,FILE2 cp-stage-source
-    class PARSE1,ONE cp-stage-process
-    class LIST,USE1,USE2 cp-stage-output
-  </pre></div>
+<div class="cp-lazy-visual cp-lazy-compare">
+  <div class="cp-lazy-visual__head"><strong>执行方式对照</strong><span>差别在于何时产生结果、同时保留多少数据</span></div>
+  <div class="cp-lazy-lane">
+    <div class="cp-lazy-lane__label"><b>立即计算</b><small>先完成，再交付</small></div>
+    <div class="cp-lazy-steps" style="--lazy-steps: 4">
+      <div class="cp-lazy-step"><b>完整文件</b><small>输入全部可用</small></div>
+      <div class="cp-lazy-step"><b>解析所有行</b><small>一次完成</small></div>
+      <div class="cp-lazy-step"><b>保存完整列表</b><small>内存随结果增长</small></div>
+      <div class="cp-lazy-step"><b>开始处理</b><small>首条结果出现较晚</small></div>
+    </div>
+  </div>
+  <div class="cp-lazy-lane cp-lazy-lane--pull">
+    <div class="cp-lazy-lane__label"><b>惰性计算</b><small>请求一个，产生一个</small></div>
+    <div class="cp-lazy-steps" style="--lazy-steps: 3">
+      <div class="cp-lazy-step"><b>调用者请求</b><small>next() 驱动</small></div>
+      <div class="cp-lazy-step"><b>读取并解析一行</b><small>只创建当前值</small></div>
+      <div class="cp-lazy-step"><b>立即处理</b><small>然后等待下一次请求</small></div>
+    </div>
+  </div>
+</div>
 <p>二者并不是“列表落后、生成器先进”。它们表达的是不同契约：</p>
 <table>
 <thead>
@@ -279,13 +287,24 @@
 <p>概念上接近：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">iterator = <span class="built_in">iter</span>(events)</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        event = <span class="built_in">next</span>(iterator)</span><br><span class="line">    <span class="keyword">except</span> StopIteration:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    handle(event)</span><br></pre></td></tr></table></figure>
 <p>因此，<code>for</code> 并不要求对象是列表。它只依赖统一的迭代协议：能够得到 iterator，并能不断询问下一个值。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    stateDiagram-v2
-    [*] --&gt; Ready: iter(iterable)
-    Ready --&gt; Ready: next() 返回一个值
-    Ready --&gt; Exhausted: next() 抛出 StopIteration
-    Exhausted --&gt; Exhausted: 再次 next() 仍然结束
-  </pre></div>
+<div class="cp-lazy-visual cp-iterator-state">
+  <div class="cp-lazy-visual__head"><strong>Iterator 状态</strong><span>状态只有两个，变化由 next() 的结果决定</span></div>
+  <div class="cp-iterator-state__row">
+    <div class="cp-state-node">
+      <span class="cp-state-node__name">READY</span>
+      <strong>可以继续取得元素</strong>
+      <small>iter(iterable) 后进入这个状态</small>
+      <em class="cp-state-node__loop">↻ next() 返回值后仍在 Ready</em>
+    </div>
+    <div class="cp-state-edge"><span>next() 抛出 StopIteration</span><b>→</b></div>
+    <div class="cp-state-node cp-state-node--done">
+      <span class="cp-state-node__name">EXHAUSTED</span>
+      <strong>迭代已经结束</strong>
+      <small>不会自动回到开头</small>
+      <em class="cp-state-node__loop">↻ 再次 next() 仍然结束</em>
+    </div>
+  </div>
+</div>
 <p class="cp-figure-caption">Iterator 是有状态对象；“下一个元素”取决于此前已经消费了多少数据。</p>
 <h2 id="3-Generator-用一段函数描述数据怎样产生">3. Generator 用一段函数描述数据怎样产生</h2>
 <p>手写 iterator class 需要自己维护位置并实现 <code>__iter__()</code>、<code>__next__()</code>。Python 的 <strong>Generator（生成器）</strong> 让我们直接用普通控制流描述这个过程。</p>
@@ -296,19 +315,15 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">numbers = countdown(<span class="number">3</span>)  <span class="comment"># 得到 generator object</span></span><br></pre></td></tr></table></figure>
 <p>第一次 <code>next(numbers)</code> 才会进入函数体，并在 <code>yield current</code> 处产生 <code>3</code>。此时函数没有结束，而是暂停并保存当前状态：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">next</span>(numbers)  <span class="comment"># 3</span></span><br><span class="line"><span class="built_in">next</span>(numbers)  <span class="comment"># 2</span></span><br><span class="line"><span class="built_in">next</span>(numbers)  <span class="comment"># 1</span></span><br><span class="line"><span class="built_in">next</span>(numbers)  <span class="comment"># StopIteration</span></span><br></pre></td></tr></table></figure>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    sequenceDiagram
-    participant C as 调用者
-    participant G as countdown generator
-    C-&gt;&gt;G: next()
-    G--&gt;&gt;C: yield 3，并暂停
-    C-&gt;&gt;G: next()
-    G--&gt;&gt;C: 从暂停处继续，yield 2
-    C-&gt;&gt;G: next()
-    G--&gt;&gt;C: yield 1
-    C-&gt;&gt;G: next()
-    G--&gt;&gt;C: 函数结束，StopIteration
-  </pre></div>
+<div class="cp-lazy-visual cp-yield-timeline">
+  <div class="cp-lazy-visual__head"><strong>Generator 恢复时间线</strong><span>每次 next() 都从上次暂停处继续</span></div>
+  <div class="cp-yield-timeline__track">
+    <div class="cp-yield-event"><code>next()</code><strong>进入函数</strong><small>运行到第一个 yield，产生 3 并暂停</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>恢复执行</strong><small>从 yield 后继续，current 变为 2</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>再次恢复</strong><small>产生 1，保留新的暂停位置</small></div>
+    <div class="cp-yield-event"><code>next()</code><strong>函数结束</strong><small>没有新的 yield，抛出 StopIteration</small></div>
+  </div>
+</div>
 <p>暂停时保存的不只是局部变量 <code>current</code>，还包括指令位置和未完成的控制结构。下一次恢复时，函数从上次 <code>yield</code> 之后继续，而不是从第一行重新运行。</p>
 <h3 id="3-2-return-与-yield-建立了不同的函数契约">3.2 <code>return</code> 与 <code>yield</code> 建立了不同的函数契约</h3>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">普通函数</span><br><span class="line">    调用 → 运行到 return → 一次性结束</span><br><span class="line"></span><br><span class="line">生成器函数</span><br><span class="line">    调用 → 创建 generator</span><br><span class="line">    next → 运行到 yield → 暂停</span><br><span class="line">    next → 从暂停点继续</span><br><span class="line">    函数结束 → StopIteration</span><br></pre></td></tr></table></figure>
@@ -325,19 +340,17 @@
 <p>然后组合成管道：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">events = iter_events(<span class="string">&quot;events.jsonl&quot;</span>)</span><br><span class="line">failures = (event <span class="keyword">for</span> event <span class="keyword">in</span> events <span class="keyword">if</span> is_failure(event))</span><br><span class="line">durations = (duration(event) <span class="keyword">for</span> event <span class="keyword">in</span> failures)</span><br><span class="line"></span><br><span class="line">total = <span class="number">0</span></span><br><span class="line">count = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> durations:</span><br><span class="line">    total += value</span><br><span class="line">    count += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">average = total / count <span class="keyword">if</span> count <span class="keyword">else</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>创建 <code>events</code>、<code>failures</code> 和 <code>durations</code> 时几乎没有处理数据。真正的执行由最后的 <code>for</code> 循环驱动：它请求一个 <code>duration</code>，请求会沿着整条管道向上游传播。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    SOURCE[&quot;Source&lt;br&#x2F;&gt;逐行读取&quot;] --&gt; PARSE[&quot;Parse&lt;br&#x2F;&gt;JSON → dict&quot;]
-    PARSE --&gt; FILTER{&quot;Filter&lt;br&#x2F;&gt;status &#x3D;&#x3D; failed?&quot;}
-    FILTER --&gt;|否| DROP[&quot;丢弃&quot;]
-    FILTER --&gt;|是| MAP[&quot;Map&lt;br&#x2F;&gt;取 duration_ms&quot;]
-    MAP --&gt; REDUCE[&quot;Reduce&lt;br&#x2F;&gt;total + count&quot;]
-    class SOURCE cp-stage-source
-    class PARSE cp-stage-process
-    class DROP cp-path-bad
-    class MAP cp-stage-process
-    class REDUCE cp-stage-output
-  </pre></div>
+<div class="cp-lazy-visual cp-pipeline-visual">
+  <div class="cp-lazy-visual__head"><strong>单个元素怎样穿过 Pipeline</strong><span>终止操作发起请求，数据沿主路径向右流动</span></div>
+  <div class="cp-lazy-steps" style="--lazy-steps: 5">
+    <div class="cp-lazy-step"><b>Source</b><small>逐行读取</small></div>
+    <div class="cp-lazy-step"><b>Parse</b><small>JSON → dict</small></div>
+    <div class="cp-lazy-step"><b>Filter</b><small>status == failed?</small></div>
+    <div class="cp-lazy-step"><b>Map</b><small>取得 duration_ms</small></div>
+    <div class="cp-lazy-step"><b>Reduce</b><small>更新 total 与 count</small></div>
+  </div>
+  <div class="cp-pipeline-branch"><b>Filter 为否 ↓</b><span>丢弃当前元素；下一次消费继续向 Source 请求</span></div>
+</div>
 <p class="cp-figure-caption">每次下游请求只推动上游产生足够的数据；中间阶段不必保存完整集合。</p>
 <h3 id="4-1-中间操作与终止操作">4.1 中间操作与终止操作</h3>
 <p>可以按是否立即消费输入区分常见操作：</p>
@@ -419,16 +432,15 @@
 </tbody>
 </table>
 <p>同步 generator 通常采用 pull 模型：消费者调用 <code>next()</code>，生产者才继续，因此天然不会无限超前。但如果生产者独立运行，例如网络接收任务不断向队列写入，仅仅把消费者写成 generator 并不能限制队列增长。此时需要有界队列、流量控制或暂停上游。</p>
-<div class="mermaid-wrap"><pre class="mermaid-src" hidden>
-    flowchart LR
-    PRODUCER[&quot;独立生产者&quot;] --&gt; QUEUE[&quot;有界缓冲区&quot;] --&gt; CONSUMER[&quot;较慢消费者&quot;]
-    QUEUE --&gt;|接近容量上限| SIGNAL[&quot;暂停 · 限速 · 拒绝&quot;]
-    SIGNAL --&gt; PRODUCER
-    class PRODUCER cp-stage-source
-    class QUEUE cp-stage-process
-    class CONSUMER cp-stage-output
-    class SIGNAL cp-stage-warning
-  </pre></div>
+<div class="cp-lazy-visual cp-backpressure">
+  <div class="cp-lazy-visual__head"><strong>背压形成一个反馈回路</strong><span>缓冲区负责吸收波动，但不能隐藏持续过载</span></div>
+  <div class="cp-lazy-steps" style="--lazy-steps: 3">
+    <div class="cp-lazy-step"><b>独立生产者</b><small>持续产生事件</small></div>
+    <div class="cp-lazy-step"><b>有界缓冲区</b><small>容量明确，队列可观测</small></div>
+    <div class="cp-lazy-step"><b>较慢消费者</b><small>按自身速度处理</small></div>
+  </div>
+  <div class="cp-backpressure__feedback"><b>队列接近上限</b><span>暂停、限速或拒绝新的生产</span><b>释放容量后再恢复 ↑</b></div>
+</div>
 <h3 id="7-1-异步迭代处理“下一条数据还没有到”">7.1 异步迭代处理“下一条数据还没有到”</h3>
 <p>同步 iterator 的 <code>next()</code> 需要现在返回值；当下一条数据要等待网络或其他 I/O 时，可以使用 asynchronous iterator：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">for</span> event <span class="keyword">in</span> event_stream:</span><br><span class="line">    <span class="keyword">await</span> handle(event)</span><br></pre></td></tr></table></figure>
