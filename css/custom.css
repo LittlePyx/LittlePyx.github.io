@@ -1560,6 +1560,217 @@ html {
   }
 }
 
+/* Composing Programs 文章中的紧凑叙事图：用于主线和结尾，避免简单关系也被画成大幅 Mermaid。 */
+#article-container .cp-note-map {
+  --cp-map-ink: #22354a;
+  --cp-map-muted: #65788b;
+  --cp-map-line: rgba(78, 126, 164, 0.22);
+  margin: 1.45rem 0 1.85rem;
+  padding: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(74, 126, 169, 0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 0, rgba(102, 176, 224, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(250, 253, 255, 0.98), rgba(244, 249, 252, 0.9));
+  box-shadow: 0 14px 34px rgba(38, 72, 101, 0.08);
+}
+
+#article-container .cp-note-map__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.85rem;
+  padding: 0 0.15rem;
+}
+
+#article-container .cp-note-map__eyebrow {
+  color: #397aa7;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+#article-container .cp-note-map__hint {
+  color: var(--cp-map-muted);
+  font-size: 0.79rem;
+}
+
+#article-container .cp-note-map__steps {
+  display: grid;
+  grid-template-columns: repeat(var(--cp-map-columns, 3), minmax(0, 1fr));
+  gap: 0.78rem;
+  margin: 0;
+}
+
+#article-container .cp-note-map__step {
+  --cp-step-color: #4d90bf;
+  position: relative;
+  min-width: 0;
+  padding: 0.95rem 1rem 0.92rem;
+  border: 1px solid rgba(74, 126, 169, 0.13);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 6px 18px rgba(35, 70, 97, 0.055);
+}
+
+#article-container .cp-note-map__step:nth-child(3n + 2) { --cp-step-color: #5c9d83; }
+#article-container .cp-note-map__step:nth-child(3n) { --cp-step-color: #a77b45; }
+
+#article-container .cp-note-map__step::before {
+  content: "";
+  position: absolute;
+  inset: 0.55rem auto 0.55rem 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--cp-step-color);
+  opacity: 0.86;
+}
+
+#article-container .cp-note-map__step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: -0.62rem;
+  display: grid;
+  width: 1.05rem;
+  height: 1.05rem;
+  place-items: center;
+  border: 1px solid var(--cp-map-line);
+  border-radius: 999px;
+  background: #f8fbfd;
+  color: #7793a9;
+  font-size: 0.7rem;
+  transform: translateY(-50%);
+}
+
+#article-container .cp-note-map__index {
+  display: block;
+  margin-bottom: 0.42rem;
+  color: var(--cp-step-color);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+#article-container .cp-note-map__step strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--cp-map-ink);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+#article-container .cp-note-map__step small {
+  display: block;
+  color: var(--cp-map-muted);
+  font-size: 0.79rem;
+  line-height: 1.55;
+}
+
+#article-container .cp-engineering-panel {
+  margin: 1.3rem 0 1.7rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(69, 130, 116, 0.18);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(238, 249, 246, 0.92), rgba(248, 252, 253, 0.96));
+}
+
+#article-container .cp-engineering-panel > strong {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: #2e6f61;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+}
+
+#article-container .cp-engineering-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+#article-container .cp-engineering-panel__item {
+  padding: 0.72rem 0.78rem;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+#article-container .cp-engineering-panel__item b {
+  display: block;
+  margin-bottom: 0.22rem;
+  color: #2d4a4b;
+  font-size: 0.84rem;
+}
+
+#article-container .cp-engineering-panel__item span {
+  color: #667778;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+[data-theme="dark"] #article-container .cp-note-map {
+  --cp-map-ink: #e7eff6;
+  --cp-map-muted: #a8b9c7;
+  --cp-map-line: rgba(126, 174, 211, 0.2);
+  border-color: rgba(129, 171, 204, 0.18);
+  background:
+    radial-gradient(circle at 8% 0, rgba(87, 157, 208, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(28, 38, 49, 0.98), rgba(31, 42, 53, 0.94));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] #article-container .cp-note-map__step {
+  border-color: rgba(135, 171, 199, 0.16);
+  background: rgba(42, 55, 68, 0.78);
+  box-shadow: none;
+}
+
+[data-theme="dark"] #article-container .cp-note-map__step:not(:last-child)::after {
+  background: #293846;
+  color: #94b2c8;
+}
+
+[data-theme="dark"] #article-container .cp-engineering-panel {
+  border-color: rgba(101, 178, 153, 0.2);
+  background: linear-gradient(135deg, rgba(30, 57, 51, 0.82), rgba(31, 43, 54, 0.92));
+}
+
+[data-theme="dark"] #article-container .cp-engineering-panel > strong { color: #91cfba; }
+[data-theme="dark"] #article-container .cp-engineering-panel__item { background: rgba(42, 58, 67, 0.76); }
+[data-theme="dark"] #article-container .cp-engineering-panel__item b { color: #e1ecea; }
+[data-theme="dark"] #article-container .cp-engineering-panel__item span { color: #aabbb9; }
+
+@media (max-width: 768px) {
+  #article-container .cp-note-map {
+    padding: 0.85rem;
+    border-radius: 15px;
+  }
+
+  #article-container .cp-note-map__head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  #article-container .cp-note-map__steps,
+  #article-container .cp-engineering-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  #article-container .cp-note-map__step:not(:last-child)::after {
+    content: "↓";
+    top: auto;
+    right: 50%;
+    bottom: -0.62rem;
+    transform: translateX(50%);
+  }
+}
+
 /* ============================================================
    Article reading experience: calm mobile UI, code and chart tools
    ============================================================ */
@@ -10696,6 +10907,31 @@ html {
   stroke: #cb887c !important;
 }
 
+/* 让图中颜色表达阶段角色，避免所有节点都是同一种白框。 */
+#article-container .cp-flowchart .node.cp-stage-source rect,
+#article-container .cp-flowchart .node.cp-stage-source path {
+  fill: var(--cp-chart-blue-soft) !important;
+  stroke: #76a8d2 !important;
+}
+
+#article-container .cp-flowchart .node.cp-stage-process rect,
+#article-container .cp-flowchart .node.cp-stage-process path {
+  fill: var(--cp-chart-purple-soft) !important;
+  stroke: #9b89c1 !important;
+}
+
+#article-container .cp-flowchart .node.cp-stage-output rect,
+#article-container .cp-flowchart .node.cp-stage-output path {
+  fill: var(--cp-chart-green-soft) !important;
+  stroke: #75ad96 !important;
+}
+
+#article-container .cp-flowchart .node.cp-stage-warning rect,
+#article-container .cp-flowchart .node.cp-stage-warning path {
+  fill: var(--cp-chart-amber-soft) !important;
+  stroke: #d3a35e !important;
+}
+
 #article-container .cp-flowchart .cluster[id$='-IF_SPECIAL'] rect {
   fill: rgba(237, 248, 243, 0.72) !important;
   stroke: #abcdbd !important;
@@ -10996,6 +11232,30 @@ html {
 [data-theme="dark"] #article-container .cp-flowchart .node.cp-path-bad rect {
   fill: #402d2d !important;
   stroke: #a96f68 !important;
+}
+
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-source rect,
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-source path {
+  fill: var(--cp-chart-blue-soft) !important;
+  stroke: #628faf !important;
+}
+
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-process rect,
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-process path {
+  fill: var(--cp-chart-purple-soft) !important;
+  stroke: #8270a6 !important;
+}
+
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-output rect,
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-output path {
+  fill: var(--cp-chart-green-soft) !important;
+  stroke: #528e76 !important;
+}
+
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-warning rect,
+[data-theme="dark"] #article-container .cp-flowchart .node.cp-stage-warning path {
+  fill: var(--cp-chart-amber-soft) !important;
+  stroke: #a88249 !important;
 }
 
 [data-theme="dark"] #article-container .cp-flowchart .cluster[id$='-IF_SPECIAL'] rect {
