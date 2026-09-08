@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://littlepyx.github.io/img/composing-programs-higher-order-functions-nature-cover.jpg">
 <meta property="article:published_time" content="2026-09-08T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-08T11:44:11.720Z">
+<meta property="article:modified_time" content="2026-09-08T11:51:17.114Z">
 <meta property="article:author" content="LittlePyx">
 <meta property="article:tag" content="Python">
 <meta property="article:tag" content="Composing Programs">
@@ -21,7 +21,7 @@
   "url": "https://littlepyx.github.io/2026/09/08/composing-programs-chapter-1-to-4-roadmap/",
   "image": "https://littlepyx.github.io/img/composing-programs-higher-order-functions-nature-cover.jpg",
   "datePublished": "2026-09-08T02:00:00.000Z",
-  "dateModified": "2026-09-08T11:44:11.720Z",
+  "dateModified": "2026-09-08T11:51:17.114Z",
   "author": [
     {
       "@type": "Person",
@@ -162,13 +162,13 @@
   isHighlightShrink: false,
   isToc: true,
   pageType: 'post'
-}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-higher-order-functions-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">从函数到分布式系统：Composing Programs 第一至第四章总路线图</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">从函数到分布式系统：Composing Programs 第一至第四章总路线图</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-08T02:00:00.000Z" title="发表于 2026-09-08 10:00:00">2026-09-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-08T11:44:11.720Z" title="更新于 2026-09-08 19:44:11">2026-09-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><link rel="stylesheet" href="/css/composing-programs-roadmap.css">
-<p>这四章并不是四组彼此独立的知识点。它们一直在回答同一个问题：<strong>怎样隐藏容易变化的细节，让程序的其余部分只依赖稳定的规则？</strong></p>
-<p>区别只在于，抽象的边界越来越大：第一章封装一段计算行为，第二章封装数据和状态，第三章封装一门语言的语义，第四章则开始封装数据流、执行策略与机器之间的协作。</p>
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/composing-programs-higher-order-functions-nature-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">从函数到分布式系统：Composing Programs 第一至第四章总路线图</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">从函数到分布式系统：Composing Programs 第一至第四章总路线图</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-08T02:00:00.000Z" title="发表于 2026-09-08 10:00:00">2026-09-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-08T11:51:17.114Z" title="更新于 2026-09-08 19:51:17">2026-09-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/Computer-Science/">Computer Science</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><link rel="stylesheet" href="/css/composing-programs-roadmap.css">
+<p>这四章围绕程序的组织方式逐步展开：怎样组合函数、管理数据和状态、解释代码，以及协调多个任务。</p>
+<p>这些内容通过抽象联系起来。函数封装计算步骤，数据接口隔离内部表示，解释器实现语言规则，执行框架负责调度与协作。调用者通过接口使用这些能力，实现细节则由各自的模块负责。</p>
 <div class="cp-series-hero">
   <span class="cp-series-hero__eyebrow">PROGRAMMING ABSTRACTION</span>
-  <strong>四章，其实是一条不断扩大的抽象路线</strong>
-  <p>行为可以被组合，数据可以被保护，程序可以被解释，计算可以跨越时间与机器。</p>
+  <strong>从函数组合到多机协作</strong>
+  <p>按章节梳理知识，再沿着变化、状态和契约回看它们的联系。</p>
 </div>
 <h2 id="1-先看全局：四章分别扩大了哪一层边界">1. 先看全局：四章分别扩大了哪一层边界</h2>
 <div class="cp-series-route" aria-label="Composing Programs 第一至第四章学习路线">
@@ -180,7 +180,7 @@
   <a class="cp-series-route__step is-ch2" href="#chapter-2">
     <span>CHAPTER 02</span>
     <strong>数据与对象</strong>
-    <small>让调用者依赖接口，而不是内部表示</small>
+    <small>通过接口使用数据，隔离内部表示的变化</small>
   </a>
   <a class="cp-series-route__step is-ch3" href="#chapter-3">
     <span>CHAPTER 03</span>
@@ -193,44 +193,39 @@
     <small>把计算推迟、拆分，并交给多个执行单元</small>
   </a>
 </div>
-<p>这条路线可以压缩成四次视角变化：</p>
+<p>各章的重点和用途如下：</p>
 <table>
 <thead>
 <tr>
 <th>章节</th>
-<th>不再只把它看成</th>
-<th>开始把它看成</th>
-<th>得到的设计能力</th>
+<th>主要概念</th>
+<th>设计用途</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>第一章</td>
-<td>固定的执行步骤</td>
-<td>可以传递和组合的行为</td>
-<td>用高阶函数消除重复控制逻辑</td>
+<td>一等函数、高阶函数与闭包</td>
+<td>传递和组合行为，复用控制逻辑</td>
 </tr>
 <tr>
 <td>第二章</td>
-<td>一堆字段或容器</td>
-<td>带有契约、身份和协议的对象</td>
+<td>数据契约、对象身份与协议</td>
 <td>隔离表示变化，管理共享状态</td>
 </tr>
 <tr>
 <td>第三章</td>
-<td>只能直接运行的源码</td>
-<td>Token、AST、环境和求值规则</td>
-<td>理解解释器、DSL 与安全执行</td>
+<td>Token、AST、环境与求值规则</td>
+<td>实现解释器、DSL 与受控执行</td>
 </tr>
 <tr>
 <td>第四章</td>
-<td>当前机器上的立即计算</td>
-<td>按需数据流、声明、消息和任务</td>
-<td>处理大数据、并发与分布式失败</td>
+<td>惰性数据流、声明、消息与任务</td>
+<td>处理大量数据、并发与分布式失败</td>
 </tr>
 </tbody>
 </table>
-<p>第一章到第四章不是用“更高级”的概念淘汰前面的概念。相反，后面的系统始终建立在前面的能力之上：分布式任务仍需要函数，对象仍需要闭包，解释器仍需要数据抽象，惰性管道仍需要统一协议。</p>
+<p>后面的章节会反复用到前面的机制：闭包可以保存状态，用来实现简单对象；解释器用数据结构表示程序；惰性管道通过迭代协议连接各个处理函数；分布式框架把函数交给不同节点执行。</p>
 <h2 id="chapter-1">2. 第一章：先学会抽象行为</h2>
 <p>普通函数把一组操作封装成一个名字；高阶函数更进一步，把“怎样计算”本身也变成输入或输出。于是程序不必反复复制循环、重试、过滤和转换的控制结构，只需要传入真正会变化的那部分行为。</p>
 <p>核心关系是：</p>
@@ -240,7 +235,7 @@
   <div class="cp-series-chapter__intro">
     <span>CHAPTER 01 · BEHAVIOR</span>
     <strong>先把变化的行为从固定流程中抽出来</strong>
-    <p>重点不是记住 map、filter 或 decorator 的写法，而是理解函数为什么能够成为组合程序的零件。</p>
+    <p>通过 map、filter 和装饰器，理解函数怎样作为参数参与计算，以及多个行为怎样组合。</p>
   </div>
   <div class="cp-series-links">
     <a href="https://littlepyx.github.io/2026/07/28/composing-programs-higher-order-functions/">
@@ -252,19 +247,19 @@
 </div>
 <h2 id="chapter-2">3. 第二章：从值走向有边界的数据与对象</h2>
 <p>函数能组织计算，但程序还要长期保存和修改数据。第二章先用构造器与选择器建立抽象屏障，再引入可变状态和对象身份，最后解释 Python 的类系统怎样把这些机制组织成统一的属性访问协议。</p>
-<p>这一章最重要的不是“学会写一个类”，而是分清四个层次：</p>
+<p>理解数据与对象，需要分清四个层次：</p>
 <ol>
 <li><strong>表示</strong>决定数据在内部怎样保存，例如 tuple、dict 或实例字段；</li>
 <li><strong>接口</strong>规定调用者可以做什么，例如构造、查询、更新；</li>
 <li><strong>不变量</strong>规定什么状态始终合法；</li>
 <li><strong>协议</strong>让不同类型可以被同一段高层代码使用。</li>
 </ol>
-<p>只要调用者越过接口直接依赖表示，抽象屏障就被打穿了。只要多个地方能够随意修改同一状态，对象身份又会带来别名、时序和并发问题。因此，封装不只是给字段加下划线，而是限制依赖与修改状态的路径。</p>
+<p>调用者直接读取内部字段，就会依赖具体表示；字段结构变化时，这些调用代码也要跟着修改。多个地方共同修改同一对象，还会引入别名、调用顺序和并发问题。设计接口时，需要明确哪些操作对外开放、哪些操作可以修改状态，以及修改后应满足哪些约束。</p>
 <div class="cp-series-chapter is-ch2">
   <div class="cp-series-chapter__intro">
     <span>CHAPTER 02 · DATA &amp; OBJECTS</span>
-    <strong>从“数据长什么样”推进到“对象承诺什么”</strong>
-    <p>先建立数据契约，再理解状态、类机制与泛型协议，顺序不能颠倒。</p>
+    <strong>数据的表示、状态与接口</strong>
+    <p>先理解数据契约，再看状态怎样保存、类怎样组织属性，以及不同类型怎样共用接口。</p>
   </div>
   <div class="cp-series-links">
     <a href="https://littlepyx.github.io/2026/08/24/composing-programs-data-abstraction/">
@@ -325,7 +320,7 @@
   <div class="cp-series-chapter__intro">
     <span>CHAPTER 03 · LANGUAGE</span>
     <strong>让语法、语义和运行时各自承担清楚的责任</strong>
-    <p>理解这条路径后，解释器、规则引擎、模板系统和受限表达式执行就不再是黑盒。</p>
+    <p>阅读解释器、规则引擎或模板系统时，可以沿着解析、求值和环境查找这条路径分析实现。</p>
   </div>
   <div class="cp-series-links">
     <a href="https://littlepyx.github.io/2026/08/27/composing-programs-source-to-ast/">
@@ -340,19 +335,19 @@
   </div>
 </div>
 <h2 id="chapter-4">5. 第四章：让计算跨越时间、数据规模与机器</h2>
-<p>到了第四章，问题不再只是“某个表达式怎样求值”，而是：数据可能放不进内存、结果可能晚些才需要、执行可能发生在其他线程、进程或机器上，此时程序应该怎样保持可组合、可恢复和可解释？</p>
-<p>四篇笔记分别处理四种扩张：</p>
+<p>第四章进一步考虑数据量和执行条件：数据可能放不进内存，结果可能晚些才需要，任务也可能交给其他线程、进程或机器。程序需要控制数据的产生速度、安排执行顺序，并处理协作过程中的失败。</p>
+<p>四篇笔记分别讨论：</p>
 <ul>
-<li><strong>时间上的扩张</strong>：Iterator 与 Generator 让数据按需产生，消费端驱动整条 Pipeline；</li>
-<li><strong>表达方式的扩张</strong>：SQL、Fact 与 Rule 描述目标，执行器选择扫描、连接或搜索路径；</li>
-<li><strong>机器边界的扩张</strong>：本地调用变成消息后，必须面对超时、重试、重复和部分失败；</li>
-<li><strong>计算规模的扩张</strong>：并发组织等待，并行利用多个执行单元，MapReduce 按 key 拆分并重新聚合工作。</li>
+<li><strong>按需处理数据</strong>：Iterator 与 Generator 让数据按需产生，消费端驱动整条 Pipeline；</li>
+<li><strong>声明计算目标</strong>：SQL、Fact 与 Rule 描述目标，执行器选择扫描、连接或搜索路径；</li>
+<li><strong>跨机器协作</strong>：本地调用变成消息后，需要处理超时、重试、重复和部分失败；</li>
+<li><strong>拆分与聚合任务</strong>：并发组织等待，并行利用多个执行单元，MapReduce 按 key 拆分并重新聚合工作。</li>
 </ul>
-<p>第四章并没有离开前三章。惰性 Pipeline 依靠第一章的函数组合和第二章的迭代协议；声明式系统需要第三章的解析与求值；分布式任务仍要依靠数据契约、纯函数、幂等状态更新和明确错误边界。</p>
+<p>这些机制延续了前三章的设计方法。惰性 Pipeline 结合函数组合与迭代协议，声明式系统使用解析与求值机制；跨机器执行则进一步要求明确数据契约、状态更新方式和错误处理责任。</p>
 <div class="cp-series-chapter is-ch4">
   <div class="cp-series-chapter__intro">
     <span>CHAPTER 04 · SYSTEMS</span>
-    <strong>当执行不再立即、单机、同步完成</strong>
+    <strong>安排执行时间、位置与失败恢复</strong>
     <p>接口之外还要设计时间、容量、失败语义和状态所有权。</p>
   </div>
   <div class="cp-series-links">
@@ -371,7 +366,7 @@
   </div>
 </div>
 <h2 id="6-三条贯穿四章的主线">6. 三条贯穿四章的主线</h2>
-<p>如果只按章节记忆，概念仍然容易散开。更稳定的理解方式，是沿着三类问题横向回看四章。</p>
+<p>变化、状态和契约在四章中反复出现。沿着这三条线索，可以看清不同机制之间的联系。</p>
 <div class="cp-series-threads">
   <section>
     <span>THREAD 01</span>
@@ -390,14 +385,14 @@
   </section>
 </div>
 <h3 id="6-1-主线一：从复用代码到控制变化">6.1 主线一：从复用代码到控制变化</h3>
-<p>最初，我们用函数避免复制代码；随后发现，真正需要复用的往往不是几行语句，而是一种控制结构。高阶函数允许替换行为，数据抽象允许替换表示，对象协议允许替换类型，解释器允许替换语法节点，声明式系统甚至允许替换整套执行计划。</p>
-<p>因此，判断一个抽象是否有效，不是看它用了多少类或设计模式，而是看：<strong>需求变化时，修改能否被限制在少数清楚的边界内。</strong></p>
+<p>函数可以复用一组语句，高阶函数还可以复用循环、过滤等控制结构，把具体行为留给参数决定。类似地，数据抽象允许替换内部表示，对象协议允许接入不同类型，解释器按节点规则处理表达式，声明式系统根据查询选择执行计划。</p>
+<p>判断抽象是否有效，可以看一次具体的需求变更：<strong>哪些代码需要修改，修改是否集中在负责这项功能的模块中。</strong></p>
 <h3 id="6-2-主线二：状态让时间进入程序">6.2 主线二：状态让时间进入程序</h3>
 <p>纯函数的结果只由输入决定；一旦引入可变状态，同一个调用在不同时刻可能得到不同结果。对象身份、迭代器位置、生成器暂停点、解释器环境、并发队列和分布式任务状态，本质上都在记录“系统已经走到哪里”。</p>
 <p>这也解释了为什么后续章节不断强调状态边界：状态越多、拥有者越分散，程序越容易受到调用顺序、别名、竞争条件、重复消息和部分失败的影响。</p>
 <h3 id="6-3-主线三：距离越远，契约越重要">6.3 主线三：距离越远，契约越重要</h3>
 <p>同一函数里的局部调用失败，调用栈通常足以定位问题；两个对象之间协作，需要清楚的公开 API；解释器执行用户输入，需要语法校验、资源预算和能力限制；跨机器发送消息，则还要定义版本、超时、重试和幂等语义。</p>
-<p>可以用一句话概括：<strong>抽象边界越大，默认共享的上下文越少，契约就必须越明确。</strong></p>
+<p>跨进程、跨机器后，双方无法直接共享内存和调用栈，原先隐含的信息需要写进协议，例如参数含义、错误类型和超时后的处理方式。</p>
 <h2 id="7-用一条完整路径把概念接起来">7. 用一条完整路径把概念接起来</h2>
 <p>假设系统要持续接收文本请求，解析其中的规则，调用相应操作，并把结果可靠地交付出去。四章知识会自然落在同一条路径上：</p>
 <div class="cp-series-pipeline" aria-label="四章知识在一个请求处理系统中的连接方式">
@@ -411,13 +406,13 @@
 </div>
 <p>在这条路径里：</p>
 <ul>
-<li>高阶函数让处理步骤可以组合，而不是写成一整个不可替换的大函数；</li>
+<li>高阶函数让处理步骤可以独立替换和组合；</li>
 <li>数据抽象与 Protocol 让上层只依赖能力，不绑定某个具体实现；</li>
 <li>AST、Eval 与 Environment 让外部规则先成为可检查的数据，再进入运行时；</li>
 <li>Generator 控制内存与消费速度，并发执行提高资源利用率；</li>
 <li>timeout、retry、idempotency 和 trace 让跨服务调用在失败时仍可恢复、可解释。</li>
 </ul>
-<p>这就是四章真正串起来的地方：它们共同把一个复杂系统拆成<strong>可以独立理解、替换、验证和恢复的边界</strong>。</p>
+<p>这些模块各自承担一部分工作，通过接口协作。例如，更换规则语法主要影响解析层，更换消息传输方式主要影响通信层；处理函数可以继续复用。</p>
 <h2 id="8-容易混淆的概念，放在一起区分">8. 容易混淆的概念，放在一起区分</h2>
 <table>
 <thead>
@@ -470,7 +465,7 @@
 </tbody>
 </table>
 <h2 id="9-最后形成的程序设计判断">9. 最后形成的程序设计判断</h2>
-<p>读完四章后，真正值得留下的不是零散术语，而是下面这组判断顺序：</p>
+<p>设计程序时，可以按以下顺序考虑：</p>
 <ol>
 <li>先找到会变化的部分，再决定把它放进函数、对象、规则还是执行策略；</li>
 <li>先定义调用者需要的最小能力，再选择内部数据结构和具体类型；</li>
@@ -479,11 +474,11 @@
 <li>面对大量或持续数据，优先考虑按需产生、流式转换和背压；</li>
 <li>面对等待与计算，先区分 I/O-bound 和 CPU-bound，再选择并发或并行模型；</li>
 <li>一旦跨越进程或机器，就显式设计 schema、deadline、retry、idempotency 与 observability；</li>
-<li>抽象并不会消除成本，它只是把变化和复杂性移动到更合适、更可控的位置。</li>
+<li>评估抽象本身的成本，包括额外调用、内存占用、序列化和维护负担。</li>
 </ol>
 <p>从第一章到第四章，程序设计的视角完成了一次扩展：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">组合函数</span><br><span class="line">  → 组织数据与状态</span><br><span class="line">    → 定义语言和运行时</span><br><span class="line">      → 协调数据流、任务与机器</span><br></pre></td></tr></table></figure>
-<p>无论系统规模怎样变化，核心方法始终一致：<strong>找出边界，明确契约，限制状态，隔离变化。</strong></p>
+<p>复习时可以从一个具体功能出发，依次追踪它调用了哪些函数、修改了哪些状态、经过哪些接口，以及失败后由谁处理，再回到对应文章查看细节。</p>
 </article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/09/08/composing-programs-chapter-1-to-4-roadmap/">https://littlepyx.github.io/2026/09/08/composing-programs-chapter-1-to-4-roadmap/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Python/">Python</a><a class="post-meta__tags" href="/tags/Composing-Programs/">Composing Programs</a><a class="post-meta__tags" href="/tags/Programming-Abstraction/">Programming Abstraction</a><a class="post-meta__tags" href="/tags/Software-Engineering/">Software Engineering</a></div><div class="post-share"><div class="social-share" data-image="/img/composing-programs-higher-order-functions-nature-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/02/composing-programs-parallel-mapreduce/" title="计算如何同时展开：并发、并行、MapReduce 与共享状态"><img class="cover" src="/img/composing-programs-parallel-mapreduce-nature-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">计算如何同时展开：并发、并行、MapReduce 与共享状态</div></div><div class="info-2"><div class="info-item-1">前三篇逐步解决了数据怎样按需流动、计算目标怎样声明，以及不同机器怎样通过消息可靠协作。最后还剩一个性能问题：当任务之间可以独立推进时，怎样让它们同时执行，并且不破坏结果正确性？ 本篇整合教材 4.7 Distributed Data Processing 与 4.8 Parallel Computing，沿着下面的顺序展开：         本篇主线     先保证模型和正确性，再谈扩展速度           01 · MODEL识别等待还是计算区分并发、并行、分布式与 Python 执行模型     02 · SAFETY约束共享可变状态理解 race，再选择 lock、queue 或分区所有权     03 · SCALE拆分、聚合并测量MapReduce、数据倾斜与真实加速比     1. Concurrency、Parallelism 与 Distribution 回答不同问题 这三个词经常被混用，但它们关注的不是同一件事。    概念 核心问题 是否要求同一时刻执行 是否要求多台机器     Concurrency（并发） 多个任务怎样在同一段时间内推进 不要求 不要...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/24/composing-programs-data-abstraction/" title="数据抽象：让程序依赖契约而不是表示"><img class="cover" src="/img/composing-programs-data-abstraction-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-24</div><div class="info-item-2">数据抽象：让程序依赖契约而不是表示</div></div><div class="info-2"><div class="info-item-1">这一章要解决的问题，不是怎样在 Python 中创建列表或定义类，而是：程序怎样从具体的数据表示出发，建立一个不依赖具体表示的使用层，并最终把状态、行为和多种表示组织成对象系统。 全章可以沿着一条连续路线理解：      flowchart TB     R[&quot;具体表示&quot;] --&gt; A[&quot;构造器 · 选择器&lt;br&#x2F;&gt;行为契约&quot;]     A --&gt; S[&quot;序列接口&lt;br&#x2F;&gt;递归数据&quot;]     S --&gt; M[&quot;可变状态&lt;br&#x2F;&gt;身份 · 消息&quot;]     M --&gt; O[&quot;类 · 实例&lt;br&#x2F;&gt;属性查找 · 方法绑定&quot;]     O --&gt; G[&quot;对象协议&lt;br&#x2F;&gt;泛型操作&quot;]     G --&gt; E[&quot;表示选择&lt;br&#x2F;&gt;算法效率&quot;]    本篇先完成前两步。对应教材：  2...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-distributed-reliability/" title="机器之间如何协作：消息、协议与分布式失败"><img class="cover" src="/img/composing-programs-distributed-reliability-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-02</div><div class="info-item-2">机器之间如何协作：消息、协议与分布式失败</div></div><div class="info-2"><div class="info-item-1">前两篇都可以在单个进程中完成：Iterator 让数据按需流动，声明式系统负责选择执行过程。当数据、服务和计算节点分布在不同机器上时，程序需要面对一个新的事实：机器之间没有共同的函数栈和内存，只能通过网络发送消息。 本篇受教材 4.6 Distributed Computing 启发，但不把重点放在网络历史或拓扑分类，而是回答工程中更直接的问题：         本篇主线     可靠性来自一组相互配合的边界           01 · 边界调用变成消息双方不再共享内存和调用栈     02 · 不确定超时不等于未执行响应丢失会让结果进入未知状态     03 · 恢复Retry + Idempotency允许重传，同时吸收重复业务效果     04 · 解释状态 + Observability让失败可以恢复、关联和定位     1. 远程调用不是“慢一点的函数调用” 本地调用： 1result = execute_task(task) 调用者与函数通常位于同一进程。参数通过内存传递，返回值直接回到当前调用栈；如果函数抛出异常，调用者也能在同一运行时中接住它。 远程调用看起来可...</div></div></div></a><a class="pagination-related" href="/2026/08/27/composing-programs-evaluator-error-boundary/" title="求值器如何赋予语义：Eval、Apply 与错误边界"><img class="cover" src="/img/composing-programs-evaluator-error-boundary-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-27</div><div class="info-item-2">求值器如何赋予语义：Eval、Apply 与错误边界</div></div><div class="info-2"><div class="info-item-1">上一篇把源码解析成了 AST，但 AST 仍然只是“程序长什么样”的结构化描述。本篇继续完成 MiniExpr 的求值器，让下面这段程序真正得到结果： 1(add 1 (mul 2 3))  →  7 我们沿着一条主线展开：  AST 节点怎样得到运行时含义； 普通调用怎样通过 Eval 与 Apply 得到结果； if 为什么不能套用普通调用规则； 求值失败后，错误怎样沿同一条调用链返回系统边界。  本篇受教材以下内容启发：  3.3 Exceptions 3.4 Interpreters for Languages with Combination  1. AST 描述结构，Evaluator 赋予含义 上一篇得到的 AST 可以简化为： 123456789Call├── operator: Name(&quot;add&quot;)└── arguments    ├── Number(1)    └── Call        ├── operator: Name(&quot;mul&quot;)        └── arguments            ├── N...</div></div></div></a><a class="pagination-related" href="/2026/09/02/composing-programs-declarative-unification/" title="从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification"><img class="cover" src="/img/composing-programs-declarative-unification-nature-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-02</div><div class="info-item-2">从“怎样执行”到“满足什么”：SQL、逻辑规则与 Unification</div></div><div class="info-2"><div class="info-item-1">上一篇用 Iterator 和 Generator 把大量数据组织成按需流动的 Pipeline。不过，那条管道仍然由程序员规定了每一个执行步骤：先读取，再过滤，然后转换和聚合。 这一次继续向上抽象：程序只描述结果必须满足什么条件，执行系统自己决定怎样得到结果。 本文把教材 4.3 Declarative Programming、4.4 Logic Programming 和 4.5 Unification 重新组织成一条递进路线：         本篇主线     抽象逐层提高，但执行成本没有消失           01 · 表达从步骤转向结果条件程序不再手写每一次遍历与判断     02 · 关系SQL、Fact 与 Rule用关系描述已有事实和推导规则     03 · 求解Unification + Search建立变量绑定，再寻找成立的证明路径     1. 声明式编程隐藏的是执行过程，不是计算本身 假设任务执行记录保存在 task_runs 表中：    task_id service status duration_ms     t-17 search faile...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
 本科：杭州电子科技大学<br>
 研究生：电子科技大学<br><br>
