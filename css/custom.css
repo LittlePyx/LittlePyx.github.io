@@ -11392,9 +11392,16 @@ html {
   stroke: #d4aa6a !important;
 }
 
+/* Mermaid can set fill on child tspans; style the glyphs as well as the parent. */
 #article-container .cp-sequence .noteText,
+#article-container .cp-sequence .noteText tspan,
+#article-container .cp-sequence .noteText p,
+#article-container .cp-sequence .noteText span,
 #article-container .cp-sequence .loopText,
-#article-container .cp-sequence .labelText {
+#article-container .cp-sequence .loopText tspan,
+#article-container .cp-sequence .labelText,
+#article-container .cp-sequence .labelText tspan {
+  color: var(--cp-chart-text) !important;
   fill: var(--cp-chart-text) !important;
   font-weight: 600 !important;
 }
