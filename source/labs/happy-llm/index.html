@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>交互已嵌入学习笔记</title></head>
+<body><p>交互与动画已放入对应笔记：</p><ul><li><a href="/2026/09/12/happy-llm-01-nlp-for-agent/">第一章：从文本到向量</a></li><li><a href="/2026/09/12/happy-llm-02-transformer-engineering/">第二章：Transformer 与推理成本</a></li></ul>
+<script>
+const section=location.hash.slice(1);
+const chapter=section==='embedding'?'happy-llm-01-nlp-for-agent':'happy-llm-02-transformer-engineering';
+const anchors={embedding:'embedding',attention:'attention',generation:'generation',cache:'cache'};
+location.replace('/2026/09/12/'+chapter+'/'+(anchors[section]?'#demo-'+anchors[section]:''));
+</script></body></html>

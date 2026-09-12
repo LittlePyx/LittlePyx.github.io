@@ -265,9 +265,12 @@ mermaid:
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
+    - <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+    - <link rel="stylesheet" href="/css/happy-llm.css">
   bottom:
     - <script src="/js/mermaid-polish.js" defer></script>
     - <script src="/js/article-experience.js" defer></script>
+    - <script src="/js/happy-llm.js" defer></script>
 
 # Markdown-it 渲染配置
 # Markdown-it 渲染配置
