@@ -23,7 +23,7 @@ updated: 2026-09-12 18:00:00
 
 <p class="llm-cover-credit">封面：犹他州 Owachomo 天然石桥与银河 · 摄影 Jim Richardson / <a href="https://www.nationalgeographic.com/photography/article/secrets-milky-way-richardson" target="_blank" rel="noopener noreferrer">National Geographic</a></p>
 
-一段文本经过 tokenizer 和 embedding 查表，得到一个形状为 $[B,T,D]$ 的张量。B 是批量大小，T 是 token 数，D 是每个位置的表示维度。此时每个向量仍来自固定查表；同一个 token 在不同句子里的基础表示相同。
+一段文本经过 tokenizer 和 embedding 查表，得到一个形状为 $[B,T,D]$ 的张量。$B$ 是批量大小，$T$ 是 token 数，$D$ 是每个位置的表示维度。此时每个向量仍来自固定查表；同一个 token 在不同句子里的基础表示相同。
 
 Transformer 的主要工作，是逐层让这些表示结合上下文，再将它们映射为任务需要的输出。理解它既要看单次注意力怎样计算，也要看注意力与其他子层如何组成网络，以及训练、生成时的信息范围如何变化。
 
@@ -66,7 +66,7 @@ $$
 
 把位置拖到 0，所有 sin 都是 0，cos 都是 1；移到 8，三组变化速度明显不同。多种频率共同编码位置，而不是把一个位置编号简单复制 D 次。
 
-使用 sin/cos 还有相对位移的代数结构，例如 $\sin(p+\Delta)=\sin p\cos\Delta+\cos p\sin\Delta$。对固定偏移 Δ，新的 sin/cos 对可由原来的一对线性组合得到。这说明编码提供了可供网络利用的相对位移关系，但不保证训练出的网络一定能完美外推任意长度。
+使用 sin/cos 还有相对位移的代数结构，例如 $\sin(p+\Delta)=\sin p\cos\Delta+\cos p\sin\Delta$。对固定偏移 $\Delta$，新的 sin/cos 对可由原来的一对线性组合得到。这说明编码提供了可供网络利用的相对位移关系，但不保证训练出的网络一定能完美外推任意长度。
 
 ## 2. 自注意力：按内容读取其他位置
 
@@ -98,8 +98,8 @@ $$
 $$
 \begin{aligned}
 X&\in\mathbb{R}^{T\times D},\\
-W_Q,W_K&\in\mathbb{R}^{D\times d_k},\quad W_V\in\mathbb{R}^{D\times d_v},\\
-Q&=XW_Q,\quad K=XW_K,\quad V=XW_V.
+W_{\mathrm{Q}},W_{\mathrm{K}}&\in\mathbb{R}^{D\times d_k},\quad W_{\mathrm{V}}\in\mathbb{R}^{D\times d_v},\\
+Q&=XW_{\mathrm{Q}},\quad K=XW_{\mathrm{K}},\quad V=XW_{\mathrm{V}}.
 \end{aligned}
 $$
 
@@ -119,11 +119,11 @@ Q 与 K 决定权重，V 决定汇总的内容。把它类比成“查资料”�
 
 $$
 s_{ij}=\frac{q_i^\top k_j}{\sqrt{d_k}},\qquad
-a_{ij}=\frac{e^{s_{ij}+m_{ij}}}{\sum_{r=1}^{T}e^{s_{ir}+m_{ir}}},\qquad
+a_{ij}=\frac{\mathrm{e}^{s_{ij}+m_{ij}}}{\sum_{r=1}^{T}\mathrm{e}^{s_{ir}+m_{ir}}},\qquad
 o_i=\sum_{j=1}^{T}a_{ij}v_j.
 $$
 
-$i$ 固定、$j$ 遍历可读取的位置。对每个 i 单独归一化，因此每一行的权重和为 1；并不要求每一列的和也为 1。这个轴的选择是手写 attention 时最常见的错误之一。
+$i$ 固定、$j$ 遍历可读取的位置。对每个 $i$ 单独归一化，因此每一行的权重和为 1；并不要求每一列的和也为 1。这个轴的选择是手写 attention 时最常见的错误之一。
 
 ### 2.3 一个 query 的完整计算
 
@@ -154,19 +154,19 @@ $$
 
 实现 softmax 时先减去行最大值：`exp(s − max(s)) / sum(exp(s − max(s)))`。这是等价变换，可减少指数溢出。
 
-等价性的原因是，分子分母都乘了同一个正数 $e^{-c}$：
+等价性的原因是，分子分母都乘了同一个正数 $\mathrm{e}^{-c}$：
 
 $$
-\frac{e^{s_j-c}}{\sum_r e^{s_r-c}}=\frac{e^{s_j}}{\sum_r e^{s_r}}.
+\frac{\mathrm{e}^{s_j-c}}{\sum_r \mathrm{e}^{s_r-c}}=\frac{\mathrm{e}^{s_j}}{\sum_r \mathrm{e}^{s_r}}.
 $$
 
 取 $c=\max_r s_r$ 时，最大的指数输入变成 0，其余不大于 0。对半精度推理，这种数值处理尤其值得关注；不过手写稳定 softmax 还不能替代对所有中间矩阵溢出情况的检查。
 
-进一步理解缩放：假设每项乘积 $q_rk_r$ 方差为 1，且不同 r 的乘积独立，则求和后的方差是 $d_k$，标准差是 $\sqrt{d_k}$。所以除以的是平方根，不是 $d_k$。真实网络不完全满足这些独立分布假设，但它提供了一个有用的尺度设计依据。
+进一步理解缩放：假设每项乘积 $q_rk_r$ 方差为 1，且不同 $r$ 的乘积独立，则求和后的方差是 $d_k$，标准差是 $\sqrt{d_k}$。所以除以的是平方根，不是 $d_k$。真实网络不完全满足这些独立分布假设，但它提供了一个有用的尺度设计依据。
 
 ### 2.5 位置编码与排列等变性
 
-假设没有位置编码、没有因果等位置相关 mask，令 P 是一个排列矩阵，把 X 的 token 行打乱。自注意力满足 $\operatorname{SA}(PX)=P\operatorname{SA}(X)$：输出跟着输入位置一起打乱，这叫排列等变，不是所有输出都变成同一个向量。
+假设没有位置编码、没有因果等位置相关 mask，令 $P$ 是一个排列矩阵，把 $X$ 的 token 行打乱。自注意力满足 $\operatorname{SA}(PX)=P\operatorname{SA}(X)$：输出跟着输入位置一起打乱，这叫排列等变，不是所有输出都变成同一个向量。
 
 因此模型知道“这些 token 是什么”，却缺少明确的“它们在什么位置”的额外坐标。如果还把所有输出做无序平均，打乱顺序甚至可能得到相同的整体结果。位置编码把“内容”和“位置”共同送入网络。
 
@@ -226,13 +226,13 @@ Padding mask 解决不同长度样本补齐后的无效位置问题，与 causal
 第 h 个头使用自己的投影：
 
 $$
-\mathrm{head}_h=\operatorname{Attention}(XW_Q^{(h)},XW_K^{(h)},XW_V^{(h)}).
+\mathit{head}_h=\operatorname{Attention}(XW_{\mathrm{Q}}^{(h)},XW_{\mathrm{K}}^{(h)},XW_{\mathrm{V}}^{(h)}).
 $$
 
 将各头输出在特征维拼接，再乘输出矩阵：
 
 $$
-\operatorname{MHA}(X)=\operatorname{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_H)W_O.
+\operatorname{MHA}(X)=\operatorname{Concat}(\mathit{head}_1,\ldots,\mathit{head}_H)W_{\mathrm{O}}.
 $$
 
 常见设定是各头 $d_k=d_v=d_h=D/H$，所以拼接后恢复 D 维。在代码里，将全部头的 Q 投影合成一个 `Linear(D,D)`，再 reshape 拆分，可以与分别写 H 个投影实现同样的线性映射组织。Q/K/V 还常进一步合成 `Linear(D,3D)`，减少调用与便于优化。
@@ -288,7 +288,7 @@ $$
 
 对于 `[B,T,D]` 使用 `LayerNorm(D)`，每个 `(b,t)` 独立统计 D 个特征：
 
-γ、β 通常是 D 维可学习参数，不是跨所有层求均值，也不是强制把数据变成正态分布。手写时注意 population variance 与默认样本标准差的区别，以及 ε 应位于根号内。工程上优先使用框架实现。[PyTorch LayerNorm](https://docs.pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html)
+$\gamma$、$\beta$ 通常是 $D$ 维可学习参数，不是跨所有层求均值，也不是强制把数据变成正态分布。手写时注意 population variance 与默认样本标准差的区别，以及 $\epsilon$ 应位于根号内。工程上优先使用框架实现。[PyTorch LayerNorm](https://docs.pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html)
 
 $$
 \mu=\frac1D\sum_{r=1}^{D}x_r,\quad
@@ -296,7 +296,7 @@ $$
 y_r=\gamma_r\frac{x_r-\mu}{\sqrt{\sigma^2+\epsilon}}+\beta_r.
 $$
 
-手算 $x=[1,2,3]$，有 $\mu=2$、$\sigma^2=2/3$。若暂时忽略 ε 并设 γ=1、β=0，输出约为 `[-1.2247,0,1.2247]`。它的均值为 0、方差为 1，但只有三个点，不能据此宣称它服从正态分布。再乘 γ、加 β 后，最终均值和方差也不必继续是 0 和 1。
+手算 $x=[1,2,3]$，有 $\mu=2$、$\sigma^2=2/3$。若暂时忽略 $\epsilon$ 并设 $\gamma=1$、$\beta=0$，输出约为 `[-1.2247,0,1.2247]`。它的均值为 0、方差为 1，但只有三个点，不能据此宣称它服从正态分布。再乘 $\gamma$、加 $\beta$ 后，最终均值和方差也不必继续是 0 和 1。
 
 对 `[B,T,D]` 使用 `LayerNorm(D)` 时，每个 token 自己统计这 D 个值，不依赖同 batch 的其他样本。这是理解它与 BatchNorm 区别的关键，比泛泛地说“让数据分布稳定”更有用。
 
@@ -517,7 +517,7 @@ y_heads = torch.nn.functional.scaled_dot_product_attention(
 
 $$
 \begin{aligned}
-\text{QK}^{\top}\text{ 与 AV 的计算}&:\quad O(BT^2D),\\
+QK^{\top}\text{ 与 }AV\text{ 的计算}&:\quad O(BT^2D),\\
 \text{投影与常见 FFN 的计算}&:\quad O(BTD^2),\\
 \text{显式分数张量的元素数}&:\quad BHT^2.
 \end{aligned}
