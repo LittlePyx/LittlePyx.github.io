@@ -18,3 +18,7 @@
 @keyframes llm-merge{from{transform:translateY(5px);opacity:.5}to{transform:translateY(0);opacity:1}}@keyframes llm-travel{to{stroke-dashoffset:-48}}
 @media(max-width:760px){ #article-container .llm-demo{padding:19px;margin:26px 0;border-radius:13px}#article-container .llm-two{grid-template-columns:1fr;gap:20px}#article-container .llm-demo-title{font-size:18px}#article-container .llm-demo-head{gap:10px}#article-container .llm-live-dot{display:none}#article-container .llm-demo button,#article-container .llm-demo select{min-height:44px}#article-container .llm-demo input,#article-container .llm-demo select{font-size:16px}#article-container .llm-intro{padding:18px}#article-container .llm-note>:not(.llm-demo) .katex-display{padding:18px 10px;font-size:.95em}#article-container .llm-head-tile{padding:10px 1px;font-size:11px}#article-container .llm-head-tile strong{font-size:15px}#article-container .llm-controls{gap:7px}#article-container .llm-ranking{padding-top:0}#article-container .llm-equation .katex-display{font-size:.88em}#article-container .llm-shape-row{flex-wrap:wrap;gap:5px}}
 @media(prefers-reduced-motion:reduce){ #article-container .llm-demo *{animation:none!important;transition:none!important}}@media print{ #article-container .llm-demo{break-inside:avoid;box-shadow:none}#article-container .llm-controls{display:none}}
+
+/* These notes render KaTeX at build time; bypass the theme runtime reveal rule. */
+#article-container .llm-note .katex{display:inline}
+#article-container .llm-note .katex-display>.katex{display:block}
