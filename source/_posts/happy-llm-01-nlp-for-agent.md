@@ -18,7 +18,7 @@ toc: true
 toc_number: false
 katex: false
 llm_note: true
-updated: 2026-09-12 18:00:00
+updated: 2026-09-14 10:00:00
 ---
 
 <p class="llm-cover-credit">封面：冰岛冰川河流入海 · 摄影 Andro Loria / <a href="https://www.nationalgeographic.com/photo-of-the-day/photo/iceland-river-glacier" target="_blank" rel="noopener noreferrer">National Geographic Your Shot</a></p>
@@ -70,8 +70,6 @@ BPE 的训练从较小的符号开始，统计相邻符号对，将高频的符�
 
 为了手算，可以设训练片段为 `low low lower`，从字符开始。如果先合并 `l + o → lo`，再合并 `lo + w → low`，那么 `lower` 可能表示为 `low | e | r`。这只是简化示例；真实实现还可能有字节编码、预切分、特殊 token 和不同的合并规则。
 
-WordPiece、Unigram 也解决有限词表如何覆盖文本的问题，但训练和分割准则不同。<strong>SentencePiece 是分词工具库，可以支持 BPE、Unigram 等模型，不应与它们完全并列为同一种算法。</strong>见 [SentencePiece 官方说明](https://github.com/google/sentencepiece)。
-
 下面的实验把“统计频次”也展示出来。比如 `newest` 出现 6 次、`widest` 出现 3 次，它们都含 `e + s`，因此该对的频次是 9，而不是词表里出现两次就算 2。
 
 {% llm_demo bpe %}
@@ -81,7 +79,19 @@ WordPiece、Unigram 也解决有限词表如何覆盖文本的问题，但训练
 还要区分两个阶段：<strong>训练 tokenizer</strong> 学到词表和合并优先级；<strong>使用 tokenizer</strong> 按已经固定的规则编码新文本。线上请求不会为每句话重新训练一套合并规则，否则 token ID 的含义就无法与模型参数保持一致。[子词 BPE 论文](https://arxiv.org/abs/1508.07909)
 
 
-### 1.5 词表大小带来的取舍
+### 1.5 WordPiece、Unigram 怎样切分，SentencePiece 怎样使用
+
+同一个词往往有多种拆法。例如词表中既有 `low`、`er`，也有 `lo`、`wer`，那么 `lower` 可以拆成 `low | er` 或 `lo | wer`。词表规定了哪些片段可用，切分算法还要决定选哪一种。BPE 按训练时保存的合并优先级处理；WordPiece 和 Unigram 的选择方式如下。
+
+<strong>WordPiece 从当前位置开始，优先取词表中能匹配的最长片段。</strong>以 BERT 使用的形式为例，假设词表有 `low`、`##er`、`lo`、`##wer`，没有 `lower`，那么先取 `low`，再取 `##er`。`##` 表示这个片段接在词内，不是原文中的井号。这个过程只需要最终词表，不需要重放 BPE 的合并步骤；如果某一步找不到可用片段，BERT 的实现会把整个词记为 `[UNK]`。
+
+构建 WordPiece 词表时，也可以从小片段逐步扩充，但选取新片段不能只用 BPE 的相邻对频次来解释。例如 [Hugging Face 的教学实现](https://huggingface.co/learn/llm-course/chapter6/6) 用“相邻对频次 ÷ 两个片段各自频次的乘积”评分：两个片段如果到处都出现，仅仅一起出现得多，还不足以获得高分。这里的评分是教学近似，不能当作所有 WordPiece 训练器的统一规则。
+
+<strong>Unigram 为每个片段分配概率，再比较整条切分路径的概率。</strong>训练时先准备较大的候选词表，反复估计片段概率，删除那些移除后对训练文本概率影响较小的片段，逐步缩到目标大小。普通确定性编码时，一种切法的分数是各片段概率的乘积，算法寻找乘积最大的路径。例如人为设定 `P(low)=0.20`、`P(er)=0.10`、`P(lo)=0.15`、`P(wer)=0.20`，两条路径分别得到 `0.02` 和 `0.03`；只比较这两条时，会选择 `lo | wer`，即使 `low` 是更长的前缀。实际计算通常累加对数概率，用动态规划寻找最优路径，无须枚举所有拆法。[Unigram 的训练与切分示例](https://huggingface.co/learn/llm-course/chapter6/7)
+
+实际训练 tokenizer 时，还需要读取语料、规范化文本、保存词表，并提供文本与 ID 之间的转换接口。<strong>SentencePiece 把这些步骤封装成一套工具。</strong>例如训练配置中的 `model_type='bpe'` 表示用它训练 BPE，改成 `model_type='unigram'` 就会训练 Unigram。它可以直接读取未按词切好的句子，并用 `▁` 标记空格，所以看到 `▁hello` 时，其中的 `▁` 表示空格位置。生成的 `.model` 文件保存词表、切分模型和规范化规则；部署时加载这份文件，才能复现训练时的文本编码。解码还原的是规范化后的文本，不能保证找回规范化已经抹掉的差别。[SentencePiece 配置与使用示例](https://github.com/google/sentencepiece)
+
+### 1.6 词表大小带来的取舍
 
 | 编码单元 | 主要优点 | 主要代价 |
 | --- | --- | --- |
