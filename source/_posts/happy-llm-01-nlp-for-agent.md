@@ -64,11 +64,13 @@ ID 是离散索引。不能用 `abs(id1 - id2)` 判断词义是否接近。
 
 子词方法在两者之间折中：频繁片段用较长单元表示，罕见词分解成可复用的小单元。<strong>“能编码”与“懂含义”是两件事</strong>：把陌生型号拆成若干 token，只解决了输入覆盖问题，模型仍可能不知道型号对应什么产品。
 
-### 1.4 BPE：构建词表与合并规则
+<strong>BPE、WordPiece 和 Unigram 都是子词 tokenizer 方法，都包含词表构建和实际分词两个阶段。</strong>先从训练语料中确定可用的子词，再用固定的词表和切分规则处理新文本。
 
-<strong>BPE 和 WordPiece 都是子词 tokenizer 方法，都包含词表构建和实际分词两个阶段。</strong>先从训练语料中确定可用的子词，再用固定的词表和切分规则处理新文本。
+### 1.4 BPE
 
-BPE 从字符、字节等基本单元开始，反复统计相邻片段对（pair）的频次，每次合并最高频的 pair，并重新统计，最终得到<strong>词表（vocabulary）和有先后顺序的合并规则（merge rules）</strong>。实际分词时，从基本单元出发，按已学到的合并优先级组合片段，不会为每条输入重新统计语料频次。
+<strong>词表构建。</strong>BPE 从字符、字节等基本单元开始，反复统计相邻片段对（pair）的频次，每次合并最高频的 pair，并重新统计，最终得到<strong>词表（vocabulary）和有先后顺序的合并规则（merge rules）</strong>。
+
+<strong>实际分词。</strong>从基本单元出发，按已学到的合并优先级组合片段，不会为每条输入重新统计语料频次。
 
 下面的实验把“统计频次”也展示出来。比如 `newest` 出现 6 次、`widest` 出现 3 次，它们都含 `e + s`，因此该对的频次是 9，而不是词表里出现两次就算 2。
 
@@ -79,9 +81,9 @@ BPE 从字符、字节等基本单元开始，反复统计相邻片段对（pair
 还要区分两个阶段：<strong>训练 tokenizer</strong> 学到词表和合并优先级；<strong>使用 tokenizer</strong> 按已经固定的规则编码新文本。线上请求不会为每句话重新训练一套合并规则，否则 token ID 的含义就无法与模型参数保持一致。[子词 BPE 论文](https://arxiv.org/abs/1508.07909)
 
 
-### 1.5 WordPiece：构建子词词表与最长匹配
+### 1.5 WordPiece
 
-WordPiece 同样逐步构建子词词表，但候选片段的选择不能简单等同于 BPE 的最高频 pair。常见教学近似用下面的分数体现两个片段的关联强度：
+<strong>词表构建。</strong>WordPiece 逐步构建子词词表，但候选片段的选择不能简单等同于 BPE 的最高频 pair。常见教学近似用下面的分数体现两个片段的关联强度：
 
 $$
 \operatorname{score}(a,b)=\frac{\operatorname{freq}(a,b)}{\operatorname{freq}(a)\operatorname{freq}(b)}
@@ -89,13 +91,13 @@ $$
 
 其中，分子是相邻 pair 的频次，分母是两个片段各自频次的乘积。它衡量的是相对于各自出现频率，两者有多倾向于一起出现；因此，最高频的 pair 不一定得分最高。这是教学近似，并非所有 WordPiece 训练器统一采用的规则。[WordPiece 教学说明](https://huggingface.co/learn/llm-course/chapter6/6)
 
-实际分词时，WordPiece 使用 <strong>longest-match-first（优先最长匹配）</strong>：从左到右，在当前位置选取词表中能匹配的最长片段，再继续处理剩余部分。BERT 中的 `##` 表示词内部的后续片段，例如 `play | ##ing`；它是词表标记，不是原文中的字符。
+<strong>实际分词。</strong>WordPiece 使用 <strong>longest-match-first（优先最长匹配）</strong>：从左到右，在当前位置选取词表中能匹配的最长片段，再继续处理剩余部分。BERT 中的 `##` 表示词内部的后续片段，例如 `play | ##ing`；它是词表标记，不是原文中的字符。
 
-### 1.6 Unigram 与 SentencePiece
+### 1.6 Unigram
 
-Unigram 也是子词 tokenizer 方法。<strong>训练时从较大的候选词表开始，估计每个片段的概率，再逐步删减词表</strong>：优先删除那些移除后对语料似然影响较小的片段，并重新估计概率，直到达到目标词表大小。
+<strong>词表构建。</strong>Unigram 从较大的候选词表开始，估计每个片段的概率，再逐步删减词表：优先删除那些移除后对语料似然影响较小的片段，并重新估计概率，直到达到目标词表大小。
 
-<strong>实际分词时，Unigram 比较整条切分路径的概率。</strong>对于一种切分 $s=(t_1,\ldots,t_m)$，它将各片段视为独立单元，用概率乘积为该路径评分：
+<strong>实际分词。</strong>Unigram 比较整条切分路径的概率。对于一种切分 $s=(t_1,\ldots,t_m)$，它将各片段视为独立单元，用概率乘积为该路径评分：
 
 $$
 P(s)=\prod_{i=1}^{m}p(t_i),\qquad
@@ -104,11 +106,15 @@ $$
 
 $\mathcal{S}(x)$ 是文本 $x$ 的所有合法切分，$p(t_i)$ 是训练得到的片段概率。普通确定性编码用动态规划寻找得分最高的完整路径，不要求每一步都取最长片段；启用采样时，也可以按概率生成不同切分。[Unigram 的训练与切分](https://huggingface.co/learn/llm-course/chapter6/7)
 
+### 1.7 三种方法的区别
+
 BPE 按高频 pair 扩充词表，分词时执行有优先级的合并规则。WordPiece 也逐步构建词表，但候选选择不能直接套用 BPE 的频次准则，分词时采用最长匹配。Unigram 则从较大词表逐步删减，分词时根据片段概率评价整条路径。
+
+### 1.8 分词工具 SentencePiece
 
 SentencePiece 提供训练、编码和解码工具，配置 `model_type='bpe'` 或 `model_type='unigram'` 可以选择不同模型。它可以直接读取未按词切好的句子，用 `▁` 标记空格，并将词表、切分模型和规范化规则保存在 `.model` 文件中，供部署时加载；解码还原的是规范化后的文本。[SentencePiece 使用说明](https://github.com/google/sentencepiece)
 
-### 1.7 词表大小带来的取舍
+### 1.9 词表大小带来的取舍
 
 | 编码单元 | 主要优点 | 主要代价 |
 | --- | --- | --- |
