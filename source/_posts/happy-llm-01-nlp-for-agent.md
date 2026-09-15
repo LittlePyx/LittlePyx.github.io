@@ -238,31 +238,50 @@ $$
 
 ### 3.3 从计数表到神经网络
 
-N-gram 对每个离散上下文 $h$ 分别统计 $C(h,w)$，再估计 $P(w\mid h)$。即使两个上下文很相似，它们也对应不同的计数项；一项积累的观测不会自动成为另一项的证据，低频组合因而难以可靠估计。
+两种模型都要回答同一个问题：<strong>给定前面的文本，词表中每个词作为下一个词的概率是多少？</strong>变化的是这些概率怎样得到。
 
-<strong>神经语言模型用共享参数替代逐个上下文查计数的概率估计方式。</strong>上下文先经过 Embedding 查表，再由同一个网络 $f_\theta$ 处理。不同上下文产生各自的隐藏表示 $h_t$，但使用同一组参数，而不是各自维护一套参数。
+| | N-gram 的频数估计 | 神经语言模型 |
+| --- | --- | --- |
+| 训练得到什么 | 各个上下文与后继词的计数 | 一组共享的模型参数 |
+| 遇到一个上下文时 | 找到对应计数项，归一化得到概率 | 用模型参数计算该上下文的概率分布 |
+| 换一个上下文时 | 查询另一组计数项 | 仍用同一组参数，重新计算表示和概率 |
 
-{% llm_demo neural-lm %}
+例如，“设备无法”和“设备不能”会查询不同的计数项；前者出现得多，不会自动增加后者的计数。神经模型则可以通过共享的词向量和网络参数，让这些上下文的训练信号相互影响。<strong>它替代的是“按整个上下文查计数”的估计方式，预测下一词这个任务没有变。</strong>
 
-令输入 token ID 序列为 $x_{\le t}$，词表大小为 $V$。忽略批量维度，Embedding 参数 $E\in\mathbb R^{V\times d}$ 将 ID 转成向量序列，网络将其映射为当前上下文的向量表示：
+<strong>1. Embedding：先把每个 token 变成向量。</strong>设输入 ID 为 $x_1,\ldots,x_t$，词表有 $V$ 项。Embedding 矩阵 $E\in\mathbb R^{V\times d}$ 每行存一个 token 的向量，查表得到：
 
 $$
-X_{\le t}=E[x_{\le t}]\in\mathbb R^{t\times d},\qquad
+X_{\le t}=E[x_{\le t}]\in\mathbb R^{t\times d}.
+$$
+
+这里仍然有查表，但查的是<strong>单个 token 的向量</strong>，不是整段上下文对应的下一词计数。$X_{\le t}$ 有 $t$ 行，保留了各位置的输入向量。
+
+<strong>2. 上下文网络：把这些输入向量组合成当前上下文的表示。</strong>
+
+$$
 h_t=f_\theta(X_{\le t})\in\mathbb R^H.
 $$
 
-输出层为词表中每个 token 计算一个未归一化分数（logit），Softmax 再将这些分数转成概率：
+$h_t$ 是网络根据这次输入算出的 $H$ 维向量，不是一套新参数，也还不是词表概率。换一段输入，$h_t$ 通常会变；处理两段输入的参数 $\theta$ 是同一套。这就是<strong>参数共享</strong>。
+
+$f_\theta$ 可以是固定窗口的前馈网络（FNN）、RNN/LSTM 或 Transformer。前馈网络只读取选定的窗口，其他架构用不同方式处理上下文；神经语言模型是建模方式，Transformer 是其中一种可用架构。
+
+<strong>3. 输出层：用上下文表示为每个候选 token 打分，再转成概率。</strong>
 
 $$
-z_t=h_tW+b\in\mathbb R^V,\qquad
+z_t=h_tW+b\in\mathbb R^V,\qquad W\in\mathbb R^{H\times V},\quad b\in\mathbb R^V.
+$$
+
+$z_t$ 有 $V$ 个分量，第 $v$ 项是词表中第 $v$ 个 token 的分数（logit）。它可以为负，也不要求总和为 1。Softmax 将这些分数归一化：
+
+$$
 P(x_{t+1}=v\mid x_{\le t})
-=\frac{\exp(z_{t,v})}{\sum_{u=1}^{V}\exp(z_{t,u})},\quad
-W\in\mathbb R^{H\times V}.
+=\frac{\exp(z_{t,v})}{\sum_{u=1}^{V}\exp(z_{t,u})}.
 $$
 
-这里 $f_\theta$ 可以是固定窗口的前馈网络（FNN）、RNN/LSTM 或 Transformer；固定窗口 FNN 只读取选定的最近若干位置。<strong>神经语言模型是一种建模方式，Transformer 是可用于实现它的网络架构。</strong>
+<strong>这些参数怎样学出来？</strong>训练文本已经给出真实下一 token $y=x_{t+1}$，因此可以计算交叉熵 $\mathcal L_t=-\log P(y\mid x_{\le t})$。反向传播先计算输出层 $W,b$ 的梯度，再经过 $h_t$ 传到网络参数 $\theta$，最后传到 Embedding 被查取的行；优化器据此更新参数。因此 $E,\theta,W,b$ 是通过同一个 next-token prediction 目标联合学出来的。
 
-训练时，以真实的下一 token $y=x_{t+1}$ 计算交叉熵 $\mathcal L_t=-\log P(y\mid x_{\le t})$。梯度经过输出层、$f_\theta$，再传到 Embedding 的被查取行，因此 $W,b,\theta,E$ 通过 next-token prediction 联合学习。共享表示使不同上下文能够相互借鉴，但不保证相似上下文一定得到合理预测。
+读这一组公式时，区分两类量即可：<strong>$E,\theta,W,b$ 是训练得到、供不同输入共用的参数；$X_{\le t},h_t,z_t$ 是每次输入后重新计算的中间结果。</strong>
 
 ## 4. 表示学习：从查找表到上下文向量
 
