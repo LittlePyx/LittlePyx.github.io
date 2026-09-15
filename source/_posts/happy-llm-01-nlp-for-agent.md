@@ -238,17 +238,31 @@ $$
 
 ### 3.3 从计数表到神经网络
 
-N-gram 为不同上下文分别统计计数。上下文越长，可能出现的组合越多，许多组合在语料里根本没有出现过。神经语言模型用共享参数处理上下文，让不同样本通过共同的表示与网络发生联系：
+N-gram 对每个离散上下文 $h$ 分别统计 $C(h,w)$，再估计 $P(w\mid h)$。即使两个上下文很相似，它们也对应不同的计数项；一项积累的观测不会自动成为另一项的证据，低频组合因而难以可靠估计。
+
+<strong>神经语言模型用共享参数替代逐个上下文查计数的概率估计方式。</strong>上下文先经过 Embedding 查表，再由同一个网络 $f_\theta$ 处理。不同上下文产生各自的隐藏表示 $h_t$，但使用同一组参数，而不是各自维护一套参数。
+
+{% llm_demo neural-lm %}
+
+令输入 token ID 序列为 $x_{\le t}$，词表大小为 $V$。忽略批量维度，Embedding 参数 $E\in\mathbb R^{V\times d}$ 将 ID 转成向量序列，网络将其映射为当前上下文的向量表示：
 
 $$
-h_t=f_\theta(x_{\le t}),\qquad z_t=h_tW+b,\qquad
-P_\theta(x_{t+1}\mid x_{\le t})=\operatorname{softmax}(z_t).
+X_{\le t}=E[x_{\le t}]\in\mathbb R^{t\times d},\qquad
+h_t=f_\theta(X_{\le t})\in\mathbb R^H.
 $$
 
-这里 f 可以是固定窗口网络、循环网络或 Transformer。它们对上下文的组织方式不同，但都可以用下一个 token 的交叉熵来训练。训练目标与网络架构是两个维度：不能把“使用 Transformer”和“使用自回归目标”当成同一个概念。
+输出层为词表中每个 token 计算一个未归一化分数（logit），Softmax 再将这些分数转成概率：
 
-反向传播会把预测误差传回上下文网络和输入表示，因此 embedding 不需要手工设定含义。下一节从这张可学习的查找表开始，说明向量怎样形成。
+$$
+z_t=h_tW+b\in\mathbb R^V,\qquad
+P(x_{t+1}=v\mid x_{\le t})
+=\frac{\exp(z_{t,v})}{\sum_{u=1}^{V}\exp(z_{t,u})},\quad
+W\in\mathbb R^{H\times V}.
+$$
 
+这里 $f_\theta$ 可以是固定窗口的前馈网络（FNN）、RNN/LSTM 或 Transformer；固定窗口 FNN 只读取选定的最近若干位置。<strong>神经语言模型是一种建模方式，Transformer 是可用于实现它的网络架构。</strong>
+
+训练时，以真实的下一 token $y=x_{t+1}$ 计算交叉熵 $\mathcal L_t=-\log P(y\mid x_{\le t})$。梯度经过输出层、$f_\theta$，再传到 Embedding 的被查取行，因此 $W,b,\theta,E$ 通过 next-token prediction 联合学习。共享表示使不同上下文能够相互借鉴，但不保证相似上下文一定得到合理预测。
 
 ## 4. 表示学习：从查找表到上下文向量
 

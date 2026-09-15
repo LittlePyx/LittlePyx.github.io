@@ -21,6 +21,17 @@
       refresh();return refresh;
     }
     function bars(container,items){container.replaceChildren();items.forEach(item=>{const el=make('div',item.selected?'is-selected':''),label=make('div','llm-bar-label'),name=make('span','',item.label),number=make('strong','',item.text);label.append(name,number);const track=make('div','llm-track'),fill=make('div','llm-fill');fill.style.width=item.percent+'%';track.append(fill);el.append(label,track);container.append(el)})}
+    if(root.dataset.demo==='neural-lm'){
+      const forward=[['Token IDs','[t]','整数 ID 序列，还没有语义向量；ID 本身不参与梯度更新。'],['Embedding','[t, d]','从共享参数 E [V, d] 中按 ID 查行，得到各位置的输入向量。'],['fθ','[t, d] → [H]','共享的上下文网络处理输入序列；θ 不随上下文切换。固定窗口 FNN 仅选取最近的位置。'],['hₜ','[H]','当前上下文的向量表示。换一段上下文会改变 hₜ，而不是换一套网络参数。'],['Linear','[V]','hₜW + b 产生整个词表的 logits；W [H, V]、b [V] 由所有上下文共享。'],['Softmax','[V]','将 logits 归一化为下一 token 的概率，各项非负且总和为 1。']];
+      const counts=[['上下文 h','n − 1 个词','取最近 n − 1 个词，作为计数表的查询键。'],['查计数','[V]','读取该上下文的 C(h, w)，每项对应一个候选词；不同上下文对应不同计数项。'],['条件概率','[V]','以 C(h) 归一化得到频数估计。未见组合需要平滑；未见上下文不能直接用零分母。']];
+      const backward=[['Loss','标量','真实下一 token 提供监督：L = −log p(y)。先对 logits 求导。'],['输出层 W、b','[H, V]、[V]','计算输出参数的梯度，并将对 hₜ 的梯度传回上下文网络。'],['网络 θ','由架构决定','链式法则计算各层参数梯度，并继续传到输入向量。'],['Embedding E','[V, d]','查表路径将梯度累加到出现过的 ID 对应行；重复 ID 的贡献相加。'],['优化器更新','E、θ、W、b','梯度计算完成后更新共享参数。下一条样本使用更新后的同一组参数；这里只展示流程。']];
+      let mode='neural',training=false;
+      function configure(){stop();index=0;const steps=mode==='ngram'?counts:training?backward:forward;
+        action('ngram').setAttribute('aria-pressed',String(mode==='ngram'));action('neural').setAttribute('aria-pressed',String(mode==='neural'));action('train').disabled=mode==='ngram';action('train').textContent=training?'返回前向传播':'查看一次反向传播';
+        controls(steps.length-1,()=>{view('flow').replaceChildren();steps.forEach(([label,shape],i)=>{const node=make('li',i===index?'is-active':'');node.append(make('strong','',label),make('code','',shape));if(i===index)node.setAttribute('aria-current','step');view('flow').append(node)});view('result').textContent=steps[index][2];root.dataset.mode=mode;root.dataset.phase=training?'backward':'forward';root.dataset.step=index});
+      }
+      action('ngram').onclick=()=>{mode='ngram';training=false;configure()};action('neural').onclick=()=>{mode='neural';training=false;configure()};action('train').onclick=()=>{training=!training;configure()};configure();
+    }
     if(root.dataset.demo==='bpe'){
       const corpus=[['low',5],['lower',2],['newest',6],['widest',3]],states=[];
       let words=corpus.map(([w,count])=>({tokens:[...w],count})),previous=null;
