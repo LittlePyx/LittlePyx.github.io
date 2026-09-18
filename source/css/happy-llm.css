@@ -23,3 +23,20 @@
 #article-container .llm-note .katex-display>.katex{display:block}
 
 #article-container .llm-demo button[aria-pressed=true]{border-color:var(--llm-green);background:var(--llm-soft);color:var(--llm-ink)}
+
+/* Attention matrix, stage controls and value flow. */
+#article-container .llm-stages{display:flex;flex-wrap:wrap;gap:6px;margin:17px 0}
+#article-container .llm-stages button,#article-container .llm-stage{font-size:12px;min-height:35px;padding:7px 10px;border-radius:6px;border:1px solid var(--llm-line);background:var(--llm-paper);color:var(--llm-muted)}
+#article-container .llm-stage.is-active{background:var(--llm-soft);border-color:var(--llm-green);color:var(--llm-green)}
+#article-container .llm-matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#article-container .llm-matrix button{min-width:0;width:100%;white-space:nowrap;padding:10px 3px;min-height:52px;font:14px/1.5 ui-monospace,Consolas,monospace;border-radius:7px}
+#article-container .llm-matrix button.is-row{outline:2px solid var(--llm-green);outline-offset:-2px}
+#article-container .llm-attn-row{display:grid;gap:13px}
+#article-container .llm-flow{margin-top:18px}
+#article-container .llm-flow .llm-travel{stroke-dasharray:5 7;animation:llm-travel 1.3s linear 1}
+#article-container .llm-demo details{margin-top:18px;border-top:1px solid var(--llm-line);padding-top:10px}
+#article-container .llm-demo summary{cursor:pointer;font-size:13px;color:var(--llm-muted)}
+#article-container .llm-demo table{display:table;width:100%;font-size:12px;margin:12px 0;border-collapse:collapse}
+#article-container .llm-demo table tr{background:transparent}
+#article-container .llm-demo td,#article-container .llm-demo th{padding:8px 5px;border:0;border-bottom:1px solid var(--llm-line);background:transparent}
+#article-container .llm-table{overflow-x:auto}
