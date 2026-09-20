@@ -79,5 +79,5 @@
 @media(prefers-reduced-motion:reduce){ #portfolio .button{transition:none}}
 
 /* The supplied Translator overview is a long poster; open the image for full detail. */
-#portfolio #translator .image-link{max-height:560px;overflow:hidden;border-radius:9px;border:1px solid var(--pf-line)}
+#portfolio #translator .image-link{display:block;max-height:560px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;scrollbar-gutter:stable;border-radius:9px;border:1px solid var(--pf-line)}
 #portfolio #translator .image-link img{border:0;border-radius:0}
