@@ -78,3 +78,6 @@
 @media(max-width:760px){ #portfolio .hero,#portfolio .project,#portfolio .featured,#portfolio .section{padding:24px 19px}#portfolio h1 span{display:block;margin:7px 0 0;font-size:23px}#portfolio .identity{font-size:15px}#portfolio .hero-bottom>span{margin:0;width:100%}#portfolio .project-grid,#portfolio .featured dl,#portfolio .research-grid,#portfolio .eda-highlights{grid-template-columns:1fr;gap:20px}#portfolio .featured dl{gap:0}#portfolio .project-heading{flex-wrap:wrap;gap:8px}#portfolio .project-heading h2{font-size:26px}#portfolio #eda .project-heading h2{font-size:22px}#portfolio .section h2{font-size:23px}#portfolio .portfolio-nav{gap:3px 20px}#portfolio .publication{grid-template-columns:1fr}#portfolio .text-link{grid-column:1}#portfolio .project-depth{font-size:14px}}
 @media(prefers-reduced-motion:reduce){ #portfolio .button{transition:none}}
 
+/* The supplied Translator overview is a long poster; open the image for full detail. */
+#portfolio #translator .image-link{max-height:560px;overflow:hidden;border-radius:9px;border:1px solid var(--pf-line)}
+#portfolio #translator .image-link img{border:0;border-radius:0}
