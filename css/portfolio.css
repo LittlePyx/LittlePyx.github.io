@@ -89,3 +89,5 @@
 #portfolio .patent-entry .patent-meta{font-size:12px;margin:0 0 3px;color:var(--pf-muted)}
 #portfolio .patent-entry .patent-number{font-size:11px;margin:0;color:var(--pf-muted);overflow-wrap:anywhere}
 #portfolio .patents>small{display:block;margin-top:12px}
+
+#portfolio .patent-entry .patent-contribution{font-size:13px;margin:8px 0 0;line-height:1.8}
