@@ -91,3 +91,15 @@
 #portfolio .patents>small{display:block;margin-top:12px}
 
 #portfolio .patent-entry .patent-contribution{font-size:13px;margin:8px 0 0;line-height:1.8}
+
+/* Overview previews; the existing dialog keeps the original long image. */
+#portfolio .project-visual .project-preview{position:relative;height:auto;aspect-ratio:1.4;overflow:hidden;scrollbar-gutter:auto;touch-action:auto;cursor:zoom-in}
+#portfolio .project-visual .project-preview img{position:absolute;top:0;left:0;width:100%;height:auto;max-width:none;min-width:0}
+#portfolio #zaya .project-preview{aspect-ratio:1.15}
+#portfolio #zaya .project-preview img{transform:translateY(-14%)}
+#portfolio #research .project-preview,#portfolio #translator .project-preview{aspect-ratio:1.8}
+#portfolio #research .project-preview img{transform:translateY(-17%)}
+#portfolio #translator .project-preview img{transform:translateY(-17%)}
+#portfolio #eda .project-visual .project-preview{aspect-ratio:1.6;max-height:none}
+#portfolio #eda .project-preview img{position:static;transform:none;min-width:0}
+#portfolio .preview-open{display:block;padding:10px 12px;background:var(--pf-soft);color:var(--pf-accent);border-radius:0 0 7px 7px;font-size:12px;text-align:center}
