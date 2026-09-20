@@ -1,1 +1,196 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>潘彦茜 · AI Agent 与计算成像</title><meta name="description" content="潘彦茜，电子科技大学光学工程硕士，2028 届。关注 AI 应用、Agent、RAG 与计算成像。"><link rel="canonical" href="https://littlepyx.github.io/about/"><link rel="icon" href="/img/favicon.png"><link rel="stylesheet" href="/css/portfolio.css"><meta name="generator" content="Hexo 5.4.2"></head><body><a class="skip" href="#main">跳到正文</a><header class="topbar"><a class="wordmark" href="#intro">YP / 潘彦茜</a><nav aria-label="页面导航"><a href="#zaya">项目</a><a href="#research-work">科研</a><a href="#publications">成果</a><a href="#contact">联系</a><a href="/">博客 ↗</a></nav></header><main id="main"><section class="hero" id="intro"><div class="eyebrow">AI ENGINEERING × COMPUTATIONAL IMAGING</div><h1>潘彦茜<span>Yanxi Pan</span></h1><p class="identity">电子科技大学 · 光学工程硕士 · 2028 届</p><p class="intro">我关注 AI 应用、Agent / RAG 与计算成像，尝试把研究问题做成可使用、可验证的工具。目前寻找 AI 应用开发及 AI 算法方向的实习机会。</p><div class="hero-bottom"><a class="button primary" href="#zaya">查看项目 ↓</a><a class="button" href="#contact">简历与联系 ↗</a><span>成都 · 到岗时间可协商</span></div></section><div class="section-heading"><span class="eyebrow">SELECTED WORK</span><h2>从问题出发，做出可用的工具。</h2></div><article class="project featured" id="zaya"><div class="project-heading"><div><span class="eyebrow">01 / 主项目</span><h2>Pi Zaya</h2></div><span class="status">Windows 测试版</span></div><h3>让论文回答，回到原文证据。</h3><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-zaya.png" target="_blank" rel="noopener" aria-label="查看 Pi Zaya 大图"><img src="/img/projects/pi-zaya.png" alt="论文问答与引用定位 · 仓库 beta10 演示截图" loading="lazy" decoding="async" loading='lazy'></a><figcaption>论文问答与引用定位 · 仓库 beta10 演示截图</figcaption></figure><div class="tags"><span>Python</span><span>FastAPI</span><span>React</span><span>RAG</span></div></div><div class="project-copy"><dl><dt>做什么</dt><dd>面向本地多文献库的论文阅读助手，连接文献问答、跨论文比较、引用定位和研究笔记。</dd><dt>我做了什么</dt><dd>作为唯一开发者，借助 AI 辅助完成产品设计、PDF 解析、检索与 Agent 工具集成、前后端和 Windows 打包，并负责调试与验证。</dd><dt>最难的地方</dt><dd>从“生成回答”走到“可以核查”：保留页码、公式与来源，将回答和对比结果绑定到真实证据，处理缺失与过期信息。</dd><dt>可查看的成果</dt><dd>可下载的 Windows 测试版、公开代码与使用文档。</dd></dl><div class="links"><a class="button" href="https://github.com/LittlePyx/Pi_zaya/releases" target="_blank" rel="noopener noreferrer">下载 Windows 版 ↗</a><a class="button" href="https://github.com/LittlePyx/Pi_zaya" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="button" href="/projects/pi-zaya/">项目介绍 →</a></div></div></div></article><article class="project" id="eda"><div class="project-heading"><div><span class="eyebrow">02 / 企业命题</span><h2>面向 EDA 扫描链插入的 LLM Agent</h2></div><span class="status">广立微命题 · 比赛进行中</span></div><h3>从设计约束，到工具验证。</h3><div class="project-grid"><div class="project-visual"><figure class="flow" id="eda-flow"><figcaption>Agent 工作流程</figcaption><ol><li>设计要求 / 网表 / 单元库</li><li>解析需求与设计约束</li><li>模型生成命令或局部补丁</li><li>Scan 工具执行</li><li>报告、结构与等价检查</li><li>合格交付 / 定位问题再修复</li></ol><p>证据引用校验 · 哈希绑定 · 版本化修复</p><p>依据自研实现重新绘制的流程示意，非工具手册内容。</p></figure><div class="tags"><span>Python</span><span>LLM</span><span>Docker</span><span>Yosys / EQY</span></div></div><div class="project-copy"><dl><dt>做什么</dt><dd>扫描链插入与脚本修复 Agent，读取设计要求、网表和单元库，生成脚本并根据 EDA 工具反馈修复。</dd><dt>我做了什么</dt><dd>负责需求拆解、Agent 与工具集成、证据与修复状态管理、执行预算控制及验证。个人贡献依据项目交接材料与实现记录整理。</dd><dt>最难的地方</dt><dd>让模型提案满足真实设计约束，在有限时间内执行、修复与检查；区分工具运行成功、结构正确和逻辑等价。</dd><dt>可查看的成果</dt><dd>完成公开案例的端到端运行与交付验证。该结果不代表隐藏题满分、获奖、工业级通用能力或签核结论。</dd></dl><div class="links"><a class="button" href="#eda-flow">查看工作流程 →</a></div></div></div><div class="eda-highlights"><section><h4>证据约束诊断</h4><p>诊断关联可核查的证据引用，区分观察与推断，避免无依据的修复结论。</p></section><section><h4>修复状态可追溯</h4><p>用哈希绑定输入与候选，版本化保存修改；失败提案不覆盖已验证状态。</p></section><section><h4>有边界的执行效率</h4><p>结构网表解析配合兼容回退，在统一预算下受控重叠任务；不将单次对照当作稳定加速承诺。</p></section></div></article><article class="project" id="research"><div class="project-heading"><div><span class="eyebrow">03 / 持续研究</span><h2>Pi Research</h2></div><span class="status">在线演示</span></div><h3>让下一篇论文，连接研究方向。</h3><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-research.png" target="_blank" rel="noopener" aria-label="查看 Pi Research 大图"><img src="/img/projects/pi-research.png" alt="Pi Research 项目视觉" loading="lazy" decoding="async" loading='lazy'></a><figcaption>Pi Research 项目视觉</figcaption></figure><div class="tags"><span>TypeScript</span><span>React</span><span>Workers / D1</span></div></div><div class="project-copy"><dl><dt>做什么</dt><dd>持续发现相关论文，结合个人反馈筛选候选，逐步形成研究地图与学习路径。</dd><dt>我做了什么</dt><dd>作为唯一开发者，借助 AI 辅助完成多源论文检索、去重、异步任务、反馈记录、进度恢复与产品界面。</dd><dt>最难的地方</dt><dd>在数据源差异和任务中断下保留研究进度，同时区分用户明确偏好与系统推断，避免重复推荐与方向漂移。</dd><dt>可查看的成果</dt><dd>可访问的在线演示、公开代码与部署说明；模型驱动功能需要配置相应服务。</dd></dl><div class="links"><a class="button" href="https://pi-research-agent.qiudao-pika.chatgpt.site/" target="_blank" rel="noopener noreferrer">在线演示 ↗</a><a class="button" href="https://github.com/LittlePyx/pi-research" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div></div></article><article class="project" id="translator"><div class="project-heading"><div><span class="eyebrow">04 / 科研工具</span><h2>Pi Translator</h2></div><span class="status">Edge 商店已上架</span></div><h3>翻译文字，保留公式。</h3><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-translator.png" target="_blank" rel="noopener" aria-label="查看 Pi Translator 大图"><img src="/img/projects/pi-translator.png" alt="PDF 框选翻译操作界面 · 文档内容已遮蔽" loading="lazy" decoding="async" loading='lazy'></a><figcaption>PDF 框选翻译操作界面 · 文档内容已遮蔽</figcaption></figure><div class="tags"><span>TypeScript</span><span>Manifest V3</span><span>PDF.js</span></div></div><div class="project-copy"><dl><dt>做什么</dt><dd>面向网页、Overleaf 和 PDF 的科研翻译扩展，支持划词、全文与框选翻译。</dd><dt>我做了什么</dt><dd>作为唯一开发者，借助 AI 辅助完成扩展界面、PDF 阅读集成、LaTeX 保护、流式翻译与中断续译，并完成商店发布。</dd><dt>最难的地方</dt><dd>在双栏论文、公式和长文本中保持结构与阅读顺序，让翻译结果可对照、可继续编辑。</dd><dt>可查看的成果</dt><dd>Edge 商店扩展、公开代码与安装文档；使用用户自行配置的翻译服务。</dd></dl><div class="links"><a class="button" href="https://microsoftedge.microsoft.com/addons/detail/pi-translator/edfkcddhenkhdkedhnmcebmmfacabcjf?hl=zh-CN" target="_blank" rel="noopener noreferrer">Edge 商店 ↗</a><a class="button" href="https://github.com/LittlePyx/Pi-translator" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div></div></article><section class="research section" id="research-work"><div class="eyebrow">RESEARCH EXPERIENCE</div><h2>计算成像：从测量，到重建。</h2><p class="section-intro">关注计算成像系统、测量设计与图像重建，让算法回到真实实验条件下接受检验。</p><div class="research-grid"><article><span class="status">2025.09—2026.08 · 已验收项目</span><h3>量子增强机器视觉系统</h3><p>天府绛溪实验室项目，担任实验系统与算法负责人。负责实验平台搭建、完整实验流程、成像算法、实时成像实现及项目第三方测试。</p></article><article><span class="status">单像素成像 · 在研方向</span><h3>测量预算与重建质量</h3><p>研究前缀预感知、ROI 自适应测量及残差重建，完成仿真和自建系统实测数据的离线重建验证。离线重建结果与闭环硬件采集分别表述。</p></article></div></section><section class="section" id="publications"><div class="eyebrow">PUBLICATIONS & PATENTS</div><h2>论文与专利</h2><div class="publication"><span class="status published">已发表 · 第一作者</span><div><h3>High-dimensional signal encoding and decoding method based on multi-ring perfect vortex beam</h3><p>Optics Express 32(17), 30800–30812 · 2024</p><p>负责创新方案、数值仿真、数据集构建、深度学习、通信设计与论文撰写。</p></div><a class="text-link" href="https://doi.org/10.1364/OE.530961" target="_blank" rel="noopener noreferrer">论文页面 ↗</a></div><div class="publication"><span class="status">在投 · 第一作者</span><div><h3>Adaptive Sensing and Residual Refinement for Measurement-Limited Single-Pixel Imaging</h3><p>IEEE Transactions on Image Processing · 在投，未公开稿件</p></div></div><div class="publication"><span class="status">在投 · 第一作者</span><div><h3>ROI-Aware Finite-Count L-Optimal Measurement Design</h3><p>IEEE Transactions on Signal Processing · 在投，未公开稿件</p></div></div><div class="patents"><h3>发明专利</h3><p>申请 5 项：第一发明人 2 项、第二发明人 3 项。4 项已公开，1 项已收到授权通知；公开与授权通知状态存在重叠，不合并计数。</p><small>论文与专利状态截至 2026 年 9 月，依据本人材料整理。</small></div></section><section class="section contact" id="contact"><div class="eyebrow">LET’S CONNECT</div><h2>简历与联系</h2><p>欢迎交流 AI 应用、Agent / RAG 与计算成像相关机会。</p><div class="links"><a class="button primary" href="/downloads/yanxi-pan-resume.pdf" download>下载 PDF 简历 ↓</a><a class="button" href="mailto:202521210124@std.uestc.edu.cn">邮件联系 ↗</a><a class="button" href="https://github.com/LittlePyx" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div><a class="email" href="mailto:202521210124@std.uestc.edu.cn">202521210124@std.uestc.edu.cn</a></section></main><footer><span>© 2026 潘彦茜 / Yanxi Pan</span><a href="/">回到小P的猫舍 ↗</a></footer></body></html>
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>潘彦茜 · AI Agent 与计算成像 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="潘彦茜，电子科技大学光学工程硕士，2028 届。关注 AI 应用、Agent、RAG 与计算成像。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="潘彦茜 · AI Agent 与计算成像">
+<meta property="og:url" content="https://littlepyx.github.io/about/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="潘彦茜，电子科技大学光学工程硕士，2028 届。关注 AI 应用、Agent、RAG 与计算成像。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-09-20T08:42:06.007Z">
+<meta property="article:modified_time" content="2026-09-20T08:42:06.007Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="博客、技术、记录">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/about/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '潘彦茜 · AI Agent 与计算成像',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'portfolio'
+}</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/projects.css"><link rel="stylesheet" href="/vendor/katex/katex.min.css"><link rel="stylesheet" href="/css/happy-llm.css"><link rel="stylesheet" href="/css/portfolio.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group" tabindex="0"><i class="fa-fw fas fa-cubes"></i><span> 我的项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/projects/pi-research/"><i class="fa-fw fas fa-compass"></i><span> Pi Research</span></a></li><li><a class="site-page child" href="/projects/pi-zaya/"><i class="fa-fw fas fa-book-open"></i><span> Pi_zaya</span></a></li><li><a class="site-page child" href="/projects/pi-translator/"><i class="fa-fw fas fa-language"></i><span> Pi Translator</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group" tabindex="0"><i class="fa-fw fas fa-cubes"></i><span> 我的项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/projects/pi-research/"><i class="fa-fw fas fa-compass"></i><span> Pi Research</span></a></li><li><a class="site-page child" href="/projects/pi-zaya/"><i class="fa-fw fas fa-book-open"></i><span> Pi_zaya</span></a></li><li><a class="site-page child" href="/projects/pi-translator/"><i class="fa-fw fas fa-language"></i><span> Pi Translator</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><h1 class="title-seo">潘彦茜 · AI Agent 与计算成像</h1></header><main class="layout hide-aside" id="content-inner"><div class="nc" id="portfolio"><section class="hero" id="intro"><div class="eyebrow">关于我 / ABOUT ME</div><h1>潘彦茜<span>Yanxi Pan</span></h1><p class="identity">电子科技大学 · 光学工程硕士 · 2028 届</p><p class="intro">我关注 AI 应用、Agent / RAG 与计算成像，尝试把研究问题做成可使用、可验证的工具。目前寻找 AI 应用开发及 AI 算法方向的实习机会。</p><div class="hero-bottom"><a class="button primary" href="#zaya">查看项目 ↓</a><a class="button" href="#contact">简历与联系 ↗</a><span>成都 · 到岗时间可协商</span></div></section><nav class="portfolio-nav" aria-label="个人主页目录"><a href="#zaya">Pi Zaya</a><a href="#eda">EDA Agent</a><a href="#research">Pi Research</a><a href="#translator">Pi Translator</a><a href="#research-work">科研经历</a><a href="#publications">论文与专利</a><a href="#contact">简历与联系</a></nav><div class="section-heading"><span class="eyebrow">SELECTED WORK</span><h2>项目与工程实践</h2></div><article class="project featured" id="zaya"><div class="project-heading"><div><span class="eyebrow">01 / 主项目</span><h2>Pi Zaya</h2></div><span class="status">Windows 测试版</span></div><h3>从多篇论文里找到答案，并定位到证据</h3><p class="project-scenario">读同一方向的多篇论文时，先问一个具体问题，再沿回答中的引用回到原文；需要横向比较时，把方法、实验与局限整理进证据矩阵。</p><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-zaya.png" target="_blank" rel="noopener" aria-label="查看 Pi Zaya 大图"><img src="/img/projects/pi-zaya.png" alt="论文问答与引用定位 · 仓库 beta10 演示截图" loading="lazy" decoding="async" loading='lazy'></a><figcaption>论文问答与引用定位 · 仓库 beta10 演示截图</figcaption></figure><div class="tags"><span>Python</span><span>FastAPI</span><span>React</span><span>RAG</span></div></div><div class="project-copy"><dl><div class="answer"><dt>做什么</dt><dd>本地学术文献工作台，将 PDF 阅读、论文问答、跨文献比较和研究笔记连接起来。</dd></div><div class="answer"><dt>我做了什么</dt><dd>负责产品设计、PDF 结构化解析、检索与 Agent 工具集成、React 阅读界面和 Windows 交付；作为唯一开发者，使用 AI 辅助编码并承担调试、验证责任。</dd></div><div class="answer"><dt>最难的地方</dt><dd>PDF 中的页码、公式与段落必须在解析后仍可定位。检索得到的片段还要能支撑具体结论，让用户看清“回答依据是什么”与“哪里还缺证据”。</dd></div><div class="answer"><dt>可查看的成果</dt><dd>已发布 Windows 测试版，无需自行安装 Python。可查看仓库、使用文档和演示界面，体验文献问答及引用定位。</dd></div></dl><div class="links"><a class="button" href="https://github.com/LittlePyx/Pi_zaya/releases" target="_blank" rel="noopener noreferrer">下载 Windows 版 ↗</a><a class="button" href="https://github.com/LittlePyx/Pi_zaya" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="button" href="/projects/pi-zaya/">项目介绍 →</a></div><details class="project-depth"><summary>技术实现与验证边界</summary><ul><li>解析层保留页面与结构线索，检索、回答和阅读器定位围绕同一来源组织，减少结论与原文脱节。</li><li>采用 BM25 检索与 Agent 工具调用；本地开发中的 BM25＋Dense / RRF 能力限定在单篇及文献篮范围，不等同于全库默认混合检索或所有发布版本都已具备。</li><li>跨论文比较需核对任务、数据集、设置与指标；资料不足时保留缺口，不能以模型补全代替原文证据。</li></ul></details></div></div></article><article class="project" id="eda"><div class="project-heading"><div><span class="eyebrow">02 / 企业命题</span><h2>面向 EDA 扫描链插入的 LLM Agent</h2></div><span class="status">广立微命题 · 比赛进行中</span></div><h3>把需求解析、工具执行与结果验证串成闭环</h3><p class="project-scenario">扫描链插入不是生成一份脚本就结束。Agent 需要理解设计约束、执行工具，依据报错修复，并检查最终网表与交付产物是否满足要求。</p><div class="project-grid"><div class="project-visual"><figure class="flow" id="eda-flow"><figcaption>Agent 工作流程</figcaption><ol><li>设计要求 / 网表 / 单元库</li><li>解析需求与设计约束</li><li>模型生成命令或局部补丁</li><li>Scan 工具执行</li><li>报告、结构与等价检查</li><li>合格交付 / 定位问题再修复</li></ol><p>证据引用校验 · 哈希绑定 · 版本化修复</p><p>依据自研实现重新绘制的流程示意，非工具手册内容。</p></figure><div class="tags"><span>Python</span><span>LLM</span><span>Docker</span><span>Yosys / EQY</span></div></div><div class="project-copy"><dl><div class="answer"><dt>做什么</dt><dd>扫描链插入与脚本修复 Agent，读取设计要求、网表和单元库，生成脚本并根据 EDA 工具反馈修复。</dd></div><div class="answer"><dt>我做了什么</dt><dd>负责需求拆解、Agent 与工具集成、证据引用与修复状态管理、执行预算控制、调试及验收。</dd></div><div class="answer"><dt>最难的地方</dt><dd>模型给出的修复可能引用错误依据、基于过期状态，或只消除表面报错。通过引用校验、哈希绑定和版本化状态，限制修改范围并保护已验证结果。</dd></div><div class="answer"><dt>可查看的成果</dt><dd>完成公开案例的端到端运行与交付验证。该结果不代表隐藏题满分、获奖、工业级通用能力或签核结论。</dd></div></dl><div class="links"><a class="button" href="#eda-flow">查看工作流程 →</a></div><details class="project-depth"><summary>技术实现与验证边界</summary><ul><li>模型提出命令与局部补丁，确定性程序检查引用、约束及修复基线；工具反馈再进入诊断与修复流程。</li><li>结构网表解析保留兼容回退，在统一时间与资源预算内受控重叠任务。单次性能对照不代表稳定加速。</li><li>公开案例端到端运行与交付验收有记录；等价验证受所用模型与配置范围限制，不外推为任意设计、时序或工业签核结论。</li></ul></details></div></div><div class="eda-highlights"><section><h4>证据约束诊断</h4><p>诊断关联可核查的证据引用，区分观察与推断，避免无依据的修复结论。</p></section><section><h4>修复状态可追溯</h4><p>用哈希绑定输入与候选，版本化保存修改；失败提案不覆盖已验证状态。</p></section><section><h4>有边界的执行效率</h4><p>结构网表解析配合兼容回退，在统一预算下受控重叠任务；不将单次对照当作稳定加速承诺。</p></section></div></article><article class="project" id="research"><div class="project-heading"><div><span class="eyebrow">03 / 持续研究</span><h2>Pi Research</h2></div><span class="status">在线演示</span></div><h3>从一次论文搜索，走向持续的研究跟踪</h3><p class="project-scenario">围绕一个研究问题持续收集论文，阅读推荐理由并记录接受或排除反馈，再把积累的文献组织成研究地图和后续学习路径。</p><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-research.png" target="_blank" rel="noopener" aria-label="查看 Pi Research 大图"><img src="/img/projects/pi-research.png" alt="Pi Research 项目视觉" loading="lazy" decoding="async" loading='lazy'></a><figcaption>Pi Research 项目视觉</figcaption></figure><div class="tags"><span>TypeScript</span><span>React</span><span>Workers / D1</span></div></div><div class="project-copy"><dl><div class="answer"><dt>做什么</dt><dd>面向研究方向的论文发现工具，连接多源检索、个性化筛选、阅读反馈与研究跟踪。</dd></div><div class="answer"><dt>我做了什么</dt><dd>负责多源检索与候选去重、模型筛选、异步任务与进度恢复、研究空间持久化和前端交互；作为唯一开发者，结合 AI 辅助完成实现与验证。</dd></div><div class="answer"><dt>最难的地方</dt><dd>长任务会受到来源限流、网络中断和模型调用失败影响。需要保留已完成进度与候选来源，并将明确偏好和系统推断分开，避免重复工作和研究方向漂移。</dd></div><div class="answer"><dt>可查看的成果</dt><dd>提供可匿名打开的在线演示和公开仓库。研究空间保存文献与反馈；模型驱动的功能需配置相应服务。</dd></div></dl><div class="links"><a class="button" href="https://pi-research-agent.qiudao-pika.chatgpt.site/" target="_blank" rel="noopener noreferrer">在线演示 ↗</a><a class="button" href="https://github.com/LittlePyx/pi-research" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div><details class="project-depth"><summary>技术实现与验证边界</summary><ul><li>用持久化任务进度记录已探索的来源和候选，让重试能够接续已完成工作。</li><li>研究空间把论文、筛选反馈和方向信息放在同一上下文中，推荐需要给出阅读理由。</li><li>数据源覆盖与推荐结果会受接口可用性、研究问题和模型配置影响；研究地图不表示穷尽整个领域。</li></ul></details></div></div></article><article class="project" id="translator"><div class="project-heading"><div><span class="eyebrow">04 / 科研工具</span><h2>Pi Translator</h2></div><span class="status">Edge 商店已上架</span></div><h3>在阅读现场翻译，保留学术内容的结构</h3><p class="project-scenario">阅读网页、Overleaf 或双栏 PDF 时，选取需要理解的段落，就地查看译文；遇到公式或扫描区域时，按内容类型选择结构保护或视觉识别。</p><div class="project-grid"><div class="project-visual"><figure><a class="image-link" href="/img/projects/pi-translator.png" target="_blank" rel="noopener" aria-label="查看 Pi Translator 大图"><img src="/img/projects/pi-translator.png" alt="PDF 框选翻译操作界面 · 文档内容已遮蔽" loading="lazy" decoding="async" loading='lazy'></a><figcaption>PDF 框选翻译操作界面 · 文档内容已遮蔽</figcaption></figure><div class="tags"><span>TypeScript</span><span>Manifest V3</span><span>PDF.js</span></div></div><div class="project-copy"><dl><div class="answer"><dt>做什么</dt><dd>面向科研阅读与写作的 Edge 扩展，支持划词、全文、区域翻译及原文译文对照。</dd></div><div class="answer"><dt>我做了什么</dt><dd>负责扩展交互、PDF 阅读集成、LaTeX 结构保护、长文本分段与流式输出、中断续译及商店发布；作为唯一开发者，使用 AI 辅助实现并负责调试。</dd></div><div class="answer"><dt>最难的地方</dt><dd>双栏阅读顺序、跨行选区、公式与自然语言混排都会影响翻译。需要识别实际选区、保护公式结构，并在长任务中保留进度，让用户能核对与继续编辑。</dd></div><div class="answer"><dt>可查看的成果</dt><dd>已上架 Edge 商店，提供公开代码和安装说明。用户可自行配置兼容 API，文字翻译与图像识别按需求选择模型。</dd></div></dl><div class="links"><a class="button" href="https://microsoftedge.microsoft.com/addons/detail/pi-translator/edfkcddhenkhdkedhnmcebmmfacabcjf?hl=zh-CN" target="_blank" rel="noopener noreferrer">Edge 商店 ↗</a><a class="button" href="https://github.com/LittlePyx/Pi-translator" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div><details class="project-depth"><summary>技术实现与验证边界</summary><ul><li>区分可翻译的自然语言与需要保留的 LaTeX 结构；翻译结果仍需结合原文检查术语和含义。</li><li>PDF 文字选区优先使用文字处理，扫描或复杂图像区域由用户确认范围后使用视觉模型。</li><li>按分段组织长文本与流式输出，减少阅读等待；具体能力随网页结构、PDF 文字层和模型服务而变化。</li></ul></details></div></div></article><section class="research section" id="research-work"><div class="eyebrow">RESEARCH EXPERIENCE</div><h2>计算成像：从测量，到重建。</h2><p class="section-intro">关注计算成像系统、测量设计与图像重建，让算法回到真实实验条件下接受检验。</p><div class="research-grid"><article><span class="status">2025.09—2026.08 · 已验收项目</span><h3>量子增强机器视觉系统</h3><p>天府绛溪实验室项目，担任实验系统与算法负责人。负责实验平台搭建、完整实验流程、成像算法、实时成像实现及项目第三方测试。</p></article><article><span class="status">单像素成像 · 在研方向</span><h3>测量预算与重建质量</h3><p>研究前缀预感知、ROI 自适应测量及残差重建，完成仿真和自建系统实测数据的离线重建验证。离线重建结果与闭环硬件采集分别表述。</p></article></div></section><section class="section" id="publications"><div class="eyebrow">PUBLICATIONS & PATENTS</div><h2>论文与专利</h2><div class="publication"><span class="status published">已发表 · 第一作者</span><div><h3>High-dimensional signal encoding and decoding method based on multi-ring perfect vortex beam</h3><p>Optics Express 32(17), 30800–30812 · 2024</p><p>负责创新方案、数值仿真、数据集构建、深度学习、通信设计与论文撰写。</p></div><a class="text-link" href="https://doi.org/10.1364/OE.530961" target="_blank" rel="noopener noreferrer">论文页面 ↗</a></div><div class="publication"><span class="status">在投 · 第一作者</span><div><h3>Adaptive Sensing and Residual Refinement for Measurement-Limited Single-Pixel Imaging</h3><p>IEEE Transactions on Image Processing · 在投，未公开稿件</p></div></div><div class="publication"><span class="status">在投 · 第一作者</span><div><h3>ROI-Aware Finite-Count L-Optimal Measurement Design</h3><p>IEEE Transactions on Signal Processing · 在投，未公开稿件</p></div></div><div class="patents"><h3>发明专利</h3><p>申请 5 项：第一发明人 2 项、第二发明人 3 项。4 项已公开，1 项已收到授权通知；公开与授权通知状态存在重叠，不合并计数。</p><small>论文与专利状态截至 2026 年 9 月，依据本人材料整理。</small></div></section><section class="section contact" id="contact"><div class="eyebrow">LET’S CONNECT</div><h2>简历与联系</h2><p>欢迎交流 AI 应用、Agent / RAG 与计算成像相关机会。</p><div class="links"><a class="button primary" href="/downloads/yanxi-pan-resume.pdf" download>下载 PDF 简历 ↓</a><a class="button" href="mailto:202521210124@std.uestc.edu.cn">邮件联系 ↗</a><a class="button" href="https://github.com/LittlePyx" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div><a class="email" href="mailto:202521210124@std.uestc.edu.cn">202521210124@std.uestc.edu.cn</a></section></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="/js/mermaid-polish.js" defer></script><script src="/js/article-experience.js" defer></script><script src="/js/happy-llm.js" defer></script><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
