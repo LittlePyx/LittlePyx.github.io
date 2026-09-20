@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Pi Research · 持续发现论文与研究地图 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Pi Research 是持续发现论文、个性化筛选、研究地图与学习路径的 AI 研究助手。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pi Research · 持续发现论文与研究地图">
+<meta property="og:url" content="https://littlepyx.github.io/projects/pi-research/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="Pi Research 是持续发现论文、个性化筛选、研究地图与学习路径的 AI 研究助手。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/kamuyi.jpg">
+<meta property="article:published_time" content="2026-09-18T03:22:30.247Z">
+<meta property="article:modified_time" content="2026-09-18T03:22:30.247Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="博客、技术、记录">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/kamuyi.jpg"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/projects/pi-research/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Pi Research · 持续发现论文与研究地图',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'project'
+}</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/css/projects.css"><link rel="stylesheet" href="/vendor/katex/katex.min.css"><link rel="stylesheet" href="/css/happy-llm.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group" tabindex="0"><i class="fa-fw fas fa-cubes"></i><span> 我的项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/projects/pi-research/"><i class="fa-fw fas fa-compass"></i><span> Pi Research</span></a></li><li><a class="site-page child" href="/projects/pi-zaya/"><i class="fa-fw fas fa-book-open"></i><span> Pi_zaya</span></a></li><li><a class="site-page child" href="/projects/pi-translator/"><i class="fa-fw fas fa-language"></i><span> Pi Translator</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><span class="site-page group" tabindex="0"><i class="fa-fw fas fa-cubes"></i><span> 我的项目</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/projects/pi-research/"><i class="fa-fw fas fa-compass"></i><span> Pi Research</span></a></li><li><a class="site-page child" href="/projects/pi-zaya/"><i class="fa-fw fas fa-book-open"></i><span> Pi_zaya</span></a></li><li><a class="site-page child" href="/projects/pi-translator/"><i class="fa-fw fas fa-language"></i><span> Pi Translator</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><h1 class="title-seo">Pi Research · 持续发现论文与研究地图</h1></header><main class="layout hide-aside" id="content-inner"><article class="project-detail project-pi-research" id="page"><a class="project-back" href="/#projects">← 返回我的项目</a><header class="project-hero"><span class="project-eyebrow">PROJECT 01 / 发现论文</span><h1>Pi Research</h1><p class="project-tagline">让研究方向，在持续阅读中生长。</p><p class="project-lead">持续发现相关论文，结合阅读反馈，整理研究地图与个性化学习路径。</p><ul class="project-tags" aria-label="项目标签"><li>论文发现</li><li>研究地图</li><li>AI Agent</li></ul><div class="project-actions"><a class="project-primary" href="https://github.com/LittlePyx/pi-research" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i> GitHub 仓库 ↗</a><a class="project-secondary" href="https://github.com/LittlePyx/pi-research#readme" target="_blank" rel="noopener noreferrer">阅读使用说明 ↗</a></div></header><figure class="project-figure"><img src="/img/projects/pi-research.png" alt="Pi Research 项目视觉，来自项目仓库。" loading="lazy" decoding="async" loading='lazy'><figcaption>Pi Research 项目视觉，来自项目仓库。</figcaption></figure><section class="project-workflow" aria-label="使用流程概览"><span class="project-eyebrow">使用流程</span><ol><li>设定研究方向</li><li>筛选相关论文</li><li>积累阅读反馈</li><li>生长研究地图</li></ol></section><div class="container" id="article-container"><h2 id="为什么做这个项目">为什么做这个项目</h2>
+<p>研究一个方向时，困难往往不是找到一篇论文，而是持续判断：哪些新工作值得读，它们和已有知识有什么关系，下一步该补上哪一块基础。Pi Research 把论文发现和后续阅读放在同一个持续积累的研究空间里。</p>
+<h2 id="核心功能">核心功能</h2>
+<ul>
+<li><strong>持续发现论文</strong>：结合多个学术数据源，覆盖近期进展与较长时间跨度的相关工作，记录已经探索过的来源和查询。</li>
+<li><strong>结合反馈筛选</strong>：根据研究方向与用户的接受、暂缓或排除反馈，给出论文简介和阅读理由。</li>
+<li><strong>整理研究地图</strong>：将积累的论文组织成方向与关联，让阅读不止停留在一张收藏清单。</li>
+<li><strong>生成学习路径</strong>：根据真实论文和已有研究上下文，帮助安排后续阅读。</li>
+</ul>
+<h2 id="怎么开始">怎么开始</h2>
+<ol>
+<li>打开仓库中的使用说明，按当前要求配置并启动项目。</li>
+<li>建立研究空间，明确希望探索的问题或方向。</li>
+<li>配置模型服务，阅读推荐论文，并补充接受或排除的理由。</li>
+<li>随着文献积累，查看方向地图和学习路径，调整下一步阅读。</li>
+</ol>
+<p>目前介绍页提供仓库入口；部署和模型配置以仓库说明为准。</p>
+<h2 id="技术实现与取舍">技术实现与取舍</h2>
+<p>项目将学术数据检索、模型筛选和研究状态存储连接起来。检索负责找到候选，模型负责结合研究上下文判断相关性，持久化的研究空间记录文献、反馈与探索进度。</p>
+<p>这里尤其关注两个问题：<strong>避免每轮从零搜索</strong>，以及<strong>区分用户明确表达的偏好和系统推断</strong>。前者让持续探索可以累积，后者让研究方向仍由用户掌握。推荐适合帮助安排阅读，具体结论仍需回到论文核对。</p>
+<h2 id="项目链接">项目链接</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/LittlePyx/pi-research">GitHub 仓库与最新使用说明</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/LittlePyx/pi-research/issues">反馈问题或建议</a></li>
+</ul>
+<p>本文根据项目公开说明整理，功能会随开发继续更新。</p>
+</div><nav class="project-next" aria-label="其他项目"><span class="project-eyebrow">继续了解</span><div class="project-next-links"><a href="/projects/pi-zaya/">Pi_zaya →</a><a href="/projects/pi-translator/">Pi Translator →</a></div></nav></article></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="/js/mermaid-polish.js" defer></script><script src="/js/article-experience.js" defer></script><script src="/js/happy-llm.js" defer></script><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
