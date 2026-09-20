@@ -81,5 +81,5 @@
 /* The supplied Translator overview is a long poster; open the image for full detail. */
 #portfolio #translator .image-link{display:block;max-height:560px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;scrollbar-gutter:stable;border-radius:9px;border:1px solid var(--pf-line)}
 #portfolio #translator .image-link img{border:0;border-radius:0}
-#portfolio .research-platform{margin:24px 0 30px}
+#portfolio .research-platform{width:100%;max-width:520px;margin:20px auto 24px}
 #portfolio .research-platform figcaption a{color:var(--pf-accent);text-decoration:underline;opacity:1}
