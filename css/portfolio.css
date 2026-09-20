@@ -84,3 +84,7 @@
 #portfolio .research-platform{width:100%;max-width:520px;margin:20px auto 24px}
 #portfolio .research-platform figcaption a{color:var(--pf-accent);text-decoration:underline;opacity:1}
 #portfolio .featured .answer:last-child{grid-column:1 / -1}
+#portfolio #eda .project-grid{grid-template-columns:1fr}
+#portfolio #eda .project-copy dl{display:grid;grid-template-columns:1fr 1fr;gap:0 30px}
+#portfolio #eda .answer:last-child{grid-column:1 / -1}
+@media(max-width:760px){ #portfolio #eda .project-copy dl{grid-template-columns:1fr}}
