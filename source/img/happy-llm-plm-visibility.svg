@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="370" viewBox="0 0 1020 370" role="img" aria-labelledby="title desc">
+<title id="title">注意力可见范围对照</title><desc id="desc">双向自注意力允许读取全部位置；因果自注意力仅允许读取自身及之前的位置；交叉注意力允许目标查询读取全部有效源位置。</desc>
+<rect width="1020" height="370" rx="12" fill="#fafcfb"/>
+<style>text{font-family:Arial,"Microsoft YaHei",sans-serif;fill:#203c3b}.label{font-size:13px;fill:#5a706d}.title{font-size:18px;font-weight:600}.one{fill:white;font-size:14px}.zero{fill:#607874;font-size:14px}</style>
+<text x="30" y="35" class="title">双向自注意力</text>
+<text x="82" y="65" class="label">Key · 输入位置</text>
+<text x="104" y="91" text-anchor="middle" class="label">1</text>
+<text x="153" y="91" text-anchor="middle" class="label">2</text>
+<text x="202" y="91" text-anchor="middle" class="label">3</text>
+<text x="251" y="91" text-anchor="middle" class="label">4</text>
+<text x="58" y="131" text-anchor="middle" class="label">1</text>
+<rect x="82" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="104" y="130" text-anchor="middle" class="one">1</text>
+<rect x="131" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="153" y="130" text-anchor="middle" class="one">1</text>
+<rect x="180" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="202" y="130" text-anchor="middle" class="one">1</text>
+<rect x="229" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="251" y="130" text-anchor="middle" class="one">1</text>
+<text x="58" y="179" text-anchor="middle" class="label">2</text>
+<rect x="82" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="104" y="178" text-anchor="middle" class="one">1</text>
+<rect x="131" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="153" y="178" text-anchor="middle" class="one">1</text>
+<rect x="180" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="202" y="178" text-anchor="middle" class="one">1</text>
+<rect x="229" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="251" y="178" text-anchor="middle" class="one">1</text>
+<text x="58" y="227" text-anchor="middle" class="label">3</text>
+<rect x="82" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="104" y="226" text-anchor="middle" class="one">1</text>
+<rect x="131" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="153" y="226" text-anchor="middle" class="one">1</text>
+<rect x="180" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="202" y="226" text-anchor="middle" class="one">1</text>
+<rect x="229" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="251" y="226" text-anchor="middle" class="one">1</text>
+<text x="58" y="275" text-anchor="middle" class="label">4</text>
+<rect x="82" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="104" y="274" text-anchor="middle" class="one">1</text>
+<rect x="131" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="153" y="274" text-anchor="middle" class="one">1</text>
+<rect x="180" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="202" y="274" text-anchor="middle" class="one">1</text>
+<rect x="229" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="251" y="274" text-anchor="middle" class="one">1</text>
+<text x="30" y="319" class="label">Query · 输入位置</text>
+<text x="30" y="346" class="label">每个位置读取全部有效输入</text>
+<text x="365" y="35" class="title">因果自注意力</text>
+<text x="417" y="65" class="label">Key · 输入位置</text>
+<text x="439" y="91" text-anchor="middle" class="label">1</text>
+<text x="488" y="91" text-anchor="middle" class="label">2</text>
+<text x="537" y="91" text-anchor="middle" class="label">3</text>
+<text x="586" y="91" text-anchor="middle" class="label">4</text>
+<text x="393" y="131" text-anchor="middle" class="label">1</text>
+<rect x="417" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="439" y="130" text-anchor="middle" class="one">1</text>
+<rect x="466" y="103" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="488" y="130" text-anchor="middle" class="zero">0</text>
+<rect x="515" y="103" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="537" y="130" text-anchor="middle" class="zero">0</text>
+<rect x="564" y="103" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="586" y="130" text-anchor="middle" class="zero">0</text>
+<text x="393" y="179" text-anchor="middle" class="label">2</text>
+<rect x="417" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="439" y="178" text-anchor="middle" class="one">1</text>
+<rect x="466" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="488" y="178" text-anchor="middle" class="one">1</text>
+<rect x="515" y="151" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="537" y="178" text-anchor="middle" class="zero">0</text>
+<rect x="564" y="151" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="586" y="178" text-anchor="middle" class="zero">0</text>
+<text x="393" y="227" text-anchor="middle" class="label">3</text>
+<rect x="417" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="439" y="226" text-anchor="middle" class="one">1</text>
+<rect x="466" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="488" y="226" text-anchor="middle" class="one">1</text>
+<rect x="515" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="537" y="226" text-anchor="middle" class="one">1</text>
+<rect x="564" y="199" width="44" height="42" rx="4" fill="#e7eeeb"/>
+<text x="586" y="226" text-anchor="middle" class="zero">0</text>
+<text x="393" y="275" text-anchor="middle" class="label">4</text>
+<rect x="417" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="439" y="274" text-anchor="middle" class="one">1</text>
+<rect x="466" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="488" y="274" text-anchor="middle" class="one">1</text>
+<rect x="515" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="537" y="274" text-anchor="middle" class="one">1</text>
+<rect x="564" y="247" width="44" height="42" rx="4" fill="#267467"/>
+<text x="586" y="274" text-anchor="middle" class="one">1</text>
+<text x="365" y="319" class="label">Query · 输入位置</text>
+<text x="365" y="346" class="label">读取当前及之前的位置</text>
+<text x="700" y="35" class="title">交叉注意力</text>
+<text x="752" y="65" class="label">Key · 源位置</text>
+<text x="774" y="91" text-anchor="middle" class="label">1</text>
+<text x="823" y="91" text-anchor="middle" class="label">2</text>
+<text x="872" y="91" text-anchor="middle" class="label">3</text>
+<text x="921" y="91" text-anchor="middle" class="label">4</text>
+<text x="728" y="131" text-anchor="middle" class="label">1</text>
+<rect x="752" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="774" y="130" text-anchor="middle" class="one">1</text>
+<rect x="801" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="823" y="130" text-anchor="middle" class="one">1</text>
+<rect x="850" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="872" y="130" text-anchor="middle" class="one">1</text>
+<rect x="899" y="103" width="44" height="42" rx="4" fill="#267467"/>
+<text x="921" y="130" text-anchor="middle" class="one">1</text>
+<text x="728" y="179" text-anchor="middle" class="label">2</text>
+<rect x="752" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="774" y="178" text-anchor="middle" class="one">1</text>
+<rect x="801" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="823" y="178" text-anchor="middle" class="one">1</text>
+<rect x="850" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="872" y="178" text-anchor="middle" class="one">1</text>
+<rect x="899" y="151" width="44" height="42" rx="4" fill="#267467"/>
+<text x="921" y="178" text-anchor="middle" class="one">1</text>
+<text x="728" y="227" text-anchor="middle" class="label">3</text>
+<rect x="752" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="774" y="226" text-anchor="middle" class="one">1</text>
+<rect x="801" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="823" y="226" text-anchor="middle" class="one">1</text>
+<rect x="850" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="872" y="226" text-anchor="middle" class="one">1</text>
+<rect x="899" y="199" width="44" height="42" rx="4" fill="#267467"/>
+<text x="921" y="226" text-anchor="middle" class="one">1</text>
+<text x="700" y="319" class="label">Query · 目标位置</text>
+<text x="700" y="346" class="label">目标 Query 读取源 Key / Value</text>
+</svg>
