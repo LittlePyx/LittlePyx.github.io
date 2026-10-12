@@ -1,0 +1,16 @@
+/* Scoped to the chapter-four model-state calculator. */
+#article-container .llm-training-budget{margin:24px 0;padding:22px;border:1px solid var(--llm-line);border-radius:12px;background:var(--llm-paper);color:var(--llm-ink)}
+#article-container .training-budget-controls{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:18px}
+#article-container .training-budget-controls label{display:grid;gap:6px;font-size:14px;flex:1;min-width:130px}
+#article-container .training-budget-controls select{padding:10px 12px;min-height:44px;width:100%;border:1px solid var(--llm-line);border-radius:7px;background:var(--llm-paper);color:var(--llm-ink);font:inherit}
+#article-container .training-budget-controls select:focus-visible{outline:2px solid var(--llm-green);outline-offset:3px}
+#article-container .training-budget-scroll{overflow-x:auto}
+#article-container .training-budget-scroll table{width:100%;margin:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+#article-container .training-budget-scroll caption{text-align:left;padding-bottom:12px;color:var(--llm-muted);font-size:13px}
+#article-container .training-budget-scroll td{text-align:right}
+#article-container .training-budget-scroll th{text-align:left}
+#article-container .training-budget-scroll td:last-child{font-weight:600;color:var(--llm-green)}
+#article-container .training-budget-result{margin:18px 0 10px;line-height:1.9}
+#article-container .training-budget-caption{font-size:12px;line-height:1.8;color:var(--llm-muted);margin-bottom:0}
+@media(max-width:480px){
+#article-container .llm-training-budget{padding:14px}#article-container .training-budget-controls{gap:12px}}
