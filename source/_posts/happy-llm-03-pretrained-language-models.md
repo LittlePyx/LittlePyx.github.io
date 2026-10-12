@@ -415,4 +415,4 @@ print(round(masked_cross_entropy(logits, labels), 6))  # 0.693147
 
 <details><summary>为什么不能直接用模型名字决定检索和生成方案？</summary><p>同一家族可以有基础版、对话版、检索微调版和不同结构配置。应检查具体 checkpoint 的训练用途、输入协议、输出形式与实测指标，再决定它在系统里承担什么任务。</p></details>
 
-上一篇：[Transformer：注意力、网络结构与自回归推理](/2026/09/12/happy-llm-02-transformer-engineering/)。下一章将进一步讨论大语言模型的训练规模、能力与训练阶段。
+上一篇：[Transformer：注意力、网络结构与自回归推理](/2026/09/12/happy-llm-02-transformer-engineering/)。下一篇：[大语言模型：规模、训练阶段与工程取舍](/2026/10/12/happy-llm-04-training-and-alignment/)。
