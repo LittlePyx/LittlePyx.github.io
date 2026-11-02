@@ -1,0 +1,577 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>大模型应用：评测、RAG 与 Agent 的工程闭环 | 小P的猫舍</title><meta name="author" content="LittlePyx"><meta name="copyright" content="LittlePyx"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Happy-LLM 第七章笔记：从任务评测到检索、重排、证据生成和工具执行，建立可验证、可调试的大模型应用系统。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型应用：评测、RAG 与 Agent 的工程闭环">
+<meta property="og:url" content="https://littlepyx.github.io/2026/11/02/happy-llm-07-evaluation-rag-agent/index.html">
+<meta property="og:site_name" content="小P的猫舍">
+<meta property="og:description" content="Happy-LLM 第七章笔记：从任务评测到检索、重排、证据生成和工具执行，建立可验证、可调试的大模型应用系统。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://littlepyx.github.io/img/happy-llm-applications-natgeo-cover.jpg">
+<meta property="article:published_time" content="2026-11-02T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-02T02:00:00.000Z">
+<meta property="article:author" content="LittlePyx">
+<meta property="article:tag" content="Happy-LLM">
+<meta property="article:tag" content="Transformer">
+<meta property="article:tag" content="Inference">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://littlepyx.github.io/img/happy-llm-applications-natgeo-cover.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "大模型应用：评测、RAG 与 Agent 的工程闭环",
+  "url": "https://littlepyx.github.io/2026/11/02/happy-llm-07-evaluation-rag-agent/",
+  "image": "https://littlepyx.github.io/img/happy-llm-applications-natgeo-cover.jpg",
+  "datePublished": "2026-11-02T02:00:00.000Z",
+  "dateModified": "2026-11-02T02:00:00.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "LittlePyx",
+      "url": "https://littlepyx.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://littlepyx.github.io/2026/11/02/happy-llm-07-evaluation-rag-agent/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+
+
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+
+
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":2,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大模型应用：评测、RAG 与 Agent 的工程闭环',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="/vendor/katex/katex.min.css"><link rel="stylesheet" href="/css/happy-llm.css"><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/happy-llm-applications-natgeo-cover.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">小P的猫舍</span></a><a class="nav-page-title" href="/"><span class="site-name">Transformer：注意力、网络结构与自回归推理</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/algorithm/"><i class="fa-fw fas fa-code"></i><span> 算法笔记</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">大模型应用：评测、RAG 与 Agent 的工程闭环</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-11-02T02:00:00.000Z" title="发表于 2026-11-02 10:00:00">2026-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-11-02T02:00:00.000Z" title="更新于 2026-11-02 10:00:00">2026-11-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/">Notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Notes/AI-Agent/">AI Agent</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="llm-note"><p class="llm-cover-credit">封面：雨后波浪谷的倒影 · 摄影 Nicholas Roemmelt / <a href="https://www.nationalgeographic.com/photo-of-the-day/photo/wave-hiker-reflection" target="_blank" rel="noopener noreferrer">National Geographic Traveler Photo Contest</a></p>
+<p>模型可以生成答案，但应用还要解决三个问题：答案怎样验收，需要的资料从哪里来，以及模型提出的操作怎样真正执行。评测、RAG 和 Agent 分别处理这些问题，它们最终要在同一个系统里配合。</p>
+<p>本篇对应 <a target="_blank" rel="noopener" href="https://github.com/datawhalechina/happy-llm/blob/1e0b3a1e6f8936b8ba4bbd0673e8e2227d196c96/docs/chapter7/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BA%94%E7%94%A8.md">Happy-LLM 第七章</a>。先确定任务和指标，再构建检索与执行链路，最后用失败样本定位问题。文中的小型案例均为教学构造。</p>
+<span id="more"></span>
+<h2 id="1-先定义任务成功，再比较模型">1. 先定义任务成功，再比较模型</h2>
+<h3 id="1-1-模型能力与系统能力">1.1 模型能力与系统能力</h3>
+<p>以“查询设备故障原因，并在需要时创建维修工单”为例，完整任务可能包括识别设备、检索手册、根据证据判断故障、补问缺失信息和调用工单接口。模型回答看起来合理，只覆盖其中一部分。</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>评测对象</th>
+<th>可观察结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型</td>
+<td>在给定输入下生成什么</td>
+<td>答案正确性、格式、指令遵循</td>
+</tr>
+<tr>
+<td>检索</td>
+<td>能否找到所需证据</td>
+<td>相关文档是否进入候选、排序是否靠前</td>
+</tr>
+<tr>
+<td>执行</td>
+<td>工具是否按预期运行</td>
+<td>参数合法性、返回状态、实际状态变化</td>
+</tr>
+<tr>
+<td>端到端</td>
+<td>用户目标是否完成</td>
+<td>成功率、成本、延迟、是否重复操作</td>
+</tr>
+</tbody>
+</table>
+<p>先建立一个能重复运行的基线：固定题集、模型版本、提示、工具和数据快照。改模型、改 chunk 或加重排器后，用相同样本比较。否则无法判断收益来自哪里。</p>
+<h3 id="1-2-公共基准能说明什么">1.2 公共基准能说明什么</h3>
+<table>
+<thead>
+<tr>
+<th>基准类型</th>
+<th>常见例子</th>
+<th>主要限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学科知识与选择题</td>
+<td>MMLU、GPQA</td>
+<td>不直接代表生产流程完成率</td>
+</tr>
+<tr>
+<td>数学与逻辑</td>
+<td>GSM8K、MATH</td>
+<td>答案解析、采样预算会影响分数</td>
+</tr>
+<tr>
+<td>代码</td>
+<td>HumanEval 等执行测试</td>
+<td>测试覆盖不足时仍可能漏掉错误</td>
+</tr>
+<tr>
+<td>工具调用</td>
+<td>BFCL 系列</td>
+<td>必须注明版本和子任务</td>
+</tr>
+<tr>
+<td>长上下文</td>
+<td>长文问答、needle 检索</td>
+<td>找到一个字符串不等于完成跨文档推理</td>
+</tr>
+</tbody>
+</table>
+<p>GPQA 是专家编写的生物、物理、化学等领域困难选择题，不是通用客服问答集。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2311.12022">GPQA 论文</a> BFCL 不同版本逐步扩展了工具和多轮任务范围，报告时应附版本、测试类别和执行方式，而不只写“工具准确率”。<a target="_blank" rel="noopener" href="https://gorilla.cs.berkeley.edu/leaderboard.html">BFCL 官方说明</a></p>
+<p>固定任务榜单便于在统一协议下比较，匿名对战类榜单反映特定用户与提示分布下的偏好。两者都需要检查数据污染、提示模板、采样参数和统计不确定性，不能将名次直接换算成业务成功率。</p>
+<h3 id="1-3-自建评测集与判分">1.3 自建评测集与判分</h3>
+<p>样本至少包含输入、期望结果或判分规则、必要证据、工具初始状态和允许的操作范围。覆盖正常问题、信息不足、无答案、工具报错和多轮追问；开发集用于改提示，保留集用于最终比较，避免反复“修到测试题上”。</p>
+<p>设 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span> 个任务中有 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi></mrow><annotation encoding="application/x-tex">c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">c</span></span></span></span> 个完成，经验成功率为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo>=</mo><mi>c</mi><mi mathvariant="normal">/</mi><mi>M</mi></mrow><annotation encoding="application/x-tex">\hat p=c/M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">p</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">c</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span></span>。独立伯努利样本下，标准误差粗估为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">SE</mi><mo>⁡</mo><mo stretchy="false">(</mo><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo stretchy="false">)</mo><mo>≈</mo><msqrt><mfrac><mrow><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mover accent="true"><mi>p</mi><mo>^</mo></mover><mo stretchy="false">)</mo></mrow><mi>M</mi></mfrac></msqrt><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\operatorname{SE}(\hat p)\approx\sqrt{\frac{\hat p(1-\hat p)}{M}}.
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mord mathrm">SE</span></span><span class="mopen">(</span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">p</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.44em;vertical-align:-0.7356em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.7044em;"><span class="svg-align" style="top:-4.4em;"><span class="pstrut" style="height:4.4em;"></span><span class="mord" style="padding-left:1em;"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">M</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">p</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">p</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.6644em;"><span class="pstrut" style="height:4.4em;"></span><span class="hide-tail" style="min-width:1.02em;height:2.48em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="2.48em" viewBox="0 0 400000 2592" preserveAspectRatio="xMinYMin slice"><path d="M424,2478
+c-1.3,-0.7,-38.5,-172,-111.5,-514c-73,-342,-109.8,-513.3,-110.5,-514
+c0,-2,-10.7,14.3,-32,49c-4.7,7.3,-9.8,15.7,-15.5,25c-5.7,9.3,-9.8,16,-12.5,20
+s-5,7,-5,7c-4,-3.3,-8.3,-7.7,-13,-13s-13,-13,-13,-13s76,-122,76,-122s77,-121,77,-121
+s209,968,209,968c0,-2,84.7,-361.7,254,-1079c169.3,-717.3,254.7,-1077.7,256,-1081
+l0 -0c4,-6.7,10,-10,18,-10 H400000
+v40H1014.6
+s-87.3,378.7,-272.6,1166c-185.3,787.3,-279.3,1182.3,-282,1185
+c-2,6,-10,9,-24,9
+c-8,0,-12,-0.7,-12,-2z M1001 80
+h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7356em;"><span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></p>
+<p>小样本、接近 0 或 1 的成功率应使用更合适的区间方法。比较两个系统时优先用同题配对，并按任务或用户聚类处理相关性；多跑同一道题不能简单当成很多个独立业务样本。</p>
+<p>能执行就用执行结果判分，能精确匹配就明确规范化规则。开放式回答可以用人工或 LLM judge，但需给出评分标准、随机化候选顺序，并抽样核对长度偏好和位置偏差。Judge 的分数不是客观真值。</p>
+<h2 id="2-RAG：让回答有可检查的外部依据">2. RAG：让回答有可检查的外部依据</h2>
+<h3 id="2-1-检索改变了什么">2.1 检索改变了什么</h3>
+<p>RAG 为生成模型提供检索到的外部内容。一个工程化表达是：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>Z</mi><mi>k</mi></msub><mo>=</mo><mi mathvariant="normal">Retrieve</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><mi mathvariant="script">D</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="2em"/><mover accent="true"><mi>y</mi><mo>^</mo></mover><mo>∼</mo><msub><mi>p</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo>∣</mo><mi>q</mi><mo separator="true">,</mo><mi mathvariant="normal">Pack</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>Z</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">Z_k=\operatorname{Retrieve}(q,\mathcal D),\qquad
+\hat y\sim p_\theta(y\mid q,\operatorname{Pack}(Z_k)).
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mord mathrm">Retrieve</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathcal" style="margin-right:0.02778em;">D</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mord mathrm">Pack</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span><span class="mord">.</span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span></span></span></span> 是问题，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">D</mi></mrow><annotation encoding="application/x-tex">\mathcal D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathcal" style="margin-right:0.02778em;">D</span></span></span></span> 是文档集合，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Z</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">Z_k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">Z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 是候选证据，Pack 负责选择、组织和截断内容。这里描述常见应用链路，不等同于原始 RAG 论文中对检索文档进行概率边缘化的完整训练目标。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2005.11401">RAG 论文</a></p>
+<p>模型权重可以保持不变，资料则单独更新。要让答案可追溯，输入证据必须携带稳定的文档 ID、版本和位置；输出引用还要验证是否真的支持对应结论。</p>
+<h3 id="2-2-离线索引与在线请求">2.2 离线索引与在线请求</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>工作</th>
+<th>应保存的产物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>离线</td>
+<td>解析、清洗、切块、向量化、建索引</td>
+<td>原文、chunk、元数据、向量与版本映射</td>
+</tr>
+<tr>
+<td>在线</td>
+<td>解析问题、权限过滤、召回、重排、组织证据、生成</td>
+<td>候选 ID、分数、实际上下文、引用和耗时</td>
+</tr>
+</tbody>
+</table>
+<p>解析错误会传递到后面每一层。PDF 的多栏顺序、表格的行列关系、OCR 错字，需要在向量化前检查；图像型页面也不会因为存进向量库就自动变成可靠文本。</p>
+<h2 id="3-文档切分与索引：保留可回答问题的单位">3. 文档切分与索引：保留可回答问题的单位</h2>
+<h3 id="3-1-Chunk-大小如何取舍">3.1 Chunk 大小如何取舍</h3>
+<p>小块容易精确匹配，却可能丢掉限定条件；大块保留语境，但可能把大量无关内容放进同一个向量和生成上下文。按标题、段落和表格边界切分通常比机械字符切分更容易保留结构，具体长度仍要由问题集验证。</p>
+<p>对于“最长可连续运行多久”这类问题，数值和“在某温度、负载下”的条件应一起保留。可以先召回较小片段，再扩展它所在的小节，即 child-to-parent 检索。Overlap 能缓解边界问题，也会增加存储、重复候选和上下文占用。</p>
+<p>一条 chunk 记录至少需要：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;chunk_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;manual-v3-sec4-02&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;document_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;device-A-manual&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;v3&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;section&quot;</span><span class="punctuation">:</span> <span class="string">&quot;4.2 连续运行条件&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;source_location&quot;</span><span class="punctuation">:</span> <span class="string">&quot;page:18&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;教学示意：运行上限及其适用条件……&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;access_scope&quot;</span><span class="punctuation">:</span> <span class="string">&quot;maintenance-team&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>权限应作用于可被检索和读取的内容。不能先把无权访问的文档发给模型，再希望提示词禁止泄漏。日志、缓存和索引快照也需要按同样的访问边界管理。</p>
+<h3 id="3-2-Embedding-与相似度">3.2 Embedding 与相似度</h3>
+<p>双编码器分别编码问题和文档块：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>u</mi><mi>q</mi></msub><mo>=</mo><msub><mi>f</mi><mi>q</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="1em"/><msub><mi>v</mi><mi>i</mi></msub><mo>=</mo><msub><mi>f</mi><mi>d</mi></msub><mo stretchy="false">(</mo><msub><mi>d</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="2em"/><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>u</mi><mi>q</mi><mi mathvariant="normal">⊤</mi></msubsup><msub><mi>v</mi><mi>i</mi></msub></mrow><mrow><mo stretchy="false">∥</mo><msub><mi>u</mi><mi>q</mi></msub><msub><mo stretchy="false">∥</mo><mn>2</mn></msub><mo stretchy="false">∥</mo><msub><mi>v</mi><mi>i</mi></msub><msub><mo stretchy="false">∥</mo><mn>2</mn></msub></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">u_q=f_q(q),\quad v_i=f_d(d_i),\qquad
+s_i=\frac{u_q^\top v_i}{\lVert u_q\rVert_2\lVert v_i\rVert_2}.
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">u</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.5943em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6222em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">∥</span><span class="mord"><span class="mord mathnormal">u</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">∥</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.7731em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">u</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord">.</span></span></span></span></span></p>
+<p>归一化到单位长度后，余弦相似度等于内积。模型可能要求不同的 query/document 前缀或不同编码入口，应遵守训练时的约定；不是任意语言模型的隐藏向量都适合检索。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2004.04906">DPR 论文</a></p>
+<p>向量维度相同不意味着兼容。更换 embedding 模型、池化、归一化或文本处理方式后，应重新编码并重建相应索引。保存 <code>embedding_model_revision</code> 和预处理配置，防止新查询向量混入旧文档向量空间。</p>
+<h3 id="3-3-向量库解决的是检索工程">3.3 向量库解决的是检索工程</h3>
+<p>数据规模较小时可精确计算全部相似度；规模扩大后使用近似最近邻索引，在速度、内存与召回之间取舍。ANN 的召回率，是相对于精确向量检索结果的近似程度；它与“业务上真正相关的文档有没有找到”不是同一个指标。</p>
+<p>更新文档时，应让旧 chunk 失效并同步替换向量与元数据。先构建新版本索引、验证后切换，比让线上混用多个不完整版本更容易回滚。删除源文档还应检查派生 chunk、缓存和副本是否同步失效。</p>
+<h2 id="4-召回与重排：先保证候选里有，再决定谁靠前">4. 召回与重排：先保证候选里有，再决定谁靠前</h2>
+<h3 id="4-1-稠密、稀疏与混合检索">4.1 稠密、稀疏与混合检索</h3>
+<p>语义检索适合近义表达；关键词检索常有助于匹配型号、错误码、专有名词。可以分别召回候选，再融合去重，而不是假定某一种检索方式始终占优。</p>
+<p>一种只利用排名的融合方法是 RRF：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">RRF</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>∑</mo><mrow><mi>j</mi><mo>:</mo><mi>d</mi><mo>∈</mo><msub><mi>L</mi><mi>j</mi></msub></mrow></munder><mfrac><mn>1</mn><mrow><mi>c</mi><mo>+</mo><msub><mrow><mi mathvariant="normal">rank</mi><mo>⁡</mo></mrow><mi>j</mi></msub><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\operatorname{RRF}(d)=\sum_{j:d\in L_j}\frac{1}{c+\operatorname{rank}_j(d)}.
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mord mathrm">RRF</span></span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.8209em;vertical-align:-1.4994em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span><span class="mrel mtight">:</span><span class="mord mathnormal mtight">d</span><span class="mrel mtight">∈</span><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4994em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop"><span class="mop"><span class="mord mathrm">rank</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord">.</span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">L_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 为第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi></mrow><annotation encoding="application/x-tex">j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> 个检索列表，排名从 1 开始，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c&gt;0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">c</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 调节头部排名优势。缺席某列表的文档不贡献该项。它避免直接相加不同尺度的检索分数，但仍需验证候选规模和参数。<a target="_blank" rel="noopener" href="https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf">RRF 原始论文</a></p>
+<h3 id="4-2-Reranker-为什么放在召回之后">4.2 Reranker 为什么放在召回之后</h3>
+<p>交叉编码器将问题和候选文档共同输入，输出相关性分数：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">k</mi></mrow></msub><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>g</mi><mi>ϕ</mi></msub><mo stretchy="false">(</mo><mo stretchy="false">[</mo><mi>q</mi><mo separator="true">;</mo><mi>d</mi><mo stretchy="false">]</mo><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">s_{\mathrm{rerank}}(q,d)=g_\phi([q;d]).
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">rerank</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">ϕ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">([</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">])</span><span class="mord">.</span></span></span></span></span></p>
+<p>它能利用二者的细粒度交互，但通常要对每个候选计算一次，适合重排已缩小的候选集。若正确证据没进入候选，重排无法凭空找回它。</p>
+<p>下面假设问题需要 A、B 两条证据，C、D 是干扰项：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>候选或送给模型的顺序</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>召回 3 条</td>
+<td>C、A、D</td>
+<td>B 没被召回，证据覆盖不完整</td>
+</tr>
+<tr>
+<td>重排这 3 条</td>
+<td>A、C、D</td>
+<td>首位变好，B 仍缺失</td>
+</tr>
+<tr>
+<td>扩大召回再重排</td>
+<td>A、B、C、D</td>
+<td>才有机会组成完整证据</td>
+</tr>
+<tr>
+<td>只保留重排第一条</td>
+<td>A</td>
+<td>仍不能回答需要 A＋B 的问题</td>
+</tr>
+</tbody>
+</table>
+<p>Top-k 同时影响覆盖、噪声、重排成本与生成长度。最佳值应在真实问题上测量，不能仅凭“越多越完整”确定。</p>
+<h3 id="4-3-用指标区分失败位置">4.3 用指标区分失败位置</h3>
+<p>设 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>G</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">G_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 是问题 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span></span></span></span> 的相关证据集合，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>k</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">R_k(q)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mclose">)</span></span></span></span> 是前 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> 个结果：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Recall@</mi><mo>⁡</mo><mi>k</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∣</mi><msub><mi>G</mi><mi>q</mi></msub><mo>∩</mo><msub><mi>R</mi><mi>k</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow><mrow><mi mathvariant="normal">∣</mi><msub><mi>G</mi><mi>q</mi></msub><mi mathvariant="normal">∣</mi></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><mi mathvariant="normal">Precision@</mi><mo>⁡</mo><mi>k</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∣</mi><msub><mi>G</mi><mi>q</mi></msub><mo>∩</mo><msub><mi>R</mi><mi>k</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow><mrow><mi mathvariant="normal">∣</mi><msub><mi>R</mi><mi>k</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\operatorname{Recall@}k=\frac{|G_q\cap R_k(q)|}{|G_q|},\qquad
+\operatorname{Precision@}k=\frac{|G_q\cap R_k(q)|}{|R_k(q)|}.
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mop"><span class="mord mathrm">Recall@</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3991em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∩</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mclose">)</span><span class="mord">∣</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mord mathrm">Precision@</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.363em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mclose">)</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∩</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mclose">)</span><span class="mord">∣</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord">.</span></span></span></span></span></p>
+<p>这里使用实际返回数量作为 Precision 分母；无返回结果单独记为 0。多个问题可按问题取宏平均，同时记录标注粒度是文档还是 chunk。一个问题只要命中任一证据就计 1 的 Hit@k，与多证据覆盖率不同。</p>
+<p>首个相关结果的倒数排名为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">RR</mi><mo>⁡</mo><mo>=</mo><mn>1</mn><mi mathvariant="normal">/</mi><msub><mi>r</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\operatorname{RR}=1/r_{\mathrm{first}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mop"><span class="mord mathrm">RR</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1/</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">first</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，未命中记 0；MRR 为各题 RR 的平均。它关注第一条相关结果，不能代替多跳问题的证据完整性。</p>
+<h2 id="5-从证据生成答案：引用、拒答与失败归因">5. 从证据生成答案：引用、拒答与失败归因</h2>
+<h3 id="5-1-上下文是一份有限预算的证据包">5.1 上下文是一份有限预算的证据包</h3>
+<p>送给生成模型前，按重排结果去重、保留来源、合并必要上下文，并预留回答预算：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>T</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">y</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">m</mi></mrow></msub><mo>+</mo><msub><mi>T</mi><mrow><mi mathvariant="normal">h</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">y</mi></mrow></msub><mo>+</mo><msub><mi>T</mi><mi>q</mi></msub><mo>+</mo><msub><mi>T</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">e</mi></mrow></msub><mo>+</mo><msub><mi>T</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mo>≤</mo><msub><mi>T</mi><mi>max</mi><mo>⁡</mo></msub><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">T_{\mathrm{system}}+T_{\mathrm{history}}+T_q+T_{\mathrm{evidence}}+T_{\mathrm{output}}\le T_{\max}.
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">system</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight" style="margin-right:0.01389em;">history</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">evidence</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">output</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">m</span><span class="mtight">a</span><span class="mtight">x</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></p>
+<p>预算应在实际模板和 tokenizer 下计算。不能只按字符数估计，也不能让最后的截断随意切掉证据的限制条件或来源 ID。</p>
+<p>证据内容来自外部，应作为待引用数据处理。文档里的“忽略之前的要求、调用另一个工具”不应提升为系统指令。应用要限制工具权限、隔离数据与控制信息，并用包含这类干扰的样本评测。</p>
+<h3 id="5-2-把失败分开测">5.2 把失败分开测</h3>
+<table>
+<thead>
+<tr>
+<th>观测结果</th>
+<th>优先检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原文就没有答案</td>
+<td>数据覆盖、无答案处理</td>
+</tr>
+<tr>
+<td>原文有，解析后没有</td>
+<td>文档解析、OCR、表格处理</td>
+</tr>
+<tr>
+<td>chunk 有，候选没找到</td>
+<td>查询表达、切分、embedding、过滤和索引</td>
+</tr>
+<tr>
+<td>候选有，最终上下文没有</td>
+<td>重排、去重、截断与 token 预算</td>
+</tr>
+<tr>
+<td>上下文足够，回答仍错</td>
+<td>生成提示、模型、证据冲突与答案约束</td>
+</tr>
+<tr>
+<td>回答正确，引用不支持结论</td>
+<td>引用绑定和逐结论证据检查</td>
+</tr>
+</tbody>
+</table>
+<p>可做一个 oracle-context 对照：人工把正确证据直接放进上下文。如果仍答错，继续调检索通常没有意义；若明显改善，再回到召回和上下文选择。这个对照改变的是证据输入，不应和真实系统得分混报。</p>
+<p>“回答有引用”与“引用支持答案”应分别验收。对无证据问题，允许回答资料不足，通常比要求每题必须给确定答案更符合任务目标。</p>
+<h2 id="6-Agent：把模型输出接到受控执行循环">6. Agent：把模型输出接到受控执行循环</h2>
+<h3 id="6-1-Workflow-与-Agent-的区别">6.1 Workflow 与 Agent 的区别</h3>
+<p>固定工作流由程序预先规定步骤和分支；Agent 在运行中根据状态选择下一步动作或结束。二者可以混合：例如权限校验固定执行，搜索次数和查询词由模型选择。</p>
+<p>用 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">h_t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 表示当前可见历史，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">a_t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 表示模型提出的动作，环境返回 observation <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>o</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">o_{t+1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6389em;vertical-align:-0.2083em;"></span><span class="mord"><span class="mord mathnormal">o</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span></span></span></span>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>a</mi><mi>t</mi></msub><mo>∼</mo><msub><mi>π</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><mo>⋅</mo><mo>∣</mo><msub><mi>h</mi><mi>t</mi></msub><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="2em"/><msub><mi>h</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mi mathvariant="normal">Update</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>h</mi><mi>t</mi></msub><mo separator="true">,</mo><msub><mi>a</mi><mi>t</mi></msub><mo separator="true">,</mo><msub><mi>o</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">a_t\sim\pi_\theta(\cdot\mid h_t),\qquad
+h_{t+1}=\operatorname{Update}(h_t,a_t,o_{t+1}).
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.02778em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">⋅</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop"><span class="mord mathrm">Update</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">o</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">.</span></span></span></span></span></p>
+<p>这里的动作可以是工具调用，也可以是最终回答。模型预测一个 JSON 不等于工具已经执行；由应用完成校验、实际调用和结果写回。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2210.03629">ReAct</a> 展示了将推理与环境动作交替组织的思路，工程上可以保留简洁的决策摘要、调用参数和结果，不必依赖冗长的自由文本推理日志。</p>
+<h3 id="6-2-一次工具调用需要哪些约束">6.2 一次工具调用需要哪些约束</h3>
+<p>工具定义至少包括名称、功能说明、参数 schema 和错误语义。对于写操作，还要约定授权条件和幂等性。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>应检查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接收调用</td>
+<td>名称在注册表内；参数类型、范围和必填项合法</td>
+</tr>
+<tr>
+<td>执行之前</td>
+<td>当前用户权限；操作是否需要确认；预算是否允许</td>
+</tr>
+<tr>
+<td>执行期间</td>
+<td>超时、并发限制、可取消性</td>
+</tr>
+<tr>
+<td>执行之后</td>
+<td>结构化结果、调用 ID、实际状态和可重试性</td>
+</tr>
+</tbody>
+</table>
+<p>同一调用 ID 应关联请求与 observation。检索等只读操作可按约定重试；创建工单等写操作不能在超时后盲目重发，需通过幂等键或状态查询判断第一次是否已成功。</p>
+<h3 id="6-3-一个有限循环比无限自动重试更可靠">6.3 一个有限循环比无限自动重试更可靠</h3>
+<p>以下是控制逻辑伪代码，接口名代表需要自行实现的组件，不是某个 SDK 的可运行 API：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">载入任务与允许工具，初始化步数、token、时间预算</span><br><span class="line">循环：</span><br><span class="line">    预算耗尽 → 返回明确的未完成状态</span><br><span class="line">    调用模型，读取最终回答或工具请求</span><br><span class="line">    若为最终回答 → 验证结果，结束</span><br><span class="line">    校验工具、参数、权限与写操作授权</span><br><span class="line">    执行工具，记录调用 ID、结果、错误类型与耗时</span><br><span class="line">    将 observation 写回历史，按错误类型决定重试或换策略</span><br></pre></td></tr></table></figure>
+<p>错误应尽量结构化，例如 <code>invalid_argument</code>、<code>permission_denied</code>、<code>timeout</code>、<code>not_found</code>。同一个错误连续出现时，可以补问、换检索词或停止；反复把相同请求交给同一个工具不会自动增加信息。</p>
+<h2 id="7-规划、记忆与可观测性">7. 规划、记忆与可观测性</h2>
+<h3 id="7-1-规划是可更新的状态">7.1 规划是可更新的状态</h3>
+<p>计划把目标分解成待完成事项，但执行结果可能改变下一步。应区分“模型建议的计划”和“已验证完成的步骤”，由实际 observation 更新完成状态。对于简单任务，固定工作流通常更容易调试；多 Agent 会增加协调、上下文复制和错误传播成本，应有明确收益再加入。</p>
+<h3 id="7-2-三种记忆不要混在一起">7.2 三种记忆不要混在一起</h3>
+<table>
+<thead>
+<tr>
+<th>记忆形式</th>
+<th>保存在哪里</th>
+<th>典型风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前上下文</td>
+<td>本次请求的消息与证据</td>
+<td>长度限制、无关历史干扰</td>
+</tr>
+<tr>
+<td>外部持久记忆</td>
+<td>数据库、文档或检索索引</td>
+<td>过期、权限、错误记忆被再次引用</td>
+</tr>
+<tr>
+<td>模型参数</td>
+<td>训练后的权重</td>
+<td>更新成本高、难以逐条追溯与删除</td>
+</tr>
+</tbody>
+</table>
+<p>摘要不是无损压缩。重要实体、用户约束和未完成事项应结构化保存；生成的猜测不能未经验证就写成长期事实。记忆记录需包含来源、时间、适用范围和失效条件。</p>
+<h3 id="7-3-保存足够的-trace-才能复盘">7.3 保存足够的 trace 才能复盘</h3>
+<p>每次任务记录模型与提示版本、输入摘要、检索候选、实际证据、调用 ID、工具结果、耗时、token 数和结束原因。敏感内容应脱敏或按权限保存，而不是为了排障复制到开放日志。</p>
+<p>端到端成功率之外，记录 p50／p95 延迟、平均及尾部成本、无效调用率、循环次数和错误恢复率。平均延迟掩盖的长尾，可能正是用户感知最差的部分。</p>
+<h2 id="8-从最小系统到可验证的改进">8. 从最小系统到可验证的改进</h2>
+<p>建立一个小而完整的任务集，先用精确检索或简单召回＋单次生成跑通；再逐项加入混合检索、重排、多轮工具调用。每次只改变一个关键因素，保留每题结果，避免同时改提示、模型和数据导致无法归因。</p>
+<table>
+<thead>
+<tr>
+<th>对照</th>
+<th>用来回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无检索 vs RAG</td>
+<td>外部资料是否带来真实收益</td>
+</tr>
+<tr>
+<td>实际检索 vs 人工正确证据</td>
+<td>瓶颈在检索还是生成</td>
+</tr>
+<tr>
+<td>无重排 vs 有重排</td>
+<td>收益是否值得额外成本</td>
+</tr>
+<tr>
+<td>固定流程 vs 自主选择动作</td>
+<td>灵活性是否提高成功率</td>
+</tr>
+<tr>
+<td>正常工具 vs 注入超时／空结果</td>
+<td>能否恢复或合理停止</td>
+</tr>
+</tbody>
+</table>
+<p>如果想复现教材 Tiny-RAG／Tiny-Agent，可从<a target="_blank" rel="noopener" href="https://github.com/datawhalechina/happy-llm/tree/1e0b3a1e6f8936b8ba4bbd0673e8e2227d196c96/docs/chapter7">本章对应代码快照</a>开始，先跑文档加载、检索和只读工具的最小样本，再接真实服务。代码能跑通与系统有效是两次验收；服务密钥、依赖版本和索引配置也应独立管理。</p>
+<p>下一章进一步讨论：保留同样的执行环境，怎样利用轨迹结果更新模型参数。推理时循环调用工具，本身不等于进行了强化学习。</p>
+<h2 id="9-常见追问">9. 常见追问</h2>
+<details><summary>RAG 与微调怎样选？</summary><p>资料更新、引用追溯和权限控制通常需要外部数据系统；稳定的格式、行为和协议适配可通过微调改善。两者可以组合，应根据失败原因和评测结果选择。</p></details>
+<details><summary>为什么换了 embedding 模型要重建索引？</summary><p>新旧向量未必属于同一语义坐标系，即使维度相同也不能直接比较。还要一起核对文本处理、前缀、池化与归一化配置。</p></details>
+<details><summary>提高 top-k 为什么可能让答案更差？</summary><p>更多候选可能带来重复、矛盾和无关内容，并挤占有效证据与输出预算。应同时观察证据覆盖、上下文质量、正确率和成本。</p></details>
+<details><summary>Reranker 能修复召回遗漏吗？</summary><p>它只能调整已进入候选集的内容。遗漏证据需要从查询、索引、过滤或召回策略处理。</p></details>
+<details><summary>Function calling 成功是否表示任务完成？</summary><p>格式合法只是第一步，还要验证参数语义、执行状态和目标是否实现。写操作超时尤其不能直接视为失败再无条件重试。</p></details>
+<details><summary>Agent 为什么会陷入循环？</summary><p>可能是没有明确停止条件、错误反馈不可用、历史丢失，或策略持续产生相同动作。需要预算、重复检测、结构化错误和可验证的完成条件。</p></details>
+<details><summary>LLM judge 与人工评估怎样配合？</summary><p>先用明确定义的规则筛查，开放式质量可用 judge 扩大覆盖；再通过盲评和抽样人工复核校准。不要将同一模型的自评直接作为唯一上线标准。</p></details>
+<details><summary>如何判断应该改提示还是训练模型？</summary><p>先排除证据、接口和执行环境错误。若高质量示例或提示已能解决问题，优先验证这一低成本方案；只有稳定、可学习且能构建有效训练与评测数据的行为差距，才值得进入训练阶段。</p></details>
+<p>相关基础：<a href="/2026/10/12/happy-llm-04-training-and-alignment/">第四章：规模、训练阶段与工程取舍</a>。下一篇：<a href="/2026/11/02/happy-llm-08-agentic-rl/">Agentic RL：GRPO、OPD 与工具轨迹训练</a>。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io">LittlePyx</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://littlepyx.github.io/2026/11/02/happy-llm-07-evaluation-rag-agent/">https://littlepyx.github.io/2026/11/02/happy-llm-07-evaluation-rag-agent/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://littlepyx.github.io" target="_blank">小P的猫舍</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Happy-LLM/">Happy-LLM</a><a class="post-meta__tags" href="/tags/Transformer/">Transformer</a><a class="post-meta__tags" href="/tags/Inference/">Inference</a></div><div class="post-share"><div class="social-share" data-image="/img/happy-llm-applications-natgeo-cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/10/12/happy-llm-04-training-and-alignment/" title="大语言模型：规模、训练阶段与工程取舍"><img class="cover" src="/img/happy-llm-training-natgeo-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">大语言模型：规模、训练阶段与工程取舍</div></div><div class="info-2"><div class="info-item-1">封面：安第斯山脉 Llullaillaco 火山上空的星轨 · 摄影 Maria Stenzel / National Geographic Image Collection 第三章解释了模型怎样预测 token。这一章进一步讨论：同样采用下一 token 预测，为什么训练规模、语料和后续训练不同，会得到使用体验差异很大的模型？从一个基础模型到能稳定回答指令、调用工具的模型，中间还需要哪些工作？ 本篇对应 Happy-LLM 第四章。先确定训练阶段分别优化什么，再讨论算力、数据与显存如何约束训练，最后回到能力评估和应用选择。  1. 从语言建模到指令模型 1.1 “大”体现在哪些方面 LLM 仍是语言模型：给定上下文，输出词表上的条件概率分布。以自回归模型为例： pθ(x1:T)=∏t=1Tpθ(xt∣x&lt;t).p_\theta(x_{1:T})=\prod_{t=1}^{T}p_\theta(x_t\mid x_{&lt;t}). pθ​(x1:T​)=t=1∏T​pθ​(xt​∣x&lt;t​). 扩大模型并没有改变这条概率分解。变化主要是参数量、训练 token 数、...</div></div></div></a><a class="pagination-related" href="/2026/11/02/happy-llm-08-agentic-rl/" title="Agentic RL：GRPO、OPD 与工具轨迹训练"><img class="cover" src="/img/happy-llm-agentic-rl-natgeo-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Agentic RL：GRPO、OPD 与工具轨迹训练</div></div><div class="info-2"><div class="info-item-1">封面：珠峰营地附近的山峰倒影 · 摄影 Jansen Wong / National Geographic My Shot 第七章把模型接到了检索和工具环境中，参数仍然可以保持不变。本章进一步讨论：保存模型实际走过的轨迹，用结果或教师反馈判断哪些动作值得鼓励，再通过梯度更新模型。环境执行循环和参数更新循环由此连接起来。 本篇对应 Happy-LLM 第八章的固定快照，覆盖 GRPO、OPD、Search-R1 与 ReTool。沿用第四章的策略、概率比和参考模型概念，补清多轮轨迹中的信号来源、token 归属和实现约定。计算器和检查脚本使用人工数据，没有运行远程训练或报告模型效果。  1. 先把一次交互写成训练样本 1.1 状态、动作、观察与奖励 对自回归模型，给定历史 hth_tht​，下一个 token 是动作 ata_tat​，策略为 πθ(at∣ht)\pi_\theta(a_t\mid h_t)πθ​(at​∣ht​)。若生成了一段工具请求，应用解析并执行它，再把环境观察 ooo 加入后续历史。    内容 来源 在训练中的角色     问题和系统约束 数据集或应用 初...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/21/happy-llm-03-pretrained-language-models/" title="预训练语言模型：训练目标、架构与任务适配"><img class="cover" src="/img/happy-llm-plm-natgeo-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-21</div><div class="info-item-2">预训练语言模型：训练目标、架构与任务适配</div></div><div class="info-2"><div class="info-item-1">封面：冰岛群山与潮水中的倒影 · 摄影 Ramiro Torrents / National Geographic Your Shot 第二章解释了 Transformer 怎样计算一个位置的表示。使用同样的注意力和前馈层，模型却可以做不同的事：根据左右文补词、根据前缀续写，或读取一段文本后生成另一段文本。差别来自位置之间能否互相读取、训练时要求预测什么，以及最后使用哪一种输出。 本篇对应 Happy-LLM 第三章。先把训练目标与网络架构分开，再看 BERT 怎样学习双向表示、T5 怎样生成目标序列、GPT 怎样续写，最后讨论这些设计如何影响训练数据、显存和任务适配。  1. 预训练在学习什么 1.1 从文本中构造监督信号 第一章已经介绍：模型把 token ID 映射成输入向量，再计算上下文表示，最终通过输出层得到预测分布。预训练要做的，是在大量样本上调整这些共享参数，使预测更准确。 例如，把“请 检查 电源”中的“电源”遮住，原来的“电源”就是标签；把“请 检查”作为前缀，“电源”就是下一个 token 的标签。两种任务都能直接从原文生成训练样本，这就是自监督学习。 对一个...</div></div></div></a><a class="pagination-related" href="/2026/09/12/happy-llm-02-transformer-engineering/" title="Transformer：注意力、网络结构与自回归推理"><img class="cover" src="/img/happy-llm-transformer-natgeo-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-12</div><div class="info-item-2">Transformer：注意力、网络结构与自回归推理</div></div><div class="info-2"><div class="info-item-1">封面：犹他州 Owachomo 天然石桥与银河 · 摄影 Jim Richardson / National Geographic 一段文本经过 tokenizer 和 embedding 查表，得到一个形状为 [B,T,D][B,T,D][B,T,D] 的张量。BBB 是批量大小，TTT 是 token 数，DDD 是每个位置的表示维度。此时每个向量仍来自固定查表；同一个 token 在不同句子里的基础表示相同。 Transformer 的主要工作，是逐层让这些表示结合上下文，再将它们映射为任务需要的输出。理解它既要看单次注意力怎样计算，也要看注意力与其他子层如何组成网络，以及训练、生成时的信息范围如何变化。 本篇对应 Happy-LLM 第二章，以稠密 Transformer 为主，并延伸到自回归推理与缓存。 贯穿全文的数据结构输入是 token ID；embedding 将它变为逐位置向量；注意力混合位置之间的信息；前馈层变换每个位置的特征；堆叠后的表示再通过输出层产生标签或词表分布。  1. 输入表示与位置 1.1 token ID 如何进入网络 令输入 ID 张量为 I...</div></div></div></a><a class="pagination-related" href="/2026/10/12/happy-llm-04-training-and-alignment/" title="大语言模型：规模、训练阶段与工程取舍"><img class="cover" src="/img/happy-llm-training-natgeo-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-10-12</div><div class="info-item-2">大语言模型：规模、训练阶段与工程取舍</div></div><div class="info-2"><div class="info-item-1">封面：安第斯山脉 Llullaillaco 火山上空的星轨 · 摄影 Maria Stenzel / National Geographic Image Collection 第三章解释了模型怎样预测 token。这一章进一步讨论：同样采用下一 token 预测，为什么训练规模、语料和后续训练不同，会得到使用体验差异很大的模型？从一个基础模型到能稳定回答指令、调用工具的模型，中间还需要哪些工作？ 本篇对应 Happy-LLM 第四章。先确定训练阶段分别优化什么，再讨论算力、数据与显存如何约束训练，最后回到能力评估和应用选择。  1. 从语言建模到指令模型 1.1 “大”体现在哪些方面 LLM 仍是语言模型：给定上下文，输出词表上的条件概率分布。以自回归模型为例： pθ(x1:T)=∏t=1Tpθ(xt∣x&lt;t).p_\theta(x_{1:T})=\prod_{t=1}^{T}p_\theta(x_t\mid x_{&lt;t}). pθ​(x1:T​)=t=1∏T​pθ​(xt​∣x&lt;t​). 扩大模型并没有改变这条概率分解。变化主要是参数量、训练 token 数、...</div></div></div></a><a class="pagination-related" href="/2026/11/02/happy-llm-08-agentic-rl/" title="Agentic RL：GRPO、OPD 与工具轨迹训练"><img class="cover" src="/img/happy-llm-agentic-rl-natgeo-cover.jpg" alt="cover" loading='lazy'><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-11-02</div><div class="info-item-2">Agentic RL：GRPO、OPD 与工具轨迹训练</div></div><div class="info-2"><div class="info-item-1">封面：珠峰营地附近的山峰倒影 · 摄影 Jansen Wong / National Geographic My Shot 第七章把模型接到了检索和工具环境中，参数仍然可以保持不变。本章进一步讨论：保存模型实际走过的轨迹，用结果或教师反馈判断哪些动作值得鼓励，再通过梯度更新模型。环境执行循环和参数更新循环由此连接起来。 本篇对应 Happy-LLM 第八章的固定快照，覆盖 GRPO、OPD、Search-R1 与 ReTool。沿用第四章的策略、概率比和参考模型概念，补清多轮轨迹中的信号来源、token 归属和实现约定。计算器和检查脚本使用人工数据，没有运行远程训练或报告模型效果。  1. 先把一次交互写成训练样本 1.1 状态、动作、观察与奖励 对自回归模型，给定历史 hth_tht​，下一个 token 是动作 ata_tat​，策略为 πθ(at∣ht)\pi_\theta(a_t\mid h_t)πθ​(at​∣ht​)。若生成了一段工具请求，应用解析并执行它，再把环境观察 ooo 加入后续历史。    内容 来源 在训练中的角色     问题和系统约束 数据集或应用 初...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/kamuyi.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">LittlePyx</div><div class="author-info-description">小P的学习、研究、生活记录</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/littlepyx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/LittlePyx" target="_blank" title="GitHub"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:627875273@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="/algorithm/" target="_blank" title="算法笔记"><i class="fas fa-code"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><strong>教育经历</strong><br>
+本科：杭州电子科技大学<br>
+研究生：电子科技大学<br><br>
+<strong>研究方向</strong><br>
+AI Agent 开发、计算成像、深度学习、光学<br><br>
+新增：代码随想录算法刷题笔记整理中，按题型与算法模板归纳。
+</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%85%88%E5%AE%9A%E4%B9%89%E4%BB%BB%E5%8A%A1%E6%88%90%E5%8A%9F%EF%BC%8C%E5%86%8D%E6%AF%94%E8%BE%83%E6%A8%A1%E5%9E%8B"><span class="toc-text">1. 先定义任务成功，再比较模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E6%A8%A1%E5%9E%8B%E8%83%BD%E5%8A%9B%E4%B8%8E%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%8A%9B"><span class="toc-text">1.1 模型能力与系统能力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%85%AC%E5%85%B1%E5%9F%BA%E5%87%86%E8%83%BD%E8%AF%B4%E6%98%8E%E4%BB%80%E4%B9%88"><span class="toc-text">1.2 公共基准能说明什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E8%87%AA%E5%BB%BA%E8%AF%84%E6%B5%8B%E9%9B%86%E4%B8%8E%E5%88%A4%E5%88%86"><span class="toc-text">1.3 自建评测集与判分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-RAG%EF%BC%9A%E8%AE%A9%E5%9B%9E%E7%AD%94%E6%9C%89%E5%8F%AF%E6%A3%80%E6%9F%A5%E7%9A%84%E5%A4%96%E9%83%A8%E4%BE%9D%E6%8D%AE"><span class="toc-text">2. RAG：让回答有可检查的外部依据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%A3%80%E7%B4%A2%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">2.1 检索改变了什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%A6%BB%E7%BA%BF%E7%B4%A2%E5%BC%95%E4%B8%8E%E5%9C%A8%E7%BA%BF%E8%AF%B7%E6%B1%82"><span class="toc-text">2.2 离线索引与在线请求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%96%87%E6%A1%A3%E5%88%87%E5%88%86%E4%B8%8E%E7%B4%A2%E5%BC%95%EF%BC%9A%E4%BF%9D%E7%95%99%E5%8F%AF%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98%E7%9A%84%E5%8D%95%E4%BD%8D"><span class="toc-text">3. 文档切分与索引：保留可回答问题的单位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Chunk-%E5%A4%A7%E5%B0%8F%E5%A6%82%E4%BD%95%E5%8F%96%E8%88%8D"><span class="toc-text">3.1 Chunk 大小如何取舍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Embedding-%E4%B8%8E%E7%9B%B8%E4%BC%BC%E5%BA%A6"><span class="toc-text">3.2 Embedding 与相似度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%90%91%E9%87%8F%E5%BA%93%E8%A7%A3%E5%86%B3%E7%9A%84%E6%98%AF%E6%A3%80%E7%B4%A2%E5%B7%A5%E7%A8%8B"><span class="toc-text">3.3 向量库解决的是检索工程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%AC%E5%9B%9E%E4%B8%8E%E9%87%8D%E6%8E%92%EF%BC%9A%E5%85%88%E4%BF%9D%E8%AF%81%E5%80%99%E9%80%89%E9%87%8C%E6%9C%89%EF%BC%8C%E5%86%8D%E5%86%B3%E5%AE%9A%E8%B0%81%E9%9D%A0%E5%89%8D"><span class="toc-text">4. 召回与重排：先保证候选里有，再决定谁靠前</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%A8%A0%E5%AF%86%E3%80%81%E7%A8%80%E7%96%8F%E4%B8%8E%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2"><span class="toc-text">4.1 稠密、稀疏与混合检索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Reranker-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%94%BE%E5%9C%A8%E5%8F%AC%E5%9B%9E%E4%B9%8B%E5%90%8E"><span class="toc-text">4.2 Reranker 为什么放在召回之后</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E7%94%A8%E6%8C%87%E6%A0%87%E5%8C%BA%E5%88%86%E5%A4%B1%E8%B4%A5%E4%BD%8D%E7%BD%AE"><span class="toc-text">4.3 用指标区分失败位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BB%8E%E8%AF%81%E6%8D%AE%E7%94%9F%E6%88%90%E7%AD%94%E6%A1%88%EF%BC%9A%E5%BC%95%E7%94%A8%E3%80%81%E6%8B%92%E7%AD%94%E4%B8%8E%E5%A4%B1%E8%B4%A5%E5%BD%92%E5%9B%A0"><span class="toc-text">5. 从证据生成答案：引用、拒答与失败归因</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E4%B8%8A%E4%B8%8B%E6%96%87%E6%98%AF%E4%B8%80%E4%BB%BD%E6%9C%89%E9%99%90%E9%A2%84%E7%AE%97%E7%9A%84%E8%AF%81%E6%8D%AE%E5%8C%85"><span class="toc-text">5.1 上下文是一份有限预算的证据包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E6%8A%8A%E5%A4%B1%E8%B4%A5%E5%88%86%E5%BC%80%E6%B5%8B"><span class="toc-text">5.2 把失败分开测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Agent%EF%BC%9A%E6%8A%8A%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%87%BA%E6%8E%A5%E5%88%B0%E5%8F%97%E6%8E%A7%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF"><span class="toc-text">6. Agent：把模型输出接到受控执行循环</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-Workflow-%E4%B8%8E-Agent-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">6.1 Workflow 与 Agent 的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E4%B8%80%E6%AC%A1%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E9%9C%80%E8%A6%81%E5%93%AA%E4%BA%9B%E7%BA%A6%E6%9D%9F"><span class="toc-text">6.2 一次工具调用需要哪些约束</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E4%B8%80%E4%B8%AA%E6%9C%89%E9%99%90%E5%BE%AA%E7%8E%AF%E6%AF%94%E6%97%A0%E9%99%90%E8%87%AA%E5%8A%A8%E9%87%8D%E8%AF%95%E6%9B%B4%E5%8F%AF%E9%9D%A0"><span class="toc-text">6.3 一个有限循环比无限自动重试更可靠</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E8%A7%84%E5%88%92%E3%80%81%E8%AE%B0%E5%BF%86%E4%B8%8E%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7"><span class="toc-text">7. 规划、记忆与可观测性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E8%A7%84%E5%88%92%E6%98%AF%E5%8F%AF%E6%9B%B4%E6%96%B0%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-text">7.1 规划是可更新的状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E4%B8%89%E7%A7%8D%E8%AE%B0%E5%BF%86%E4%B8%8D%E8%A6%81%E6%B7%B7%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-text">7.2 三种记忆不要混在一起</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E4%BF%9D%E5%AD%98%E8%B6%B3%E5%A4%9F%E7%9A%84-trace-%E6%89%8D%E8%83%BD%E5%A4%8D%E7%9B%98"><span class="toc-text">7.3 保存足够的 trace 才能复盘</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E4%BB%8E%E6%9C%80%E5%B0%8F%E7%B3%BB%E7%BB%9F%E5%88%B0%E5%8F%AF%E9%AA%8C%E8%AF%81%E7%9A%84%E6%94%B9%E8%BF%9B"><span class="toc-text">8. 从最小系统到可验证的改进</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E5%B8%B8%E8%A7%81%E8%BF%BD%E9%97%AE"><span class="toc-text">9. 常见追问</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/11/02/happy-llm-08-agentic-rl/" title="Agentic RL：GRPO、OPD 与工具轨迹训练"><img src="/img/happy-llm-agentic-rl-natgeo-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Agentic RL：GRPO、OPD 与工具轨迹训练"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/11/02/happy-llm-08-agentic-rl/" title="Agentic RL：GRPO、OPD 与工具轨迹训练">Agentic RL：GRPO、OPD 与工具轨迹训练</a><time datetime="2026-11-02T02:10:00.000Z" title="发表于 2026-11-02 10:10:00">2026-11-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/02/happy-llm-07-evaluation-rag-agent/" title="大模型应用：评测、RAG 与 Agent 的工程闭环"><img src="/img/happy-llm-applications-natgeo-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大模型应用：评测、RAG 与 Agent 的工程闭环"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/11/02/happy-llm-07-evaluation-rag-agent/" title="大模型应用：评测、RAG 与 Agent 的工程闭环">大模型应用：评测、RAG 与 Agent 的工程闭环</a><time datetime="2026-11-02T02:00:00.000Z" title="发表于 2026-11-02 10:00:00">2026-11-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/10/12/happy-llm-04-training-and-alignment/" title="大语言模型：规模、训练阶段与工程取舍"><img src="/img/happy-llm-training-natgeo-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="大语言模型：规模、训练阶段与工程取舍"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/10/12/happy-llm-04-training-and-alignment/" title="大语言模型：规模、训练阶段与工程取舍">大语言模型：规模、训练阶段与工程取舍</a><time datetime="2026-10-12T02:00:00.000Z" title="发表于 2026-10-12 10:00:00">2026-10-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/21/happy-llm-03-pretrained-language-models/" title="预训练语言模型：训练目标、架构与任务适配"><img src="/img/happy-llm-plm-natgeo-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="预训练语言模型：训练目标、架构与任务适配"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/21/happy-llm-03-pretrained-language-models/" title="预训练语言模型：训练目标、架构与任务适配">预训练语言模型：训练目标、架构与任务适配</a><time datetime="2026-09-21T02:00:00.000Z" title="发表于 2026-09-21 10:00:00">2026-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/09/12/happy-llm-02-transformer-engineering/" title="Transformer：注意力、网络结构与自回归推理"><img src="/img/happy-llm-transformer-natgeo-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Transformer：注意力、网络结构与自回归推理"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/09/12/happy-llm-02-transformer-engineering/" title="Transformer：注意力、网络结构与自回归推理">Transformer：注意力、网络结构与自回归推理</a><time datetime="2026-09-12T02:10:00.000Z" title="发表于 2026-09-12 10:10:00">2026-09-12</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;2025 - 2026 By LittlePyx</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.2</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'neutral'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script src="/js/mermaid-polish.js" defer></script><script src="/js/article-experience.js" defer></script><script src="/js/happy-llm.js" defer></script><script id="canvas_nest" defer="defer" color="0, 122, 204" opacity="0.6" zIndex="-1" count="60" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章、算法笔记..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
